@@ -11,14 +11,9 @@
     "muxcore-docs": {
       "path": "muxcore-docs",
       "modulePath": "muxcore-docs",
-      "lastCommit": "75cbddb7ce1107b082d6b9609bf5329c7e077f1f",
-      "recordedAt": "2026-08-24T16:22:33.555Z",
+      "lastCommit": "21ca069e3729afb27dc5abcfe4d0be4991712ddc",
+      "recordedAt": "2026-08-24T16:41:24.721Z",
       "incompletePages": [
-        "Architecture",
-        "Module System",
-        "Writing Modules",
-        "Contracts Reference",
-        "Event System",
         "Storage",
         "Workflow Engine",
         "Deployment",
