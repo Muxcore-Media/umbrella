@@ -77,6 +77,13 @@
       "lastCommit": "b33c8299073a7a04bdee9bdcbc940c5cfd2f9d29",
       "recordedAt": "2026-08-24T17:51:14.669Z",
       "incompleteFiles": []
+    },
+    "contracts-indexer": {
+      "path": "contracts-indexer",
+      "modulePath": "contracts-indexer",
+      "lastCommit": "385bf4ed63f3c6b2f12edc8f20c8ebecb388103d",
+      "recordedAt": "2026-08-24T17:51:14.951Z",
+      "incompleteFiles": []
     }
   }
 }
