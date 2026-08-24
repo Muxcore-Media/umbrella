@@ -1,0 +1,282 @@
+[submodule "_mvp"]
+	path = _mvp
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/mvp.git
+[submodule "admin-ui"]
+	path = admin-ui
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/admin-ui.git
+[submodule "api-rest"]
+	path = api-rest
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/api-rest.git
+[submodule "auth-local"]
+	path = auth-local
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/auth-local.git
+[submodule "auth-oidc"]
+	path = auth-oidc
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/auth-oidc.git
+[submodule "backup-local"]
+	path = backup-local
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/backup-local.git
+[submodule "cache-local"]
+	path = cache-local
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/cache-local.git
+[submodule "cache-memory"]
+	path = cache-memory
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/cache-memory.git
+[submodule "cache-redis"]
+	path = cache-redis
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/cache-redis.git
+[submodule "call-policy-default"]
+	path = call-policy-default
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/call-policy-default.git
+[submodule "circuitbreaker-simple"]
+	path = circuitbreaker-simple
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/circuitbreaker-simple.git
+[submodule "config-watcher"]
+	path = config-watcher
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/config-watcher.git
+[submodule "contracts-automation"]
+	path = contracts-automation
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-automation.git
+[submodule "contracts-downloader"]
+	path = contracts-downloader
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-downloader.git
+[submodule "contracts-indexer"]
+	path = contracts-indexer
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-indexer.git
+[submodule "contracts-media"]
+	path = contracts-media
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-media.git
+[submodule "contracts-media-admin"]
+	path = contracts-media-admin
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-media-admin.git
+[submodule "contracts-metadata"]
+	path = contracts-metadata
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-metadata.git
+[submodule "contracts-notification"]
+	path = contracts-notification
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-notification.git
+[submodule "contracts-playback"]
+	path = contracts-playback
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-playback.git
+[submodule "contracts-reconciler"]
+	path = contracts-reconciler
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-reconciler.git
+[submodule "contracts-scanner"]
+	path = contracts-scanner
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/contracts-scanner.git
+[submodule "core"]
+	path = core
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/core.git
+[submodule "custom-scripts"]
+	path = custom-scripts
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/custom-scripts.git
+[submodule "data-redaction-pattern"]
+	path = data-redaction-pattern
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/data-redaction-pattern.git
+[submodule "database-postgres"]
+	path = database-postgres
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/database-postgres.git
+[submodule "database-sqlite"]
+	path = database-sqlite
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/database-sqlite.git
+[submodule "distributed-lock-sqlite"]
+	path = distributed-lock-sqlite
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/distributed-lock-sqlite.git
+[submodule "downloader-debrid"]
+	path = downloader-debrid
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/downloader-debrid.git
+[submodule "downloader-native-torrent"]
+	path = downloader-native-torrent
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/downloader-native-torrent.git
+[submodule "downloader-sabnzbd"]
+	path = downloader-sabnzbd
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/downloader-sabnzbd.git
+[submodule "emby"]
+	path = emby
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/emby.git
+[submodule "encryption-aesgcm"]
+	path = encryption-aesgcm
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/encryption-aesgcm.git
+[submodule "executor-shell"]
+	path = executor-shell
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/executor-shell.git
+[submodule "feature-flags-file"]
+	path = feature-flags-file
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/feature-flags-file.git
+[submodule "health-monitor"]
+	path = health-monitor
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/health-monitor.git
+[submodule "indexer-piratebay"]
+	path = indexer-piratebay
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/indexer-piratebay.git
+[submodule "indexer-torznab"]
+	path = indexer-torznab
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/indexer-torznab.git
+[submodule "input-validate-jsonschema"]
+	path = input-validate-jsonschema
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/input-validate-jsonschema.git
+[submodule "jellyfin"]
+	path = jellyfin
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/jellyfin.git
+[submodule "logging-file"]
+	path = logging-file
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/logging-file.git
+[submodule "media-audiobooks"]
+	path = media-audiobooks
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-audiobooks.git
+[submodule "media-automation"]
+	path = media-automation
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-automation.git
+[submodule "media-books"]
+	path = media-books
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-books.git
+[submodule "media-comics"]
+	path = media-comics
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-comics.git
+[submodule "media-custom-formats"]
+	path = media-custom-formats
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-custom-formats.git
+[submodule "media-ffprobe"]
+	path = media-ffprobe
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-ffprobe.git
+[submodule "media-graph"]
+	path = media-graph
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-graph.git
+[submodule "media-intro-outro"]
+	path = media-intro-outro
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-intro-outro.git
+[submodule "media-jellyfin"]
+	path = media-jellyfin
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-jellyfin.git
+[submodule "media-library-maintainer"]
+	path = media-library-maintainer
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-library-maintainer.git
+[submodule "media-list-sync"]
+	path = media-list-sync
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-list-sync.git
+[submodule "media-movies"]
+	path = media-movies
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-movies.git
+[submodule "media-music"]
+	path = media-music
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-music.git
+[submodule "media-rename"]
+	path = media-rename
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-rename.git
+[submodule "media-root-folders"]
+	path = media-root-folders
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-root-folders.git
+[submodule "media-scanner"]
+	path = media-scanner
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-scanner.git
+[submodule "media-subtitles"]
+	path = media-subtitles
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-subtitles.git
+[submodule "media-tagging"]
+	path = media-tagging
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-tagging.git
+[submodule "media-transcoder"]
+	path = media-transcoder
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-transcoder.git
+[submodule "media-transcoder-pool"]
+	path = media-transcoder-pool
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-transcoder-pool.git
+[submodule "media-tvos-app"]
+	path = media-tvos-app
+	url = https://git.zem.systems/muxcore/muxcore-tvos.git
+[submodule "media-tvshows"]
+	path = media-tvshows
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-tvshows.git
+[submodule "media-ui"]
+	path = media-ui
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-ui.git
+[submodule "media-ui-app"]
+	path = media-ui-app
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-ui-app.git
+[submodule "metadata-tmdb"]
+	path = metadata-tmdb
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/metadata-tmdb.git
+[submodule "metrics-prometheus"]
+	path = metrics-prometheus
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/metrics-prometheus.git
+[submodule "muxcore-docs"]
+	path = muxcore-docs
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-docs.git
+[submodule "muxcore-installer"]
+	path = muxcore-installer
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-installer.git
+[submodule "muxcore-ios"]
+	path = muxcore-ios
+	url = https://git.zem.systems/muxcore/muxcore-ios.git
+[submodule "muxcore-module-starter"]
+	path = muxcore-module-starter
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-module-starter.git
+[submodule "muxcore-operator"]
+	path = muxcore-operator
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-operator.git
+[submodule "muxcorectl"]
+	path = muxcorectl
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcorectl.git
+[submodule "muxcorectl-cli"]
+	path = muxcorectl-cli
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcorectl-cli.git
+[submodule "notification-apprise"]
+	path = notification-apprise
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/notification-apprise.git
+[submodule "notification-default"]
+	path = notification-default
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/notification-default.git
+[submodule "playback-guard"]
+	path = playback-guard
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/playback-guard.git
+[submodule "playback-monitor"]
+	path = playback-monitor
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/playback-monitor.git
+[submodule "plex"]
+	path = plex
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/plex.git
+[submodule "publish-policy-default"]
+	path = publish-policy-default
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/publish-policy-default.git
+[submodule "ratelimit-tokenbucket"]
+	path = ratelimit-tokenbucket
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/ratelimit-tokenbucket.git
+[submodule "request-media"]
+	path = request-media
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/request-media.git
+[submodule "scheduler-cron"]
+	path = scheduler-cron
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/scheduler-cron.git
+[submodule "secrets-file"]
+	path = secrets-file
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/secrets-file.git
+[submodule "secrets-vault"]
+	path = secrets-vault
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/secrets-vault.git
+[submodule "serialization-safe"]
+	path = serialization-safe
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/serialization-safe.git
+[submodule "spool"]
+	path = spool
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/spool.git
+[submodule "spool-resolver-http"]
+	path = spool-resolver-http
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/spool-resolver-http.git
+[submodule "storage-ceph"]
+	path = storage-ceph
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/storage-ceph.git
+[submodule "storage-overlay"]
+	path = storage-overlay
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/storage-overlay.git
+[submodule "storage-s3"]
+	path = storage-s3
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/storage-s3.git
+[submodule "tracing-otlp"]
+	path = tracing-otlp
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/tracing-otlp.git
+[submodule "worker-pool-memory"]
+	path = worker-pool-memory
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/worker-pool-memory.git
+[submodule "workflow-tapestry"]
+	path = workflow-tapestry
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/workflow-tapestry.git

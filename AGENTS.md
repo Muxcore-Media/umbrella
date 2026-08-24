@@ -1,0 +1,354 @@
+# MuxCore infrastructure (agent reference)
+
+Scoped notes for developing and deploying MuxCore on the homelab stack. Source of truth for host config is `~/Projects/zemdregon/nix-production`; this doc captures the operational paths agents have used successfully.
+
+## Topology
+
+```
+Browser → *.zem.systems (grey-cloud DNS RR)
+       → dawn or dusk :443 (nginx + Let's Encrypt)
+       → vault over ZeroTier (origin services)
+```
+
+- **vault** — NAS / soak host. Runs `muxcore-host.service` (the MVP stack), Forgejo origin, and module binaries. Does **not** terminate public HTTPS; dawn/dusk do.
+- **dawn** — OVH US-East public edge (ingress, ZT controller identity, Gatus).
+- **dusk** — OVH US-West public edge (sister ingress + backup MX).
+- **desk** — Home LAN workstation. Hosts Cloudflare DNS tooling (`flarectl`); not a MuxCore runtime host.
+- **bastion** — Legacy name; ZT address alias for dawn (`zt-addrs.nix`).
+
+MuxCore UIs on vault (proxied publicly):
+
+| Public URL | Service | Vault port |
+|------------|---------|------------|
+| https://admin.zem.systems | admin-ui | `:8082` |
+| https://mux.zem.systems | media-ui-app (mediauiprox) | `:5173` |
+| https://auth.zem.systems | auth-local HTTP | `:9401` |
+
+Jellyfin remains at **media.zem.systems** (`:8096`) — not the MuxCore consumer SPA.
+
+## ZeroTier addresses
+
+Canonical map: `nix-production/modules/zt-addrs.nix`
+
+| Host | ZT ULA |
+|------|--------|
+| vault | `fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95` |
+| dawn / bastion | `fd2c:a2fd:5d9e:ab72:9d99:932c:a2fd:5d9e` |
+| dusk | `fd2c:a2fd:5d9e:ab72:9d99:939b:2e68:dd6d` |
+| desk | `fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb` |
+
+Requires local ZeroTier membership on network `2ca2fd5d9eab729d` (interface often `ztoe6fmlyd`).
+
+## SSH access
+
+### vault
+
+```bash
+# Preferred: ZT IPv6 as ender
+ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95
+
+# Root for nixos-rebuild remote deploys
+ssh root@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95
+
+# LAN (when on sequoia.lan)
+ssh ender@192.168.40.153
+```
+
+**IPv6 scp/rsync:** bracket the address in the remote path:
+
+```bash
+scp file ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]:/remote/path
+rsync -avz -e 'ssh -6' ./local/ 'ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]:/remote/path/'
+```
+
+If SSH fails after a host migration, remove stale keys:
+
+```bash
+ssh-keygen -R fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95
+```
+
+### desk
+
+```bash
+ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb
+# LAN fallback: 192.168.68.138 (Host `desk` in ~/.ssh/config may need key refresh)
+```
+
+### dawn / dusk
+
+```bash
+ssh root@[fd2c:a2fd:5d9e:ab72:9d99:932c:a2fd:5d9e]   # dawn
+ssh root@[fd2c:a2fd:5d9e:ab72:9d99:939b:2e68:dd6d]   # dusk
+```
+
+## Vault dev / soak environment
+
+Nix module: `nix-production/modules/muxcore-test.nix` (enabled on vault host).
+
+### Key paths on vault
+
+| Path | Purpose |
+|------|---------|
+| `/mnt/fast-storage/appdata/muxcore/mvp` | MVP root (`run-host.sh`, `bin/`, `run/`, `data/`) |
+| `/mnt/fast-storage/appdata/muxcore/mvp/bin/` | Module binaries + `muxcorectl` |
+| `/mnt/fast-storage/appdata/muxcore/mvp/run/admin.token` | Admin API token for CLI |
+| `/mnt/fast-storage/appdata/muxcore/media-ui-app/dist-app/` | Built consumer SPA static files |
+| `/mnt/fast-storage/appdata/muxcore/secrets.env` | Secrets injected by NixOS |
+
+Systemd unit: **`muxcore-host.service`** — runs `./run-host.sh up` from the MVP dir.
+
+### Agent deploy policy (vault)
+
+**Default:** after you change a module repo, **rebuild and redeploy on vault** when that module is already part of the vault stack. Do not leave vault running stale binaries when the user asked for a fix or feature to land there.
+
+**Check whether a module is on vault** (run over SSH):
+
+```bash
+VAULT='ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95'
+MVP=/mnt/fast-storage/appdata/muxcore/mvp
+
+ssh -6 "$VAULT" "ls -1 $MVP/bin/; pgrep -af '$MVP/bin/' | sed 's|.*/bin/||; s/ .*//' | sort -u"
+# optional mesh view:
+ssh -6 "$VAULT" "export MUXCORE_GRPC_ADDR=127.0.0.1:9090 MUXCORE_INSECURE_DISABLE_TLS=true; $MVP/bin/muxcorectl modules list 2>/dev/null | head"
+```
+
+Treat a module as **present** if its binary exists under `$MVP/bin/` **or** it appears in `./run-host.sh` (always-on or env-gated) and is running / expected for the task.
+
+**Redeploy a Go module binary** (typical path):
+
+```bash
+MODULE=admin-ui   # module dir name == run-host.sh service name in most cases
+VAULT='ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95'
+MVP=/mnt/fast-storage/appdata/muxcore/mvp
+
+# build (adjust path / ldflags / subdir as needed)
+cd "$MODULE"
+GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /tmp/"$MODULE"-linux-amd64 .
+
+# copy while stopped — plain `stop` kills the whole stack; prefer stop-one + restart
+scp -6 /tmp/"$MODULE"-linux-amd64 "ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]:/tmp/$MODULE.new"
+ssh -6 "$VAULT" "cd $MVP && ./run-host.sh stop-one $MODULE && mv /tmp/$MODULE.new bin/$MODULE && chmod +x bin/$MODULE && ./run-host.sh restart $MODULE"
+```
+
+**Special cases** (still redeploy when changed, different artifact):
+
+| Module | Build / copy | Restart |
+|--------|----------------|---------|
+| **admin-ui** | `npm ci` + Tailwind → `assets/dist/styles.css`, then `go build` (CSS is `go:embed`) | `./run-host.sh restart admin-ui` |
+| **media-ui-app** | `npm ci && npm run build`, rsync `dist-app/` to `/mnt/fast-storage/appdata/muxcore/media-ui-app/dist-app/` | `./run-host.sh restart media-ui` |
+| **media-scanner**, **media-automation**, **downloader-native-torrent** | use `_mvp/scripts/install-origin-module.sh` — do **not** scp ad-hoc binaries | per script / `./run-host.sh restart <name>` |
+| **muxcorectl** | build `muxcorectl-cli`, scp to `$MVP/bin/muxcorectl` | no restart (CLI only) |
+
+After deploy, smoke the module (health URL, admin page, or `muxcorectl` as appropriate) and at least one public URL when the service is edge-proxied.
+
+**Module not on vault yet:** if your change depends on a module that is **not** deployed, **suggest adding it** when it would unblock the user's goal — but only when it does **not** conflict with an existing module.
+
+| Want to add | Already on vault | Conflict? | Guidance |
+|-------------|------------------|-----------|----------|
+| **auth-oidc** | **auth-local** (default) | **Yes** — one `AuthProvider` | Do not offer OIDC while auth-local serves login. Swap only if the user explicitly wants to migrate auth. |
+| **auth-local** | **auth-oidc** | **Yes** | Same as above. |
+| **secrets-vault** | **secrets-file** | **Yes** — one secrets backend | Pick one; vault soak uses `secrets-file`. |
+| **database-*** (non-sqlite) | **database-sqlite** | **Usually yes** | Do not add a second DB module without a migration plan. |
+| **notification-apprise** | **notification-default** | **No** | Apprise is an optional extra sink (`MVP_ENABLE_NOTIFICATION_APPRISE=1`). |
+| **jellyfin** bridge | NixOS Jellyfin at **media.zem.systems** | **Operational** | Bridge is optional (`MVP_ENABLE_JELLYFIN`); standalone Jellyfin is separate. Do not imply they replace each other. |
+| Optional peers (list-sync, dlna, qbit, …) | — | **No** if env-gated | Suggest enabling the matching `MVP_ENABLE_*` flag in `.env` / `muxcore-test.nix`, building the binary, and `./run-host.sh restart <name>`. |
+
+When suggesting a new module, name the **env flag**, **binary**, **port** (`_mvp/PORTS.md`), and whether **admin-ui** or **nix-production** config also needs updating.
+
+Check stack health:
+
+```bash
+ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
+  'systemctl is-active muxcore-host; curl -s -o /dev/null -w "admin:%{http_code}\n" http://127.0.0.1:8082/health; curl -s -o /dev/null -w "media:%{http_code}\n" http://127.0.0.1:5173/; curl -s -o /dev/null -w "auth:%{http_code}\n" http://127.0.0.1:9401/login'
+```
+
+### muxcorectl on vault
+
+Build locally, copy binary, smoke-test:
+
+```bash
+cd muxcorectl-cli
+GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /tmp/muxcorectl-linux-amd64 ./cmd/muxcorectl
+scp /tmp/muxcorectl-linux-amd64 \
+  'ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]:/mnt/fast-storage/appdata/muxcore/mvp/bin/muxcorectl'
+
+ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 bash -s <<'EOF'
+export PATH="/mnt/fast-storage/appdata/muxcore/mvp/bin:$PATH"
+export MUXCORE_INSECURE_DISABLE_TLS=true MUXCORE_MESH_DIAL_LOCAL=true
+export MUXCORE_GRPC_ADDR=127.0.0.1:9090
+export MUXCORE_TOKEN="$(cat /mnt/fast-storage/appdata/muxcore/mvp/run/admin.token)"
+muxcorectl health status
+muxcorectl modules list | head
+EOF
+```
+
+### media-ui-app + mediauiprox
+
+Frontend changes: build locally, rsync `dist-app/`, restart the module:
+
+```bash
+cd media-ui-app && npm ci && npm run build
+
+rsync -avz --delete \
+  -e 'ssh -6 -i ~/.ssh/id_ed25519 -o BatchMode=yes' \
+  media-ui-app/dist-app/ \
+  'ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]:/mnt/fast-storage/appdata/muxcore/media-ui-app/dist-app/'
+
+ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
+  'cd /mnt/fast-storage/appdata/muxcore/mvp && ./run-host.sh restart media-ui'
+```
+
+BFF changes also require rebuilding `mediauiprox` and copying to `mvp/bin/mediauiprox`, then the same restart.
+
+### Origin-pinned Go modules (acquisition stack)
+
+Do **not** scp unpublished binaries for `media-scanner`, `media-automation`, or `downloader-native-torrent`. Use:
+
+```bash
+cd _mvp
+./scripts/install-origin-module.sh media-scanner --verify-only
+./scripts/install-origin-module.sh media-automation --dest ./bin
+MVP_DEPLOY_SSH=ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
+  ./scripts/install-origin-module.sh --verify-live
+```
+
+See `_mvp/docs/ACQUISITION.md` for vault acquisition workflow.
+
+### Local dev stack
+
+Local reference: `_mvp/run-host.sh` (same layout as vault MVP). Ports: `_mvp/PORTS.md`. Mesh gRPC on vault is **not** published to LAN (`:9090` stays on the VPN veth).
+
+## desk — Cloudflare DNS tooling
+
+Cloudflare CLI tools live on **desk** in `~/.nix-profile/bin/`:
+
+| Tool | Use |
+|------|-----|
+| **flarectl** | Grey-cloud DNS records on `zem.systems` |
+| **cloudflared** | Tunnel management (`~/.cloudflared/cert.pem`) |
+| **wrangler** / **cfcli** | Workers / general CF API |
+
+API token: `~/.config/cloudflare/token` → export as `CF_API_TOKEN`.
+
+### Create / inspect DNS (grey-cloud RR to dawn + dusk)
+
+Run on desk (or over SSH to desk):
+
+```bash
+export CF_API_TOKEN=$(cat ~/.config/cloudflare/token)
+
+# List
+flarectl dns list --zone zem.systems --name mux.zem.systems
+
+# Create A/AAAA for both edges (example IPs — confirm in fleet.yml)
+DAWN4=40.160.83.185;  DAWN6=2604:2dc0:121::cf
+DUSK4=15.204.123.78;  DUSK6=2604:2dc0:222::d0a
+
+for name in admin mux auth; do
+  flarectl dns create --zone zem.systems --name "$name" --type A     --content "$DAWN4"
+  flarectl dns create --zone zem.systems --name "$name" --type AAAA  --content "$DAWN6"
+  flarectl dns create --zone zem.systems --name "$name" --type A     --content "$DUSK4"
+  flarectl dns create --zone zem.systems --name "$name" --type AAAA  --content "$DUSK6"
+done
+```
+
+Records are **grey-cloud** (`proxied: false` in `fleet.yml`). Clients hit dawn/dusk directly; TLS terminates on the edge nginx.
+
+Inventory mirror: `nix-production/modules/infrahub/objects/fleet.yml` (DNS + service objects).
+
+## dawn / dusk — adding or changing proxy entries
+
+Public reverse proxy config: **`nix-production/modules/roles/ingress.nix`**
+
+Pattern for a new vault-origin vhost:
+
+```nix
+"example.zem.systems" = {
+  locations."/" = {
+    proxyPass = "http://[${vaultZt}]:PORT";
+    proxyWebsockets = true;
+  };
+} // sharedTls;
+```
+
+Both **dawn** and **dusk** import this via `modules/roles/edge-public.nix` → `ingress.nix`. Shared names get DNS-01 ACME when `acme/cloudflareEnv` is in sops (`secrets/acme.yaml`).
+
+### MuxCore-specific env on vault
+
+When public URLs change, also update **`muxcore-test.nix`** env vars:
+
+- `ADMIN_UI_PUBLIC_URL`, `MEDIA_UI_PUBLIC_URL`, `AUTH_HTTP_URL`
+- `ADMIN_UI_TRUSTED_PROXIES`, `AUTH_TRUSTED_PROXIES` — must include dawn/dusk/bastion ZT `/128` entries
+
+Then rebuild **vault** so `muxcore-host` picks up new env.
+
+### Deploy workflow after nix changes
+
+From a machine with Nix (`thin`, `desk`, etc.):
+
+```bash
+cd ~/Projects/zemdregon/nix-production
+nix flake check -L   # optional sanity
+
+# Edge hosts (nginx + ACME)
+nixos-rebuild switch --flake .#dawn --target-host 'root@[fd2c:a2fd:5d9e:ab72:9d99:932c:a2fd:5d9e]'
+nixos-rebuild switch --flake .#dusk  --target-host 'root@[fd2c:a2fd:5d9e:ab72:9d99:939b:2e68:dd6d]'
+
+# Vault (MuxCore env + systemd)
+nixos-rebuild switch --flake .#vault --target-host 'root@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]'
+```
+
+Builds can take several minutes. After edge deploy, verify ACME units:
+
+```bash
+ssh root@fd2c:a2fd:5d9e:ab72:9d99:932c:a2fd:5d9e \
+  'systemctl is-active nginx acme-admin.zem.systems.service acme-mux.zem.systems.service'
+```
+
+Verify routing locally on an edge:
+
+```bash
+curl -sk -o /dev/null -w '%{http_code}\n' https://127.0.0.1/health -H 'Host: admin.zem.systems'
+```
+
+Public smoke:
+
+```bash
+curl -sS -o /dev/null -w '%{http_code}\n' https://admin.zem.systems/health
+curl -sS -o /dev/null -w '%{http_code}\n' https://mux.zem.systems/
+curl -sS -o /dev/null -w '%{http_code}\n' https://auth.zem.systems/login
+```
+
+Health checks also in `nix-production/modules/uptime.nix` (Gatus on dawn).
+
+## Forgejo CI (vault)
+
+Origin git + CI run on vault, not GitHub Actions. See `_mvp/tls/FORGEJO-RUNNER.md`.
+
+- Forgejo: `http://127.0.0.1:3000` on vault; SSH git: `git@git.zem.systems:2222`
+- Runner: `gitea-runner-vault.service`, label `native`
+- Workflows: `.forgejo/workflows/` in each repo (bulk install: `_mvp/scripts/install-forgejo-ci.sh`)
+
+```bash
+ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
+  'systemctl is-active gitea-runner-vault.service forgejo.service'
+```
+
+## Common pitfalls
+
+1. **Stale SSH host keys** after gryffindor→desk or host reinstall — `ssh-keygen -R <addr>`.
+2. **IPv6 scp** needs brackets around the address in the remote spec.
+3. **Do not put Caddy on vault :443** — dawn/dusk own public HTTPS (`muxcore-test.nix` comment).
+4. **Trusted proxies** — auth/admin break behind dawn/dusk if ZT addresses are missing from `*_TRUSTED_PROXIES`.
+5. **Acquisition modules** — use `install-origin-module.sh`, not ad-hoc binary drops.
+6. **media.zem.systems ≠ mux.zem.systems** — Jellyfin vs MuxCore consumer UI.
+7. **`run-host.sh stop`** kills the **entire** stack — use **`stop-one <name>`** + **`restart <name>`** when swapping one binary.
+8. **Stale vault binaries** — if you edited a module repo, rebuild and redeploy per **Agent deploy policy** above; do not assume vault picked up local changes.
+
+## Related docs in this repo
+
+- `_mvp/README.md` — local MVP stack
+- `_mvp/docs/ACQUISITION.md` — vault acquisition + origin pinning
+- `_mvp/PORTS.md` — default module ports
+- `_mvp/tls/FORGEJO-RUNNER.md` — CI on vault
+- `muxcorectl-cli/README.md` — CLI usage

@@ -1,0 +1,5 @@
+# Secrets / local mesh credentials (never commit)
+wg.conf
+wg-mux.conf
+*.wg.conf
+**/tmdb-read-access.token

@@ -1,0 +1,914 @@
+{
+  "maxLaunch": 40,
+  "workspace": {
+    "multiRepo": false,
+    "umbrella": true,
+    "name": "MuxCore",
+    "docs": "AGENTS.md"
+  },
+  "skills": {
+    "frontend-page-accessibility": {
+      "cohort": "frontends",
+      "discover": "module-trees",
+      "lastRunsPath": ".cursor/skills/frontend-page-accessibility/last-runs.json",
+      "incompleteField": "pages",
+      "steps": [
+        "page-accessibility"
+      ],
+      "trees": [
+        {
+          "id": "admin-ui",
+          "path": "admin-ui"
+        },
+        {
+          "id": "media-tvos-app",
+          "path": "media-tvos-app"
+        },
+        {
+          "id": "media-ui",
+          "path": "media-ui"
+        },
+        {
+          "id": "media-ui-app",
+          "path": "media-ui-app"
+        },
+        {
+          "id": "muxcore-docs",
+          "path": "muxcore-docs"
+        },
+        {
+          "id": "muxcore-ios",
+          "path": "muxcore-ios"
+        }
+      ]
+    },
+    "frontend-format": {
+      "cohort": "frontends",
+      "discover": "module-trees",
+      "lastRunsPath": ".cursor/skills/frontend-format/last-runs.json",
+      "incompleteField": null,
+      "steps": [
+        "format"
+      ],
+      "trees": [
+        {
+          "id": "admin-ui",
+          "path": "admin-ui"
+        },
+        {
+          "id": "media-tvos-app",
+          "path": "media-tvos-app"
+        },
+        {
+          "id": "media-ui",
+          "path": "media-ui"
+        },
+        {
+          "id": "media-ui-app",
+          "path": "media-ui-app"
+        },
+        {
+          "id": "muxcore-docs",
+          "path": "muxcore-docs"
+        },
+        {
+          "id": "muxcore-ios",
+          "path": "muxcore-ios"
+        }
+      ]
+    },
+    "frontend-lint": {
+      "cohort": "frontends",
+      "discover": "module-trees",
+      "lastRunsPath": ".cursor/skills/frontend-lint/last-runs.json",
+      "incompleteField": "files",
+      "steps": [
+        "lint"
+      ],
+      "trees": [
+        {
+          "id": "admin-ui",
+          "path": "admin-ui"
+        },
+        {
+          "id": "media-tvos-app",
+          "path": "media-tvos-app"
+        },
+        {
+          "id": "media-ui",
+          "path": "media-ui"
+        },
+        {
+          "id": "media-ui-app",
+          "path": "media-ui-app"
+        },
+        {
+          "id": "muxcore-docs",
+          "path": "muxcore-docs"
+        },
+        {
+          "id": "muxcore-ios",
+          "path": "muxcore-ios"
+        }
+      ]
+    },
+    "backend-format": {
+      "cohort": "backends",
+      "discover": "module-trees",
+      "lastRunsPath": ".cursor/skills/backend-format/last-runs.json",
+      "incompleteField": null,
+      "steps": [
+        "format"
+      ],
+      "trees": [
+        {
+          "id": "api-rest",
+          "path": "api-rest"
+        },
+        {
+          "id": "auth-local",
+          "path": "auth-local"
+        },
+        {
+          "id": "auth-oidc",
+          "path": "auth-oidc"
+        },
+        {
+          "id": "backup-local",
+          "path": "backup-local"
+        },
+        {
+          "id": "cache-local",
+          "path": "cache-local"
+        },
+        {
+          "id": "cache-memory",
+          "path": "cache-memory"
+        },
+        {
+          "id": "cache-redis",
+          "path": "cache-redis"
+        },
+        {
+          "id": "call-policy-default",
+          "path": "call-policy-default"
+        },
+        {
+          "id": "circuitbreaker-simple",
+          "path": "circuitbreaker-simple"
+        },
+        {
+          "id": "config-watcher",
+          "path": "config-watcher"
+        },
+        {
+          "id": "contracts-automation",
+          "path": "contracts-automation"
+        },
+        {
+          "id": "contracts-downloader",
+          "path": "contracts-downloader"
+        },
+        {
+          "id": "contracts-indexer",
+          "path": "contracts-indexer"
+        },
+        {
+          "id": "contracts-media",
+          "path": "contracts-media"
+        },
+        {
+          "id": "contracts-media-admin",
+          "path": "contracts-media-admin"
+        },
+        {
+          "id": "contracts-metadata",
+          "path": "contracts-metadata"
+        },
+        {
+          "id": "contracts-notification",
+          "path": "contracts-notification"
+        },
+        {
+          "id": "contracts-playback",
+          "path": "contracts-playback"
+        },
+        {
+          "id": "contracts-reconciler",
+          "path": "contracts-reconciler"
+        },
+        {
+          "id": "contracts-scanner",
+          "path": "contracts-scanner"
+        },
+        {
+          "id": "data-redaction-pattern",
+          "path": "data-redaction-pattern"
+        },
+        {
+          "id": "database-postgres",
+          "path": "database-postgres"
+        },
+        {
+          "id": "database-sqlite",
+          "path": "database-sqlite"
+        },
+        {
+          "id": "distributed-lock-sqlite",
+          "path": "distributed-lock-sqlite"
+        },
+        {
+          "id": "downloader-debrid",
+          "path": "downloader-debrid"
+        },
+        {
+          "id": "downloader-native-torrent",
+          "path": "downloader-native-torrent"
+        },
+        {
+          "id": "downloader-sabnzbd",
+          "path": "downloader-sabnzbd"
+        },
+        {
+          "id": "emby",
+          "path": "emby"
+        },
+        {
+          "id": "encryption-aesgcm",
+          "path": "encryption-aesgcm"
+        },
+        {
+          "id": "executor-shell",
+          "path": "executor-shell"
+        },
+        {
+          "id": "feature-flags-file",
+          "path": "feature-flags-file"
+        },
+        {
+          "id": "health-monitor",
+          "path": "health-monitor"
+        },
+        {
+          "id": "indexer-piratebay",
+          "path": "indexer-piratebay"
+        },
+        {
+          "id": "indexer-torznab",
+          "path": "indexer-torznab"
+        },
+        {
+          "id": "input-validate-jsonschema",
+          "path": "input-validate-jsonschema"
+        },
+        {
+          "id": "jellyfin",
+          "path": "jellyfin"
+        },
+        {
+          "id": "logging-file",
+          "path": "logging-file"
+        },
+        {
+          "id": "media-audiobooks",
+          "path": "media-audiobooks"
+        },
+        {
+          "id": "media-automation",
+          "path": "media-automation"
+        },
+        {
+          "id": "media-books",
+          "path": "media-books"
+        },
+        {
+          "id": "media-comics",
+          "path": "media-comics"
+        },
+        {
+          "id": "media-custom-formats",
+          "path": "media-custom-formats"
+        },
+        {
+          "id": "media-ffprobe",
+          "path": "media-ffprobe"
+        },
+        {
+          "id": "media-graph",
+          "path": "media-graph"
+        },
+        {
+          "id": "media-intro-outro",
+          "path": "media-intro-outro"
+        },
+        {
+          "id": "media-jellyfin",
+          "path": "media-jellyfin"
+        },
+        {
+          "id": "media-library-maintainer",
+          "path": "media-library-maintainer"
+        },
+        {
+          "id": "media-list-sync",
+          "path": "media-list-sync"
+        },
+        {
+          "id": "media-movies",
+          "path": "media-movies"
+        },
+        {
+          "id": "media-music",
+          "path": "media-music"
+        },
+        {
+          "id": "media-rename",
+          "path": "media-rename"
+        },
+        {
+          "id": "media-root-folders",
+          "path": "media-root-folders"
+        },
+        {
+          "id": "media-scanner",
+          "path": "media-scanner"
+        },
+        {
+          "id": "media-subtitles",
+          "path": "media-subtitles"
+        },
+        {
+          "id": "media-tagging",
+          "path": "media-tagging"
+        },
+        {
+          "id": "media-transcoder",
+          "path": "media-transcoder"
+        },
+        {
+          "id": "media-transcoder-pool",
+          "path": "media-transcoder-pool"
+        },
+        {
+          "id": "media-tvshows",
+          "path": "media-tvshows"
+        },
+        {
+          "id": "metadata-tmdb",
+          "path": "metadata-tmdb"
+        },
+        {
+          "id": "metrics-prometheus",
+          "path": "metrics-prometheus"
+        },
+        {
+          "id": "notification-apprise",
+          "path": "notification-apprise"
+        },
+        {
+          "id": "notification-default",
+          "path": "notification-default"
+        },
+        {
+          "id": "playback-guard",
+          "path": "playback-guard"
+        },
+        {
+          "id": "playback-monitor",
+          "path": "playback-monitor"
+        },
+        {
+          "id": "plex",
+          "path": "plex"
+        },
+        {
+          "id": "publish-policy-default",
+          "path": "publish-policy-default"
+        },
+        {
+          "id": "ratelimit-tokenbucket",
+          "path": "ratelimit-tokenbucket"
+        },
+        {
+          "id": "request-media",
+          "path": "request-media"
+        },
+        {
+          "id": "scheduler-cron",
+          "path": "scheduler-cron"
+        },
+        {
+          "id": "secrets-file",
+          "path": "secrets-file"
+        },
+        {
+          "id": "secrets-vault",
+          "path": "secrets-vault"
+        },
+        {
+          "id": "serialization-safe",
+          "path": "serialization-safe"
+        },
+        {
+          "id": "spool",
+          "path": "spool"
+        },
+        {
+          "id": "spool-resolver-http",
+          "path": "spool-resolver-http"
+        },
+        {
+          "id": "storage-ceph",
+          "path": "storage-ceph"
+        },
+        {
+          "id": "storage-overlay",
+          "path": "storage-overlay"
+        },
+        {
+          "id": "storage-s3",
+          "path": "storage-s3"
+        },
+        {
+          "id": "tracing-otlp",
+          "path": "tracing-otlp"
+        },
+        {
+          "id": "worker-pool-memory",
+          "path": "worker-pool-memory"
+        }
+      ]
+    },
+    "backend-lint": {
+      "cohort": "backends",
+      "discover": "module-trees",
+      "lastRunsPath": ".cursor/skills/backend-lint/last-runs.json",
+      "incompleteField": "files",
+      "steps": [
+        "lint"
+      ],
+      "trees": [
+        {
+          "id": "api-rest",
+          "path": "api-rest"
+        },
+        {
+          "id": "auth-local",
+          "path": "auth-local"
+        },
+        {
+          "id": "auth-oidc",
+          "path": "auth-oidc"
+        },
+        {
+          "id": "backup-local",
+          "path": "backup-local"
+        },
+        {
+          "id": "cache-local",
+          "path": "cache-local"
+        },
+        {
+          "id": "cache-memory",
+          "path": "cache-memory"
+        },
+        {
+          "id": "cache-redis",
+          "path": "cache-redis"
+        },
+        {
+          "id": "call-policy-default",
+          "path": "call-policy-default"
+        },
+        {
+          "id": "circuitbreaker-simple",
+          "path": "circuitbreaker-simple"
+        },
+        {
+          "id": "config-watcher",
+          "path": "config-watcher"
+        },
+        {
+          "id": "contracts-automation",
+          "path": "contracts-automation"
+        },
+        {
+          "id": "contracts-downloader",
+          "path": "contracts-downloader"
+        },
+        {
+          "id": "contracts-indexer",
+          "path": "contracts-indexer"
+        },
+        {
+          "id": "contracts-media",
+          "path": "contracts-media"
+        },
+        {
+          "id": "contracts-media-admin",
+          "path": "contracts-media-admin"
+        },
+        {
+          "id": "contracts-metadata",
+          "path": "contracts-metadata"
+        },
+        {
+          "id": "contracts-notification",
+          "path": "contracts-notification"
+        },
+        {
+          "id": "contracts-playback",
+          "path": "contracts-playback"
+        },
+        {
+          "id": "contracts-reconciler",
+          "path": "contracts-reconciler"
+        },
+        {
+          "id": "contracts-scanner",
+          "path": "contracts-scanner"
+        },
+        {
+          "id": "data-redaction-pattern",
+          "path": "data-redaction-pattern"
+        },
+        {
+          "id": "database-postgres",
+          "path": "database-postgres"
+        },
+        {
+          "id": "database-sqlite",
+          "path": "database-sqlite"
+        },
+        {
+          "id": "distributed-lock-sqlite",
+          "path": "distributed-lock-sqlite"
+        },
+        {
+          "id": "downloader-debrid",
+          "path": "downloader-debrid"
+        },
+        {
+          "id": "downloader-native-torrent",
+          "path": "downloader-native-torrent"
+        },
+        {
+          "id": "downloader-sabnzbd",
+          "path": "downloader-sabnzbd"
+        },
+        {
+          "id": "emby",
+          "path": "emby"
+        },
+        {
+          "id": "encryption-aesgcm",
+          "path": "encryption-aesgcm"
+        },
+        {
+          "id": "executor-shell",
+          "path": "executor-shell"
+        },
+        {
+          "id": "feature-flags-file",
+          "path": "feature-flags-file"
+        },
+        {
+          "id": "health-monitor",
+          "path": "health-monitor"
+        },
+        {
+          "id": "indexer-piratebay",
+          "path": "indexer-piratebay"
+        },
+        {
+          "id": "indexer-torznab",
+          "path": "indexer-torznab"
+        },
+        {
+          "id": "input-validate-jsonschema",
+          "path": "input-validate-jsonschema"
+        },
+        {
+          "id": "jellyfin",
+          "path": "jellyfin"
+        },
+        {
+          "id": "logging-file",
+          "path": "logging-file"
+        },
+        {
+          "id": "media-audiobooks",
+          "path": "media-audiobooks"
+        },
+        {
+          "id": "media-automation",
+          "path": "media-automation"
+        },
+        {
+          "id": "media-books",
+          "path": "media-books"
+        },
+        {
+          "id": "media-comics",
+          "path": "media-comics"
+        },
+        {
+          "id": "media-custom-formats",
+          "path": "media-custom-formats"
+        },
+        {
+          "id": "media-ffprobe",
+          "path": "media-ffprobe"
+        },
+        {
+          "id": "media-graph",
+          "path": "media-graph"
+        },
+        {
+          "id": "media-intro-outro",
+          "path": "media-intro-outro"
+        },
+        {
+          "id": "media-jellyfin",
+          "path": "media-jellyfin"
+        },
+        {
+          "id": "media-library-maintainer",
+          "path": "media-library-maintainer"
+        },
+        {
+          "id": "media-list-sync",
+          "path": "media-list-sync"
+        },
+        {
+          "id": "media-movies",
+          "path": "media-movies"
+        },
+        {
+          "id": "media-music",
+          "path": "media-music"
+        },
+        {
+          "id": "media-rename",
+          "path": "media-rename"
+        },
+        {
+          "id": "media-root-folders",
+          "path": "media-root-folders"
+        },
+        {
+          "id": "media-scanner",
+          "path": "media-scanner"
+        },
+        {
+          "id": "media-subtitles",
+          "path": "media-subtitles"
+        },
+        {
+          "id": "media-tagging",
+          "path": "media-tagging"
+        },
+        {
+          "id": "media-transcoder",
+          "path": "media-transcoder"
+        },
+        {
+          "id": "media-transcoder-pool",
+          "path": "media-transcoder-pool"
+        },
+        {
+          "id": "media-tvshows",
+          "path": "media-tvshows"
+        },
+        {
+          "id": "metadata-tmdb",
+          "path": "metadata-tmdb"
+        },
+        {
+          "id": "metrics-prometheus",
+          "path": "metrics-prometheus"
+        },
+        {
+          "id": "notification-apprise",
+          "path": "notification-apprise"
+        },
+        {
+          "id": "notification-default",
+          "path": "notification-default"
+        },
+        {
+          "id": "playback-guard",
+          "path": "playback-guard"
+        },
+        {
+          "id": "playback-monitor",
+          "path": "playback-monitor"
+        },
+        {
+          "id": "plex",
+          "path": "plex"
+        },
+        {
+          "id": "publish-policy-default",
+          "path": "publish-policy-default"
+        },
+        {
+          "id": "ratelimit-tokenbucket",
+          "path": "ratelimit-tokenbucket"
+        },
+        {
+          "id": "request-media",
+          "path": "request-media"
+        },
+        {
+          "id": "scheduler-cron",
+          "path": "scheduler-cron"
+        },
+        {
+          "id": "secrets-file",
+          "path": "secrets-file"
+        },
+        {
+          "id": "secrets-vault",
+          "path": "secrets-vault"
+        },
+        {
+          "id": "serialization-safe",
+          "path": "serialization-safe"
+        },
+        {
+          "id": "spool",
+          "path": "spool"
+        },
+        {
+          "id": "spool-resolver-http",
+          "path": "spool-resolver-http"
+        },
+        {
+          "id": "storage-ceph",
+          "path": "storage-ceph"
+        },
+        {
+          "id": "storage-overlay",
+          "path": "storage-overlay"
+        },
+        {
+          "id": "storage-s3",
+          "path": "storage-s3"
+        },
+        {
+          "id": "tracing-otlp",
+          "path": "tracing-otlp"
+        },
+        {
+          "id": "worker-pool-memory",
+          "path": "worker-pool-memory"
+        }
+      ]
+    },
+    "platform-format": {
+      "cohort": "platform",
+      "discover": "module-trees",
+      "lastRunsPath": ".cursor/skills/platform-format/last-runs.json",
+      "incompleteField": null,
+      "steps": [
+        "format"
+      ],
+      "trees": [
+        {
+          "id": "_mvp",
+          "path": "_mvp"
+        },
+        {
+          "id": "core",
+          "path": "core"
+        },
+        {
+          "id": "custom-scripts",
+          "path": "custom-scripts"
+        },
+        {
+          "id": "muxcore-installer",
+          "path": "muxcore-installer"
+        },
+        {
+          "id": "muxcore-module-starter",
+          "path": "muxcore-module-starter"
+        },
+        {
+          "id": "muxcore-operator",
+          "path": "muxcore-operator"
+        },
+        {
+          "id": "muxcorectl",
+          "path": "muxcorectl"
+        },
+        {
+          "id": "muxcorectl-cli",
+          "path": "muxcorectl-cli"
+        },
+        {
+          "id": "workflow-tapestry",
+          "path": "workflow-tapestry"
+        }
+      ]
+    },
+    "platform-lint": {
+      "cohort": "platform",
+      "discover": "module-trees",
+      "lastRunsPath": ".cursor/skills/platform-lint/last-runs.json",
+      "incompleteField": "files",
+      "steps": [
+        "lint"
+      ],
+      "trees": [
+        {
+          "id": "_mvp",
+          "path": "_mvp"
+        },
+        {
+          "id": "core",
+          "path": "core"
+        },
+        {
+          "id": "custom-scripts",
+          "path": "custom-scripts"
+        },
+        {
+          "id": "muxcore-installer",
+          "path": "muxcore-installer"
+        },
+        {
+          "id": "muxcore-module-starter",
+          "path": "muxcore-module-starter"
+        },
+        {
+          "id": "muxcore-operator",
+          "path": "muxcore-operator"
+        },
+        {
+          "id": "muxcorectl",
+          "path": "muxcorectl"
+        },
+        {
+          "id": "muxcorectl-cli",
+          "path": "muxcorectl-cli"
+        },
+        {
+          "id": "workflow-tapestry",
+          "path": "workflow-tapestry"
+        }
+      ]
+    },
+    "scripts-to-node": {
+      "cohort": "scripts",
+      "discover": "script-stems",
+      "lastRunsPath": ".cursor/skills/scripts-to-node/last-runs.json",
+      "incompleteField": null,
+      "steps": [
+        "convert"
+      ],
+      "scriptRoots": [
+        "_mvp/scripts",
+        "muxcore-installer",
+        "muxcore-module-starter/scripts",
+        "scripts"
+      ]
+    },
+    "platform-quality": {
+      "kind": "umbrella",
+      "userInvokedOnly": true,
+      "cohort": "all",
+      "waves": [
+        {
+          "step": "page-accessibility",
+          "skills": [
+            "frontend-page-accessibility"
+          ]
+        },
+        {
+          "step": "convert",
+          "skills": [
+            "scripts-to-node"
+          ]
+        },
+        {
+          "step": "lint",
+          "skills": [
+            "frontend-lint",
+            "backend-lint",
+            "platform-lint"
+          ]
+        },
+        {
+          "step": "format",
+          "skills": [
+            "frontend-format",
+            "backend-format",
+            "platform-format"
+          ]
+        }
+      ]
+    }
+  }
+}
