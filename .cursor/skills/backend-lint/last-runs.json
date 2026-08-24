@@ -357,6 +357,13 @@
       "lastCommit": "f28ee5a3a95eda1cd2ffe9757170b0bfa5d0915a",
       "recordedAt": "2026-08-24T19:00:40.112Z",
       "incompleteFiles": []
+    },
+    "media-comics": {
+      "path": "media-comics",
+      "modulePath": "media-comics",
+      "lastCommit": "51aaf3bf0afcf947960f4ee2c8d5361d8a5c29f2",
+      "recordedAt": "2026-08-24T19:04:16.109Z",
+      "incompleteFiles": []
     }
   }
 }
