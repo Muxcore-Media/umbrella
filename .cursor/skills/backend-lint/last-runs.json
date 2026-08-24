@@ -189,6 +189,13 @@
       "lastCommit": "03ae1388ffea870e620262eb4fc86cb012d13f43",
       "recordedAt": "2026-08-24T17:53:33.061Z",
       "incompleteFiles": []
+    },
+    "contracts-reconciler": {
+      "path": "contracts-reconciler",
+      "modulePath": "contracts-reconciler",
+      "lastCommit": "8ead43e5ecfd6df5110affa67a0eadfc073e507f",
+      "recordedAt": "2026-08-24T17:53:55.072Z",
+      "incompleteFiles": []
     }
   }
 }
