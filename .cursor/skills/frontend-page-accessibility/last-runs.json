@@ -11,14 +11,9 @@
     "muxcore-docs": {
       "path": "muxcore-docs",
       "modulePath": "muxcore-docs",
-      "lastCommit": "21ca069e3729afb27dc5abcfe4d0be4991712ddc",
-      "recordedAt": "2026-08-24T16:41:24.721Z",
+      "lastCommit": "b64049d30f8f4bc8abc3668be5af467ec1e7ad70",
+      "recordedAt": "2026-08-24T16:45:30.456Z",
       "incompletePages": [
-        "Storage",
-        "Workflow Engine",
-        "Deployment",
-        "Security",
-        "Module TLS Authentication",
         "Spool & Marketplace",
         "Spool Security",
         "Admin API",
