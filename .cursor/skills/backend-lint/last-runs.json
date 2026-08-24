@@ -378,6 +378,13 @@
       "lastCommit": "ab7ed605b08294ce122c3dcd9f6037fdbb4ce2aa",
       "recordedAt": "2026-08-24T19:04:18.472Z",
       "incompleteFiles": []
+    },
+    "metadata-tmdb": {
+      "path": "metadata-tmdb",
+      "modulePath": "metadata-tmdb",
+      "lastCommit": "36f52409b14ba3e1453f596c36cf3440ef5bdbca",
+      "recordedAt": "2026-08-24T19:04:19.468Z",
+      "incompleteFiles": []
     }
   }
 }
