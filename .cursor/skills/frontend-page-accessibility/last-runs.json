@@ -11,16 +11,9 @@
     "muxcore-docs": {
       "path": "muxcore-docs",
       "modulePath": "muxcore-docs",
-      "lastCommit": "b64049d30f8f4bc8abc3668be5af467ec1e7ad70",
-      "recordedAt": "2026-08-24T16:45:30.456Z",
-      "incompletePages": [
-        "Spool & Marketplace",
-        "Spool Security",
-        "Admin API",
-        "Tasks",
-        "Roadmap",
-        "Contributing"
-      ]
+      "lastCommit": "b05631c961e3309755254e18dc45b729cca74b36",
+      "recordedAt": "2026-08-24T16:51:12.656Z",
+      "incompletePages": []
     },
     "media-ui-app": {
       "path": "media-ui-app",
