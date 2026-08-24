@@ -336,6 +336,13 @@
       "lastCommit": "7085de079cc60a8d8b4dcbfb9f8e341a60a37931",
       "recordedAt": "2026-08-24T19:00:39.120Z",
       "incompleteFiles": []
+    },
+    "spool-resolver-http": {
+      "path": "spool-resolver-http",
+      "modulePath": "spool-resolver-http",
+      "lastCommit": "6ebe270809f7528e0549a2b8bc70751493c6ddf2",
+      "recordedAt": "2026-08-24T19:00:39.467Z",
+      "incompleteFiles": []
     }
   }
 }
