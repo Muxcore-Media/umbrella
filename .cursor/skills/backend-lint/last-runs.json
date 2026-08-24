@@ -350,6 +350,13 @@
       "lastCommit": "3491bb84ff20cda7796a36bf9076ceddc25b84d6",
       "recordedAt": "2026-08-24T19:00:39.818Z",
       "incompleteFiles": []
+    },
+    "tracing-otlp": {
+      "path": "tracing-otlp",
+      "modulePath": "tracing-otlp",
+      "lastCommit": "f28ee5a3a95eda1cd2ffe9757170b0bfa5d0915a",
+      "recordedAt": "2026-08-24T19:00:40.112Z",
+      "incompleteFiles": []
     }
   }
 }
