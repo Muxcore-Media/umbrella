@@ -1,1 +1,12 @@
-{"version":1,"apps":{}}
+{
+  "version": 1,
+  "apps": {
+    "media-ui": {
+      "path": "media-ui",
+      "modulePath": "media-ui",
+      "lastCommit": "652f31438872551e2d83977180ec1db03c5cf8ff",
+      "recordedAt": "2026-08-24T16:21:46.736Z",
+      "incompletePages": []
+    }
+  }
+}
