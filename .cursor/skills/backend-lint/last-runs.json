@@ -413,6 +413,13 @@
       "lastCommit": "6a38530ac24d956fb16b4ca4cb123224059549d4",
       "recordedAt": "2026-08-24T19:04:24.774Z",
       "incompleteFiles": []
+    },
+    "storage-overlay": {
+      "path": "storage-overlay",
+      "modulePath": "storage-overlay",
+      "lastCommit": "fa77ba2bc6231054bc342265cbbc65ba039c5ace",
+      "recordedAt": "2026-08-24T19:04:25.991Z",
+      "incompleteFiles": []
     }
   }
 }
