@@ -231,6 +231,13 @@
       "lastCommit": "082775ce874173c3cd777c57a6e30527d2d7c6ae",
       "recordedAt": "2026-08-24T17:55:19.473Z",
       "incompleteFiles": []
+    },
+    "indexer-torznab": {
+      "path": "indexer-torznab",
+      "modulePath": "indexer-torznab",
+      "lastCommit": "22777096bbbe2773c30ff5d32aec25d721b0d305",
+      "recordedAt": "2026-08-24T17:55:55.063Z",
+      "incompleteFiles": []
     }
   }
 }
