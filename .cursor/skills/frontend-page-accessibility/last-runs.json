@@ -49,14 +49,9 @@
     "admin-ui": {
       "path": "admin-ui",
       "modulePath": "admin-ui",
-      "lastCommit": "6ecc22af123b1d3d03f0694e0a9272dd4044e227",
-      "recordedAt": "2026-08-24T16:45:19.926Z",
+      "lastCommit": "7f08bbe292bb6f97efb4c215980b402942a37e59",
+      "recordedAt": "2026-08-24T16:49:30.905Z",
       "incompletePages": [
-        "Naming",
-        "Metadata",
-        "Formats",
-        "Profiles",
-        "Release Profiles",
         "Media library",
         "Automation",
         "Import",
