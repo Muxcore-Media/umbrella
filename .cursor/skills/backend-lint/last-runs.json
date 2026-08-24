@@ -476,6 +476,13 @@
       "lastCommit": "84c6f7459498ef4904cc3ef45c75f7ce299002a2",
       "recordedAt": "2026-08-24T19:07:53.238Z",
       "incompleteFiles": []
+    },
+    "media-tvshows": {
+      "path": "media-tvshows",
+      "modulePath": "media-tvshows",
+      "lastCommit": "b7fc838951bef51672f3fda461f6bf616baffbb8",
+      "recordedAt": "2026-08-24T19:07:53.933Z",
+      "incompleteFiles": []
     }
   }
 }
