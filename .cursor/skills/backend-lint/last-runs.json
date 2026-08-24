@@ -35,6 +35,13 @@
       "lastCommit": "5da8bdc8fe43c2b5892324673e507a7a1fdd5715",
       "recordedAt": "2026-08-24T17:49:37.071Z",
       "incompleteFiles": []
+    },
+    "cache-local": {
+      "path": "cache-local",
+      "modulePath": "cache-local",
+      "lastCommit": "5695288f3d45f2798b37a3a8b96938d71565399b",
+      "recordedAt": "2026-08-24T17:49:37.973Z",
+      "incompleteFiles": []
     }
   }
 }
