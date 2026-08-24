@@ -518,6 +518,13 @@
       "lastCommit": "dc2555bb9105b817ad49f0b7b9b0c1d55cf59494",
       "recordedAt": "2026-08-24T19:14:10.168Z",
       "incompleteFiles": []
+    },
+    "media-jellyfin": {
+      "path": "media-jellyfin",
+      "modulePath": "media-jellyfin",
+      "lastCommit": "07ddc877f4ca044ccfabce6df88255cf774ff9cc",
+      "recordedAt": "2026-08-24T19:14:10.414Z",
+      "incompleteFiles": []
     }
   }
 }
