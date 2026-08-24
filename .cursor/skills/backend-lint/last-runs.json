@@ -546,6 +546,13 @@
       "lastCommit": "d69fab908c35f5e5aa5fc5745413626c3231d689",
       "recordedAt": "2026-08-24T20:00:02.961Z",
       "incompleteFiles": []
+    },
+    "media-subtitles": {
+      "path": "media-subtitles",
+      "modulePath": "media-subtitles",
+      "lastCommit": "15e657547a1804b5465359a43f98dd8d81af7ba9",
+      "recordedAt": "2026-08-24T20:00:03.160Z",
+      "incompleteFiles": []
     }
   }
 }
