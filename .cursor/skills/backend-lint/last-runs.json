@@ -245,6 +245,13 @@
       "lastCommit": "87f5c479437e33968bba2df52e453109f08ff5b0",
       "recordedAt": "2026-08-24T17:56:18.090Z",
       "incompleteFiles": []
+    },
+    "media-books": {
+      "path": "media-books",
+      "modulePath": "media-books",
+      "lastCommit": "03100a3c89e92b77ee319333b71863610dafb216",
+      "recordedAt": "2026-08-24T17:56:32.550Z",
+      "incompleteFiles": []
     }
   }
 }
