@@ -217,6 +217,13 @@
       "lastCommit": "2ddc827de37fd595c48b413f56125c8b83b399c2",
       "recordedAt": "2026-08-24T17:54:35.198Z",
       "incompleteFiles": []
+    },
+    "downloader-debrid": {
+      "path": "downloader-debrid",
+      "modulePath": "downloader-debrid",
+      "lastCommit": "f0ca1800615aa441bb31cbe24b42a31d03102f67",
+      "recordedAt": "2026-08-24T17:54:56.055Z",
+      "incompleteFiles": []
     }
   }
 }
