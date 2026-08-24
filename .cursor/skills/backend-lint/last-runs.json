@@ -532,6 +532,13 @@
       "lastCommit": "41b6348b98deb389c4036cac9a47c805b2340abb",
       "recordedAt": "2026-08-24T19:14:10.674Z",
       "incompleteFiles": []
+    },
+    "media-graph": {
+      "path": "media-graph",
+      "modulePath": "media-graph",
+      "lastCommit": "85589c49e9d2ab2ef34120151f551c89e52ac3e0",
+      "recordedAt": "2026-08-24T20:00:02.779Z",
+      "incompleteFiles": []
     }
   }
 }
