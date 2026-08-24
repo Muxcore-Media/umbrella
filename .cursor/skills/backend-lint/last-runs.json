@@ -392,6 +392,13 @@
       "lastCommit": "c7a7dda0a52f7d81359807aaeb0799391ac33a3c",
       "recordedAt": "2026-08-24T19:04:20.741Z",
       "incompleteFiles": []
+    },
+    "playback-guard": {
+      "path": "playback-guard",
+      "modulePath": "playback-guard",
+      "lastCommit": "42d4218575b1dd75d94afb6e274a0eedf3a60334",
+      "recordedAt": "2026-08-24T19:04:21.685Z",
+      "incompleteFiles": []
     }
   }
 }
