@@ -147,6 +147,13 @@
       "lastCommit": "152f0cffebb48d8b97d30380f95b880112d989a6",
       "recordedAt": "2026-08-24T17:52:30.010Z",
       "incompleteFiles": []
+    },
+    "jellyfin": {
+      "path": "jellyfin",
+      "modulePath": "jellyfin",
+      "lastCommit": "0f16dd8b1d7c9094be99784b5afd9b0c1ee4c9e5",
+      "recordedAt": "2026-08-24T17:53:00.520Z",
+      "incompleteFiles": []
     }
   }
 }
