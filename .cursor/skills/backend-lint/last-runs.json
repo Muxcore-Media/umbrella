@@ -84,6 +84,13 @@
       "lastCommit": "385bf4ed63f3c6b2f12edc8f20c8ebecb388103d",
       "recordedAt": "2026-08-24T17:51:14.951Z",
       "incompleteFiles": []
+    },
+    "input-validate-jsonschema": {
+      "path": "input-validate-jsonschema",
+      "modulePath": "input-validate-jsonschema",
+      "lastCommit": "b31d7b6c1a70a832022ddbd9342eb8d774f99028",
+      "recordedAt": "2026-08-24T17:51:15.130Z",
+      "incompleteFiles": []
     }
   }
 }
