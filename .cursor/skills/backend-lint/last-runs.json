@@ -266,6 +266,13 @@
       "lastCommit": "21a41ec5762c19f0812b33a8ba32d41d74f14d33",
       "recordedAt": "2026-08-24T18:35:52.422Z",
       "incompleteFiles": []
+    },
+    "circuitbreaker-simple": {
+      "path": "circuitbreaker-simple",
+      "modulePath": "circuitbreaker-simple",
+      "lastCommit": "a29e655a42ded6d9dae61d54a518f98b65f82d76",
+      "recordedAt": "2026-08-24T18:35:52.506Z",
+      "incompleteFiles": []
     }
   }
 }
