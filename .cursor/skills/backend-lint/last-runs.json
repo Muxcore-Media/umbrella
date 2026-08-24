@@ -483,6 +483,13 @@
       "lastCommit": "b7fc838951bef51672f3fda461f6bf616baffbb8",
       "recordedAt": "2026-08-24T19:07:53.933Z",
       "incompleteFiles": []
+    },
+    "plex": {
+      "path": "plex",
+      "modulePath": "plex",
+      "lastCommit": "05d285769b2b4faf0597040f185695627f5a6fb4",
+      "recordedAt": "2026-08-24T19:07:54.502Z",
+      "incompleteFiles": []
     }
   }
 }
