@@ -455,6 +455,13 @@
       "lastCommit": "134439d3d04cc86703172f16012fc25c190ab493",
       "recordedAt": "2026-08-24T19:07:51.810Z",
       "incompleteFiles": []
+    },
+    "media-root-folders": {
+      "path": "media-root-folders",
+      "modulePath": "media-root-folders",
+      "lastCommit": "18a09c34df6c4f4c14987ace20202001e0132a96",
+      "recordedAt": "2026-08-24T19:07:52.263Z",
+      "incompleteFiles": []
     }
   }
 }
