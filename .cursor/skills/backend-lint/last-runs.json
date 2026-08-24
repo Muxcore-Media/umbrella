@@ -70,6 +70,13 @@
       "lastCommit": "6bd4ee04b54c2c7ad5794f685d4b6e21352eeb12",
       "recordedAt": "2026-08-24T17:51:14.359Z",
       "incompleteFiles": []
+    },
+    "contracts-downloader": {
+      "path": "contracts-downloader",
+      "modulePath": "contracts-downloader",
+      "lastCommit": "b33c8299073a7a04bdee9bdcbc940c5cfd2f9d29",
+      "recordedAt": "2026-08-24T17:51:14.669Z",
+      "incompleteFiles": []
     }
   }
 }
