@@ -30,14 +30,9 @@
     "media-ui-app": {
       "path": "media-ui-app",
       "modulePath": "media-ui-app",
-      "lastCommit": "1bfa0b355abd590dc86772f6434af21084b9facd",
-      "recordedAt": "2026-08-24T16:24:23.405Z",
+      "lastCommit": "dc67929b7092f3713913f660b9a04c8564535cb4",
+      "recordedAt": "2026-08-24T16:41:24.799Z",
       "incompletePages": [
-        "MovieDetail",
-        "TVShowDetail",
-        "Player",
-        "Discover",
-        "DiscoverDetail",
         "Watchlist",
         "Favorites",
         "Queue",
