@@ -25,14 +25,9 @@
     "media-ui-app": {
       "path": "media-ui-app",
       "modulePath": "media-ui-app",
-      "lastCommit": "22e3a371c5fa58c30b2184984e1d6051cfa05681",
-      "recordedAt": "2026-08-24T16:45:54.690Z",
+      "lastCommit": "bf4684df446c7d65e239582ef95dd99cffe081a7",
+      "recordedAt": "2026-08-24T16:51:12.557Z",
       "incompletePages": [
-        "Upcoming",
-        "Playlists",
-        "LiveTV",
-        "QuickConnect",
-        "Music",
         "MusicArtist",
         "HomeVideos",
         "MusicVideos",
