@@ -25,14 +25,9 @@
     "media-ui-app": {
       "path": "media-ui-app",
       "modulePath": "media-ui-app",
-      "lastCommit": "dc67929b7092f3713913f660b9a04c8564535cb4",
-      "recordedAt": "2026-08-24T16:41:24.799Z",
+      "lastCommit": "22e3a371c5fa58c30b2184984e1d6051cfa05681",
+      "recordedAt": "2026-08-24T16:45:54.690Z",
       "incompletePages": [
-        "Watchlist",
-        "Favorites",
-        "Queue",
-        "InProgress",
-        "Collections",
         "Upcoming",
         "Playlists",
         "LiveTV",
