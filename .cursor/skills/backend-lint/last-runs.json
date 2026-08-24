@@ -525,6 +525,13 @@
       "lastCommit": "07ddc877f4ca044ccfabce6df88255cf774ff9cc",
       "recordedAt": "2026-08-24T19:14:10.414Z",
       "incompleteFiles": []
+    },
+    "spool": {
+      "path": "spool",
+      "modulePath": "spool",
+      "lastCommit": "41b6348b98deb389c4036cac9a47c805b2340abb",
+      "recordedAt": "2026-08-24T19:14:10.674Z",
+      "incompleteFiles": []
     }
   }
 }
