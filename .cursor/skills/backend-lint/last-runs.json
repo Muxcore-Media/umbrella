@@ -28,6 +28,13 @@
       "lastCommit": "cfc0f1caf66b31689d12d7b67f65172bfd76ebc2",
       "recordedAt": "2026-08-24T17:49:36.502Z",
       "incompleteFiles": []
+    },
+    "downloader-sabnzbd": {
+      "path": "downloader-sabnzbd",
+      "modulePath": "downloader-sabnzbd",
+      "lastCommit": "5da8bdc8fe43c2b5892324673e507a7a1fdd5715",
+      "recordedAt": "2026-08-24T17:49:37.071Z",
+      "incompleteFiles": []
     }
   }
 }
