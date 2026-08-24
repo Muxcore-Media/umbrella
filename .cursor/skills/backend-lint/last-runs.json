@@ -161,6 +161,13 @@
       "lastCommit": "2440b836548b67b14b2d51b272444fdcd5309f9b",
       "recordedAt": "2026-08-24T17:53:00.817Z",
       "incompleteFiles": []
+    },
+    "media-audiobooks": {
+      "path": "media-audiobooks",
+      "modulePath": "media-audiobooks",
+      "lastCommit": "45f7da7c117893394d17f7f3587c8b90714589a2",
+      "recordedAt": "2026-08-24T17:53:01.436Z",
+      "incompleteFiles": []
     }
   }
 }
