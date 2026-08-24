@@ -469,6 +469,13 @@
       "lastCommit": "48fe2356e2e24a030b756880a8a2a47a6c736fd9",
       "recordedAt": "2026-08-24T19:07:52.760Z",
       "incompleteFiles": []
+    },
+    "media-transcoder-pool": {
+      "path": "media-transcoder-pool",
+      "modulePath": "media-transcoder-pool",
+      "lastCommit": "84c6f7459498ef4904cc3ef45c75f7ce299002a2",
+      "recordedAt": "2026-08-24T19:07:53.238Z",
+      "incompleteFiles": []
     }
   }
 }
