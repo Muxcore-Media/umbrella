@@ -91,6 +91,13 @@
       "lastCommit": "b31d7b6c1a70a832022ddbd9342eb8d774f99028",
       "recordedAt": "2026-08-24T17:51:15.130Z",
       "incompleteFiles": []
+    },
+    "contracts-metadata": {
+      "path": "contracts-metadata",
+      "modulePath": "contracts-metadata",
+      "lastCommit": "c62591db5268fd50c2d662a7d0b43674086c38ca",
+      "recordedAt": "2026-08-24T17:51:15.276Z",
+      "incompleteFiles": []
     }
   }
 }
