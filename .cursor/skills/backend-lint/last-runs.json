@@ -441,6 +441,13 @@
       "lastCommit": "f5c8fc0b360d0d7834296f72d2d2ef7e1adbdaa8",
       "recordedAt": "2026-08-24T19:05:25.264Z",
       "incompleteFiles": []
+    },
+    "media-movies": {
+      "path": "media-movies",
+      "modulePath": "media-movies",
+      "lastCommit": "a4d6b4289594645bf4133293e18a56a9cda64d85",
+      "recordedAt": "2026-08-24T19:07:51.432Z",
+      "incompleteFiles": []
     }
   }
 }
