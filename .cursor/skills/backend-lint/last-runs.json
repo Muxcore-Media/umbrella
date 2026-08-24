@@ -252,6 +252,13 @@
       "lastCommit": "03100a3c89e92b77ee319333b71863610dafb216",
       "recordedAt": "2026-08-24T17:56:32.550Z",
       "incompleteFiles": []
+    },
+    "downloader-native-torrent": {
+      "path": "downloader-native-torrent",
+      "modulePath": "downloader-native-torrent",
+      "lastCommit": "ef3cae0ff10c8ae7657ac50748b421803d37dbbd",
+      "recordedAt": "2026-08-24T17:56:46.754Z",
+      "incompleteFiles": []
     }
   }
 }
