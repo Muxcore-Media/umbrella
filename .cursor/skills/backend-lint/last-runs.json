@@ -497,6 +497,13 @@
       "lastCommit": "47157fa46ebd80e019d6fbcfb8567cedbb7b39f4",
       "recordedAt": "2026-08-24T19:11:20.922Z",
       "incompleteFiles": []
+    },
+    "playback-monitor": {
+      "path": "playback-monitor",
+      "modulePath": "playback-monitor",
+      "lastCommit": "c5ad8e86488fd49af4802b5ba5b4db965a236244",
+      "recordedAt": "2026-08-24T19:11:21.265Z",
+      "incompleteFiles": []
     }
   }
 }
