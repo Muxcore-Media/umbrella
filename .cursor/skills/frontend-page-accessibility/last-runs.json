@@ -31,6 +31,40 @@
         "Roadmap",
         "Contributing"
       ]
+    },
+    "media-ui-app": {
+      "path": "media-ui-app",
+      "modulePath": "media-ui-app",
+      "lastCommit": "1bfa0b355abd590dc86772f6434af21084b9facd",
+      "recordedAt": "2026-08-24T16:24:23.405Z",
+      "incompletePages": [
+        "MovieDetail",
+        "TVShowDetail",
+        "Player",
+        "Discover",
+        "DiscoverDetail",
+        "Watchlist",
+        "Favorites",
+        "Queue",
+        "InProgress",
+        "Collections",
+        "Upcoming",
+        "Playlists",
+        "LiveTV",
+        "QuickConnect",
+        "Music",
+        "MusicArtist",
+        "HomeVideos",
+        "MusicVideos",
+        "Mixed",
+        "Books",
+        "BookAuthor",
+        "Comics",
+        "Audiobooks",
+        "Studios",
+        "ForgotPassword",
+        "InviteJoin"
+      ]
     }
   }
 }
