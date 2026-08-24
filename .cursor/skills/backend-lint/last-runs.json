@@ -427,6 +427,13 @@
       "lastCommit": "1f55d2e91ff250f2dc4e979e4fe81594de49d6c1",
       "recordedAt": "2026-08-24T19:04:27.044Z",
       "incompleteFiles": []
+    },
+    "worker-pool-memory": {
+      "path": "worker-pool-memory",
+      "modulePath": "worker-pool-memory",
+      "lastCommit": "745f605406385d4e96530e3c8cca1c3f87145420",
+      "recordedAt": "2026-08-24T19:04:28.262Z",
+      "incompleteFiles": []
     }
   }
 }
