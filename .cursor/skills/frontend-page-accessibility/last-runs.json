@@ -7,6 +7,30 @@
       "lastCommit": "652f31438872551e2d83977180ec1db03c5cf8ff",
       "recordedAt": "2026-08-24T16:21:46.736Z",
       "incompletePages": []
+    },
+    "muxcore-docs": {
+      "path": "muxcore-docs",
+      "modulePath": "muxcore-docs",
+      "lastCommit": "75cbddb7ce1107b082d6b9609bf5329c7e077f1f",
+      "recordedAt": "2026-08-24T16:22:33.555Z",
+      "incompletePages": [
+        "Architecture",
+        "Module System",
+        "Writing Modules",
+        "Contracts Reference",
+        "Event System",
+        "Storage",
+        "Workflow Engine",
+        "Deployment",
+        "Security",
+        "Module TLS Authentication",
+        "Spool & Marketplace",
+        "Spool Security",
+        "Admin API",
+        "Tasks",
+        "Roadmap",
+        "Contributing"
+      ]
     }
   }
 }
