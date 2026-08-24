@@ -273,6 +273,13 @@
       "lastCommit": "a29e655a42ded6d9dae61d54a518f98b65f82d76",
       "recordedAt": "2026-08-24T18:35:52.506Z",
       "incompleteFiles": []
+    },
+    "data-redaction-pattern": {
+      "path": "data-redaction-pattern",
+      "modulePath": "data-redaction-pattern",
+      "lastCommit": "c563121d4287497cc2cebbbba035cc472867f53e",
+      "recordedAt": "2026-08-24T18:35:52.587Z",
+      "incompleteFiles": []
     }
   }
 }
