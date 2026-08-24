@@ -42,7 +42,8 @@ const trees = (ids) => ids.sort().map((id) => ({ id, path: id }));
 const existing = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
 
 existing.workspace = {
-  multiRepo: true,
+  multiRepo: false,
+  umbrella: true,
   name: 'MuxCore',
   docs: 'AGENTS.md',
 };

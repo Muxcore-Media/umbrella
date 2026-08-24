@@ -2,6 +2,12 @@
 
 Scoped notes for developing and deploying MuxCore on the homelab stack. Source of truth for host config is `~/Projects/zemdregon/nix-production`; this doc captures the operational paths agents have used successfully.
 
+## Umbrella workspace
+
+This checkout is an **umbrella repo**: the root git tracks `.cursor/skills`, `scripts/`, and **gitlink SHAs** for every Forgejo module under `.gitmodules`. Module source still lives in each submodule directory and still pushes to its own `muxcore/<module>` repo.
+
+Clone/recurse/bump workflow: [`README-UMBRELLA.md`](README-UMBRELLA.md). Agent skills: [`.cursor/skills/README.md`](.cursor/skills/README.md).
+
 ## Topology
 
 ```

@@ -125,7 +125,7 @@ function isSubmodulePath(relPath) {
 
 function usesModuleGit(relPath, config = loadConfig()) {
   if (isMultiRepo(config)) return true;
-  if (isUmbrellaSkillWorkspace(config) && isSubmodulePath(relPath)) return true;
+  if (isUmbrellaWorkspace(config) && isSubmodulePath(relPath)) return true;
   return false;
 }
 
@@ -163,7 +163,7 @@ function gitOkAt(cwd, args) {
 }
 
 function gitForModule(relPath, args, opts) {
-  if (relPath && isMultiRepo()) {
+  if (relPath && (isMultiRepo() || isSubmodulePath(relPath))) {
     return gitAt(moduleDir(relPath), args, opts);
   }
   return git(args, opts);
@@ -428,7 +428,8 @@ function unknownIdMessage(skill, id) {
 
 function commitExists(sha, modulePath = null) {
   if (!sha) return false;
-  const cwd = modulePath ? moduleDir(modulePath) : ROOT;
+  const cwd =
+    modulePath && (isMultiRepo() || isSubmodulePath(modulePath)) ? moduleDir(modulePath) : ROOT;
   return gitOkAt(cwd, ['cat-file', '-e', `${sha}^{commit}`]);
 }
 
@@ -758,6 +759,8 @@ function plan(skillId, opts, config) {
 
 function listSkills(config) {
   const maxLaunch = maxLaunchOf(config);
+  const multi = isMultiRepo(config);
+  const umbrella = isUmbrellaWorkspace(config);
   const skills = Object.entries(config.skills).map(([id, skill]) => {
     if (isUmbrellaSkill(skill)) {
       return {
