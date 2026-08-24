@@ -69,14 +69,9 @@
     "admin-ui": {
       "path": "admin-ui",
       "modulePath": "admin-ui",
-      "lastCommit": "7597506cb475e65c80565c56f44743a0e2a741a5",
-      "recordedAt": "2026-08-24T16:27:06.188Z",
+      "lastCommit": "6fdb2cf2cd05abf1adba04a4a3939c91086ff1b2",
+      "recordedAt": "2026-08-24T16:41:11.732Z",
       "incompletePages": [
-        "Users",
-        "Invites",
-        "Libraries",
-        "Request",
-        "Queue",
         "Calendar",
         "Backups",
         "Branding",
