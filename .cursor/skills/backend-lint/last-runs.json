@@ -238,6 +238,13 @@
       "lastCommit": "22777096bbbe2773c30ff5d32aec25d721b0d305",
       "recordedAt": "2026-08-24T17:55:55.063Z",
       "incompleteFiles": []
+    },
+    "emby": {
+      "path": "emby",
+      "modulePath": "emby",
+      "lastCommit": "87f5c479437e33968bba2df52e453109f08ff5b0",
+      "recordedAt": "2026-08-24T17:56:18.090Z",
+      "incompleteFiles": []
     }
   }
 }
