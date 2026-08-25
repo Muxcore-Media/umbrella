@@ -168,6 +168,12 @@
       "modulePath": "indexer-torznab",
       "lastCommit": "22777096bbbe2773c30ff5d32aec25d721b0d305",
       "recordedAt": "2026-08-25T12:21:12.448Z"
+    },
+    "database-sqlite": {
+      "path": "database-sqlite",
+      "modulePath": "database-sqlite",
+      "lastCommit": "03ae1388ffea870e620262eb4fc86cb012d13f43",
+      "recordedAt": "2026-08-25T12:21:12.511Z"
     }
   }
 }
