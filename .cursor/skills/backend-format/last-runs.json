@@ -30,6 +30,12 @@
       "modulePath": "cache-local",
       "lastCommit": "5695288f3d45f2798b37a3a8b96938d71565399b",
       "recordedAt": "2026-08-25T12:20:15.528Z"
+    },
+    "contracts-media": {
+      "path": "contracts-media",
+      "modulePath": "contracts-media",
+      "lastCommit": "0c39675bebad898d152fba192ce400369e652a68",
+      "recordedAt": "2026-08-25T12:20:15.625Z"
     }
   }
 }
