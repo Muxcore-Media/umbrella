@@ -234,6 +234,12 @@
       "modulePath": "media-automation",
       "lastCommit": "2ddc827de37fd595c48b413f56125c8b83b399c2",
       "recordedAt": "2026-08-25T13:49:21.732Z"
+    },
+    "media-books": {
+      "path": "media-books",
+      "modulePath": "media-books",
+      "lastCommit": "03100a3c89e92b77ee319333b71863610dafb216",
+      "recordedAt": "2026-08-25T13:49:21.867Z"
     }
   }
 }
