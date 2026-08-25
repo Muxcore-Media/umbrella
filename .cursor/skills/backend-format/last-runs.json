@@ -450,6 +450,12 @@
       "modulePath": "storage-ceph",
       "lastCommit": "3491bb84ff20cda7796a36bf9076ceddc25b84d6",
       "recordedAt": "2026-08-25T13:50:33.572Z"
+    },
+    "storage-overlay": {
+      "path": "storage-overlay",
+      "modulePath": "storage-overlay",
+      "lastCommit": "fa77ba2bc6231054bc342265cbbc65ba039c5ace",
+      "recordedAt": "2026-08-25T13:50:33.703Z"
     }
   }
 }
