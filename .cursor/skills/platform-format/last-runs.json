@@ -48,6 +48,12 @@
       "modulePath": "muxcorectl-cli",
       "lastCommit": "d1af42804adde417cbfa4de4d657ad59033a3508",
       "recordedAt": "2026-08-25T13:50:35.236Z"
+    },
+    "workflow-tapestry": {
+      "path": "workflow-tapestry",
+      "modulePath": "workflow-tapestry",
+      "lastCommit": "d25a47a8352b3fa2277feebad57ed0d08f4f8422",
+      "recordedAt": "2026-08-25T13:50:35.392Z"
     }
   }
 }
