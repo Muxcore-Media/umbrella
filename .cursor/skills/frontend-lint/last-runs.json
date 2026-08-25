@@ -21,6 +21,13 @@
       "lastCommit": "b6778f4ec357a03a62fc0c5bf6fedc4f417cb74a",
       "recordedAt": "2026-08-25T01:11:14.102Z",
       "incompleteFiles": []
+    },
+    "admin-ui": {
+      "path": "admin-ui",
+      "modulePath": "admin-ui",
+      "lastCommit": "568a808b49f1e055aae311901b7d17b322db845b",
+      "recordedAt": "2026-08-25T01:16:09.295Z",
+      "incompleteFiles": []
     }
   }
 }
