@@ -306,6 +306,12 @@
       "modulePath": "media-rename",
       "lastCommit": "2bf07f5b2dc25adb80ac67cf7e4feb5c5a34edd3",
       "recordedAt": "2026-08-25T13:49:23.484Z"
+    },
+    "media-root-folders": {
+      "path": "media-root-folders",
+      "modulePath": "media-root-folders",
+      "lastCommit": "18a09c34df6c4f4c14987ace20202001e0132a96",
+      "recordedAt": "2026-08-25T13:49:23.628Z"
     }
   }
 }
