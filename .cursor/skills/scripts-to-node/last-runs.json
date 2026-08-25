@@ -6,6 +6,12 @@
       "modulePath": null,
       "lastCommit": "e24785bbc95d6eb4e29a09ff6d9554012ecb3716",
       "recordedAt": "2026-08-25T01:03:49.703Z"
+    },
+    "scripts-bootstrap-umbrella": {
+      "path": "scripts/bootstrap-umbrella",
+      "modulePath": null,
+      "lastCommit": "fd058a53a48cda05f5549da078c7ddfaed1a8e21",
+      "recordedAt": "2026-08-25T01:04:14.755Z"
     }
   }
 }
