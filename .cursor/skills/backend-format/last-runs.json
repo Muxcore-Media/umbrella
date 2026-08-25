@@ -264,6 +264,12 @@
       "modulePath": "media-graph",
       "lastCommit": "85589c49e9d2ab2ef34120151f551c89e52ac3e0",
       "recordedAt": "2026-08-25T13:49:22.431Z"
+    },
+    "media-intro-outro": {
+      "path": "media-intro-outro",
+      "modulePath": "media-intro-outro",
+      "lastCommit": "640624bd1f6704d2391fc8c5486d71adbd9c0a49",
+      "recordedAt": "2026-08-25T13:49:22.587Z"
     }
   }
 }
