@@ -6,6 +6,12 @@
       "modulePath": "backup-local",
       "lastCommit": "96d81344099d4b6e8efc07af62d512bd9060b348",
       "recordedAt": "2026-08-25T12:20:14.954Z"
+    },
+    "cache-redis": {
+      "path": "cache-redis",
+      "modulePath": "cache-redis",
+      "lastCommit": "c796d84eeaec4eef9898de9026e2a4d00344b9dc",
+      "recordedAt": "2026-08-25T12:20:15.081Z"
     }
   }
 }
