@@ -7,6 +7,13 @@
       "lastCommit": "652f31438872551e2d83977180ec1db03c5cf8ff",
       "recordedAt": "2026-08-25T01:07:02.629Z",
       "incompleteFiles": []
+    },
+    "muxcore-docs": {
+      "path": "muxcore-docs",
+      "modulePath": "muxcore-docs",
+      "lastCommit": "b05631c961e3309755254e18dc45b729cca74b36",
+      "recordedAt": "2026-08-25T01:07:59.679Z",
+      "incompleteFiles": []
     }
   }
 }
