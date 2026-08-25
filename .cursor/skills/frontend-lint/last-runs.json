@@ -35,6 +35,13 @@
       "lastCommit": "e4d5fca95e237f74b3bfe90a35a316303d24c340",
       "recordedAt": "2026-08-25T04:21:37.722Z",
       "incompleteFiles": []
+    },
+    "muxcore-ios": {
+      "path": "muxcore-ios",
+      "modulePath": "muxcore-ios",
+      "lastCommit": "743fe08eadaa68b1a90decdbeb69f33ebf37bc93",
+      "recordedAt": "2026-08-25T04:21:37.802Z",
+      "incompleteFiles": []
     }
   }
 }
