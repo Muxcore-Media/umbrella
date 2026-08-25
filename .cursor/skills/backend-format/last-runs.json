@@ -102,6 +102,12 @@
       "modulePath": "contracts-indexer",
       "lastCommit": "385bf4ed63f3c6b2f12edc8f20c8ebecb388103d",
       "recordedAt": "2026-08-25T12:21:11.731Z"
+    },
+    "contracts-scanner": {
+      "path": "contracts-scanner",
+      "modulePath": "contracts-scanner",
+      "lastCommit": "5b30f142a849cbbe7982589da0a619df2e2a0a18",
+      "recordedAt": "2026-08-25T12:21:11.797Z"
     }
   }
 }
