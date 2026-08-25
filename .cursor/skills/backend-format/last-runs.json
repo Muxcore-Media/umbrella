@@ -84,6 +84,12 @@
       "modulePath": "cache-memory",
       "lastCommit": "6bd4ee04b54c2c7ad5794f685d4b6e21352eeb12",
       "recordedAt": "2026-08-25T12:21:11.530Z"
+    },
+    "auth-local": {
+      "path": "auth-local",
+      "modulePath": "auth-local",
+      "lastCommit": "082775ce874173c3cd777c57a6e30527d2d7c6ae",
+      "recordedAt": "2026-08-25T12:21:11.597Z"
     }
   }
 }
