@@ -18,6 +18,12 @@
       "modulePath": "custom-scripts",
       "lastCommit": "9249228807308cec53dea6efc50e351bc4f1648e",
       "recordedAt": "2026-08-25T13:50:34.489Z"
+    },
+    "muxcore-installer": {
+      "path": "muxcore-installer",
+      "modulePath": "muxcore-installer",
+      "lastCommit": "f999130a3fb775571de6c5c91c2e6cc8ddae8dcc",
+      "recordedAt": "2026-08-25T13:50:34.620Z"
     }
   }
 }
