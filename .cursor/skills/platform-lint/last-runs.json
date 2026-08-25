@@ -42,6 +42,13 @@
       "lastCommit": "00c0ef8c30f5ad8afee797e3df4f08ba58961d9e",
       "recordedAt": "2026-08-25T01:12:17.199Z",
       "incompleteFiles": []
+    },
+    "_mvp": {
+      "path": "_mvp",
+      "modulePath": "_mvp",
+      "lastCommit": "04e90c4e3120dc0d76954599177d0fd7972513cc",
+      "recordedAt": "2026-08-25T01:12:47.719Z",
+      "incompleteFiles": []
     }
   }
 }
