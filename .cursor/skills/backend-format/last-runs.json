@@ -390,6 +390,12 @@
       "modulePath": "plex",
       "lastCommit": "05d285769b2b4faf0597040f185695627f5a6fb4",
       "recordedAt": "2026-08-25T13:49:25.676Z"
+    },
+    "publish-policy-default": {
+      "path": "publish-policy-default",
+      "modulePath": "publish-policy-default",
+      "lastCommit": "faeab005456ebc525c931409ff8d5072fbbdf137",
+      "recordedAt": "2026-08-25T13:49:25.853Z"
     }
   }
 }
