@@ -156,6 +156,12 @@
       "modulePath": "health-monitor",
       "lastCommit": "2c13bf161073442842e154f0a7ba5017a0fe7abd",
       "recordedAt": "2026-08-25T12:21:12.321Z"
+    },
+    "downloader-sabnzbd": {
+      "path": "downloader-sabnzbd",
+      "modulePath": "downloader-sabnzbd",
+      "lastCommit": "5da8bdc8fe43c2b5892324673e507a7a1fdd5715",
+      "recordedAt": "2026-08-25T12:21:12.385Z"
     }
   }
 }
