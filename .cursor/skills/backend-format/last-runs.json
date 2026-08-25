@@ -186,6 +186,12 @@
       "modulePath": "feature-flags-file",
       "lastCommit": "15cb6933574327ef1ea164523bf927cf05b5875c",
       "recordedAt": "2026-08-25T12:21:12.642Z"
+    },
+    "downloader-debrid": {
+      "path": "downloader-debrid",
+      "modulePath": "downloader-debrid",
+      "lastCommit": "b3e72b7006d848481fb5698de376a7c1db579a2e",
+      "recordedAt": "2026-08-25T12:21:33.702Z"
     }
   }
 }
