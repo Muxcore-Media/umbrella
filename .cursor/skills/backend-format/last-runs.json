@@ -300,6 +300,12 @@
       "modulePath": "media-music",
       "lastCommit": "134439d3d04cc86703172f16012fc25c190ab493",
       "recordedAt": "2026-08-25T13:49:23.336Z"
+    },
+    "media-rename": {
+      "path": "media-rename",
+      "modulePath": "media-rename",
+      "lastCommit": "2bf07f5b2dc25adb80ac67cf7e4feb5c5a34edd3",
+      "recordedAt": "2026-08-25T13:49:23.484Z"
     }
   }
 }
