@@ -35,6 +35,13 @@
       "lastCommit": "9e191d98682b4401e3685d675cb00e8dc81edd40",
       "recordedAt": "2026-08-25T01:11:13.663Z",
       "incompleteFiles": []
+    },
+    "core": {
+      "path": "core",
+      "modulePath": "core",
+      "lastCommit": "00c0ef8c30f5ad8afee797e3df4f08ba58961d9e",
+      "recordedAt": "2026-08-25T01:12:17.199Z",
+      "incompleteFiles": []
     }
   }
 }
