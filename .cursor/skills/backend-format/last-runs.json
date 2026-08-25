@@ -426,6 +426,12 @@
       "modulePath": "secrets-vault",
       "lastCommit": "1311ae24b0e2d3dda15b5f6fed2241f0339df79c",
       "recordedAt": "2026-08-25T13:49:26.752Z"
+    },
+    "serialization-safe": {
+      "path": "serialization-safe",
+      "modulePath": "serialization-safe",
+      "lastCommit": "7085de079cc60a8d8b4dcbfb9f8e341a60a37931",
+      "recordedAt": "2026-08-25T13:49:26.926Z"
     }
   }
 }
