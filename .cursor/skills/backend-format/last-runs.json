@@ -18,6 +18,12 @@
       "modulePath": "config-watcher",
       "lastCommit": "8eefcb65a0b80e6782d466333c841b77d00f3e34",
       "recordedAt": "2026-08-25T12:20:15.268Z"
+    },
+    "auth-oidc": {
+      "path": "auth-oidc",
+      "modulePath": "auth-oidc",
+      "lastCommit": "152f0cffebb48d8b97d30380f95b880112d989a6",
+      "recordedAt": "2026-08-25T12:20:15.406Z"
     }
   }
 }
