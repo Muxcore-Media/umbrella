@@ -12,6 +12,12 @@
       "modulePath": "muxcore-ios",
       "lastCommit": "743fe08eadaa68b1a90decdbeb69f33ebf37bc93",
       "recordedAt": "2026-08-25T04:51:41.232Z"
+    },
+    "media-ui": {
+      "path": "media-ui",
+      "modulePath": "media-ui",
+      "lastCommit": "a0aca2723911908c6c98476977fe9671a48fb4fe",
+      "recordedAt": "2026-08-25T12:20:14.697Z"
     }
   }
 }
