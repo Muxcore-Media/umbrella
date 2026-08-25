@@ -348,6 +348,12 @@
       "modulePath": "media-tvshows",
       "lastCommit": "b7fc838951bef51672f3fda461f6bf616baffbb8",
       "recordedAt": "2026-08-25T13:49:24.503Z"
+    },
+    "metadata-tmdb": {
+      "path": "metadata-tmdb",
+      "modulePath": "metadata-tmdb",
+      "lastCommit": "36f52409b14ba3e1453f596c36cf3440ef5bdbca",
+      "recordedAt": "2026-08-25T13:49:24.642Z"
     }
   }
 }
