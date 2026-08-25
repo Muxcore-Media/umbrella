@@ -240,6 +240,12 @@
       "modulePath": "media-books",
       "lastCommit": "03100a3c89e92b77ee319333b71863610dafb216",
       "recordedAt": "2026-08-25T13:49:21.867Z"
+    },
+    "media-comics": {
+      "path": "media-comics",
+      "modulePath": "media-comics",
+      "lastCommit": "51aaf3bf0afcf947960f4ee2c8d5361d8a5c29f2",
+      "recordedAt": "2026-08-25T13:49:22.002Z"
     }
   }
 }
