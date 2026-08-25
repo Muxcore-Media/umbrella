@@ -32,14 +32,9 @@
     "admin-ui": {
       "path": "admin-ui",
       "modulePath": "admin-ui",
-      "lastCommit": "7f08bbe292bb6f97efb4c215980b402942a37e59",
-      "recordedAt": "2026-08-24T16:49:30.905Z",
+      "lastCommit": "c929b3cb94c0ff85c3885d7bf962ef4bbd546c52",
+      "recordedAt": "2026-08-25T01:01:53.538Z",
       "incompletePages": [
-        "Media library",
-        "Automation",
-        "Import",
-        "Subtitles",
-        "List Sync",
         "Tasks",
         "Streams",
         "Transcode",
