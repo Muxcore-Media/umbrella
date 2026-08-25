@@ -7,6 +7,13 @@
       "lastCommit": "cf35b9712a82477adecd9f171b6662d589164543",
       "recordedAt": "2026-08-25T01:08:32.283Z",
       "incompleteFiles": []
+    },
+    "muxcore-installer": {
+      "path": "muxcore-installer",
+      "modulePath": "muxcore-installer",
+      "lastCommit": "6c6cc8231b262b71e8509a4af7ff4289f5bdb02a",
+      "recordedAt": "2026-08-25T01:08:45.624Z",
+      "incompleteFiles": []
     }
   }
 }
