@@ -312,6 +312,12 @@
       "modulePath": "media-root-folders",
       "lastCommit": "18a09c34df6c4f4c14987ace20202001e0132a96",
       "recordedAt": "2026-08-25T13:49:23.628Z"
+    },
+    "media-scanner": {
+      "path": "media-scanner",
+      "modulePath": "media-scanner",
+      "lastCommit": "ab7ed605b08294ce122c3dcd9f6037fdbb4ce2aa",
+      "recordedAt": "2026-08-25T13:49:23.773Z"
     }
   }
 }
