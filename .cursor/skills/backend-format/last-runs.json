@@ -132,6 +132,12 @@
       "modulePath": "contracts-playback",
       "lastCommit": "873851ed5b314d6db541d2f17a9c5185e3a8a9f5",
       "recordedAt": "2026-08-25T12:21:12.066Z"
+    },
+    "indexer-piratebay": {
+      "path": "indexer-piratebay",
+      "modulePath": "indexer-piratebay",
+      "lastCommit": "3314b1c70b7632d2c994fe249cd7556a0f89e75d",
+      "recordedAt": "2026-08-25T12:21:12.130Z"
     }
   }
 }
