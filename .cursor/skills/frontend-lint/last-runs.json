@@ -28,6 +28,13 @@
       "lastCommit": "568a808b49f1e055aae311901b7d17b322db845b",
       "recordedAt": "2026-08-25T01:16:09.295Z",
       "incompleteFiles": []
+    },
+    "media-tvos-app": {
+      "path": "media-tvos-app",
+      "modulePath": "media-tvos-app",
+      "lastCommit": "e4d5fca95e237f74b3bfe90a35a316303d24c340",
+      "recordedAt": "2026-08-25T04:21:37.722Z",
+      "incompleteFiles": []
     }
   }
 }
