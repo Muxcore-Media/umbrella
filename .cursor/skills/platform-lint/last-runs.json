@@ -28,6 +28,13 @@
       "lastCommit": "520b219879b38a7473e0b026aafdde84d0d7e0ed",
       "recordedAt": "2026-08-25T01:10:24.980Z",
       "incompleteFiles": []
+    },
+    "workflow-tapestry": {
+      "path": "workflow-tapestry",
+      "modulePath": "workflow-tapestry",
+      "lastCommit": "9e191d98682b4401e3685d675cb00e8dc81edd40",
+      "recordedAt": "2026-08-25T01:11:13.663Z",
+      "incompleteFiles": []
     }
   }
 }
