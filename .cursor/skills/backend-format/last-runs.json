@@ -162,6 +162,12 @@
       "modulePath": "downloader-sabnzbd",
       "lastCommit": "5da8bdc8fe43c2b5892324673e507a7a1fdd5715",
       "recordedAt": "2026-08-25T12:21:12.385Z"
+    },
+    "indexer-torznab": {
+      "path": "indexer-torznab",
+      "modulePath": "indexer-torznab",
+      "lastCommit": "22777096bbbe2773c30ff5d32aec25d721b0d305",
+      "recordedAt": "2026-08-25T12:21:12.448Z"
     }
   }
 }
