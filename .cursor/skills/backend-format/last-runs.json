@@ -360,6 +360,12 @@
       "modulePath": "metrics-prometheus",
       "lastCommit": "7278f0eb917d796d0d0c50266351323f769146f2",
       "recordedAt": "2026-08-25T13:49:24.801Z"
+    },
+    "notification-apprise": {
+      "path": "notification-apprise",
+      "modulePath": "notification-apprise",
+      "lastCommit": "c7a7dda0a52f7d81359807aaeb0799391ac33a3c",
+      "recordedAt": "2026-08-25T13:49:24.969Z"
     }
   }
 }
