@@ -270,6 +270,12 @@
       "modulePath": "media-intro-outro",
       "lastCommit": "640624bd1f6704d2391fc8c5486d71adbd9c0a49",
       "recordedAt": "2026-08-25T13:49:22.587Z"
+    },
+    "media-jellyfin": {
+      "path": "media-jellyfin",
+      "modulePath": "media-jellyfin",
+      "lastCommit": "07ddc877f4ca044ccfabce6df88255cf774ff9cc",
+      "recordedAt": "2026-08-25T13:49:22.730Z"
     }
   }
 }
