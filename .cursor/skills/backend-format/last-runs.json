@@ -258,6 +258,12 @@
       "modulePath": "media-ffprobe",
       "lastCommit": "d69fab908c35f5e5aa5fc5745413626c3231d689",
       "recordedAt": "2026-08-25T13:49:22.287Z"
+    },
+    "media-graph": {
+      "path": "media-graph",
+      "modulePath": "media-graph",
+      "lastCommit": "85589c49e9d2ab2ef34120151f551c89e52ac3e0",
+      "recordedAt": "2026-08-25T13:49:22.431Z"
     }
   }
 }
