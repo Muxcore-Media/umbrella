@@ -282,6 +282,12 @@
       "modulePath": "media-library-maintainer",
       "lastCommit": "6a5c9aad232e4488eaba30ff5d025e26a6e95d20",
       "recordedAt": "2026-08-25T13:49:22.869Z"
+    },
+    "media-list-sync": {
+      "path": "media-list-sync",
+      "modulePath": "media-list-sync",
+      "lastCommit": "883974c826f7b71cb09d1d4fc2a6b83fc8947b08",
+      "recordedAt": "2026-08-25T13:49:23.013Z"
     }
   }
 }
