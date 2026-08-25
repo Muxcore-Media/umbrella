@@ -432,6 +432,12 @@
       "modulePath": "serialization-safe",
       "lastCommit": "7085de079cc60a8d8b4dcbfb9f8e341a60a37931",
       "recordedAt": "2026-08-25T13:49:26.926Z"
+    },
+    "spool": {
+      "path": "spool",
+      "modulePath": "spool",
+      "lastCommit": "41b6348b98deb389c4036cac9a47c805b2340abb",
+      "recordedAt": "2026-08-25T13:49:27.095Z"
     }
   }
 }
