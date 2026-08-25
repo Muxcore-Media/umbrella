@@ -336,6 +336,12 @@
       "modulePath": "media-transcoder",
       "lastCommit": "30df2a1841849455305240f922def126922322c6",
       "recordedAt": "2026-08-25T13:49:24.211Z"
+    },
+    "media-transcoder-pool": {
+      "path": "media-transcoder-pool",
+      "modulePath": "media-transcoder-pool",
+      "lastCommit": "84c6f7459498ef4904cc3ef45c75f7ce299002a2",
+      "recordedAt": "2026-08-25T13:49:24.362Z"
     }
   }
 }
