@@ -246,6 +246,12 @@
       "modulePath": "media-comics",
       "lastCommit": "51aaf3bf0afcf947960f4ee2c8d5361d8a5c29f2",
       "recordedAt": "2026-08-25T13:49:22.002Z"
+    },
+    "media-custom-formats": {
+      "path": "media-custom-formats",
+      "modulePath": "media-custom-formats",
+      "lastCommit": "779af7b77fc58973af80db2915470352107064e8",
+      "recordedAt": "2026-08-25T13:49:22.148Z"
     }
   }
 }
