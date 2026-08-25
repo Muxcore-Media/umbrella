@@ -114,6 +114,12 @@
       "modulePath": "data-redaction-pattern",
       "lastCommit": "c563121d4287497cc2cebbbba035cc472867f53e",
       "recordedAt": "2026-08-25T12:21:11.863Z"
+    },
+    "downloader-native-torrent": {
+      "path": "downloader-native-torrent",
+      "modulePath": "downloader-native-torrent",
+      "lastCommit": "ef3cae0ff10c8ae7657ac50748b421803d37dbbd",
+      "recordedAt": "2026-08-25T12:21:11.933Z"
     }
   }
 }
