@@ -56,6 +56,13 @@
       "lastCommit": "de76f635fcb8f45b11ec8c9c43db485e8b1b4d8c",
       "recordedAt": "2026-08-25T01:14:42.021Z",
       "incompleteFiles": []
+    },
+    "muxcorectl-cli": {
+      "path": "muxcorectl-cli",
+      "modulePath": "muxcorectl-cli",
+      "lastCommit": "d1af42804adde417cbfa4de4d657ad59033a3508",
+      "recordedAt": "2026-08-25T01:15:18.826Z",
+      "incompleteFiles": []
     }
   }
 }
