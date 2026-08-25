@@ -42,6 +42,12 @@
       "modulePath": "emby",
       "lastCommit": "9e0cd3324a0f132dd838f1254cc6c8995823e0e7",
       "recordedAt": "2026-08-25T12:21:11.066Z"
+    },
+    "contracts-reconciler": {
+      "path": "contracts-reconciler",
+      "modulePath": "contracts-reconciler",
+      "lastCommit": "3079999620989f05c669a5a8b3c3b708fd5dca7a",
+      "recordedAt": "2026-08-25T12:21:11.136Z"
     }
   }
 }
