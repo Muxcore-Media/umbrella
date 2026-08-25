@@ -462,6 +462,12 @@
       "modulePath": "storage-s3",
       "lastCommit": "1f55d2e91ff250f2dc4e979e4fe81594de49d6c1",
       "recordedAt": "2026-08-25T13:50:33.832Z"
+    },
+    "tracing-otlp": {
+      "path": "tracing-otlp",
+      "modulePath": "tracing-otlp",
+      "lastCommit": "f28ee5a3a95eda1cd2ffe9757170b0bfa5d0915a",
+      "recordedAt": "2026-08-25T13:50:33.958Z"
     }
   }
 }
