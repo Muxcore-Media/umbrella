@@ -66,6 +66,12 @@
       "modulePath": "circuitbreaker-simple",
       "lastCommit": "a29e655a42ded6d9dae61d54a518f98b65f82d76",
       "recordedAt": "2026-08-25T12:21:11.331Z"
+    },
+    "api-rest": {
+      "path": "api-rest",
+      "modulePath": "api-rest",
+      "lastCommit": "21a41ec5762c19f0812b33a8ba32d41d74f14d33",
+      "recordedAt": "2026-08-25T12:21:11.399Z"
     }
   }
 }
