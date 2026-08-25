@@ -438,6 +438,12 @@
       "modulePath": "spool",
       "lastCommit": "41b6348b98deb389c4036cac9a47c805b2340abb",
       "recordedAt": "2026-08-25T13:49:27.095Z"
+    },
+    "spool-resolver-http": {
+      "path": "spool-resolver-http",
+      "modulePath": "spool-resolver-http",
+      "lastCommit": "6ebe270809f7528e0549a2b8bc70751493c6ddf2",
+      "recordedAt": "2026-08-25T13:49:27.265Z"
     }
   }
 }
