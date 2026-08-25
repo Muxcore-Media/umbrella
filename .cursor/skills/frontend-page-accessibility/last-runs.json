@@ -18,14 +18,9 @@
     "media-ui-app": {
       "path": "media-ui-app",
       "modulePath": "media-ui-app",
-      "lastCommit": "bf4684df446c7d65e239582ef95dd99cffe081a7",
-      "recordedAt": "2026-08-24T16:51:12.557Z",
+      "lastCommit": "d8c12315b5fffda018fed43bc1732264f231cbeb",
+      "recordedAt": "2026-08-25T00:56:49.893Z",
       "incompletePages": [
-        "MusicArtist",
-        "HomeVideos",
-        "MusicVideos",
-        "Mixed",
-        "Books",
         "BookAuthor",
         "Comics",
         "Audiobooks",
