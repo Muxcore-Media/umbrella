@@ -330,6 +330,12 @@
       "modulePath": "media-tagging",
       "lastCommit": "48fe2356e2e24a030b756880a8a2a47a6c736fd9",
       "recordedAt": "2026-08-25T13:49:24.071Z"
+    },
+    "media-transcoder": {
+      "path": "media-transcoder",
+      "modulePath": "media-transcoder",
+      "lastCommit": "30df2a1841849455305240f922def126922322c6",
+      "recordedAt": "2026-08-25T13:49:24.211Z"
     }
   }
 }
