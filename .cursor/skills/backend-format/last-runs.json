@@ -420,6 +420,12 @@
       "modulePath": "secrets-file",
       "lastCommit": "57beee7b935b3b9d9af9bf9dc36778449cb5d548",
       "recordedAt": "2026-08-25T13:49:26.572Z"
+    },
+    "secrets-vault": {
+      "path": "secrets-vault",
+      "modulePath": "secrets-vault",
+      "lastCommit": "1311ae24b0e2d3dda15b5f6fed2241f0339df79c",
+      "recordedAt": "2026-08-25T13:49:26.752Z"
     }
   }
 }
