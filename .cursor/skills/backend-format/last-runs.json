@@ -138,6 +138,12 @@
       "modulePath": "indexer-piratebay",
       "lastCommit": "3314b1c70b7632d2c994fe249cd7556a0f89e75d",
       "recordedAt": "2026-08-25T12:21:12.130Z"
+    },
+    "executor-shell": {
+      "path": "executor-shell",
+      "modulePath": "executor-shell",
+      "lastCommit": "6379ff216d16f569cefad565a2ddd2b4ce0663b9",
+      "recordedAt": "2026-08-25T12:21:12.194Z"
     }
   }
 }
