@@ -1,7 +1,12 @@
-#!/bin/bash
-ROOT="/home/ender/Projects/MuxCore"
-PY="$ROOT/.venv/bin/python3"
-if [ ! -x "$PY" ]; then
-  PY="$(command -v python3)"
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+BASE="$(basename "$0" .sh)"
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "node is required to run ${BASE}" >&2
+  exit 1
 fi
-exec "$PY" "$ROOT/scripts/muxidx/main.py" "$@"
+
+exec node "$DIR/$BASE.mjs" "$@"
