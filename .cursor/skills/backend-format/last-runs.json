@@ -384,6 +384,12 @@
       "modulePath": "playback-monitor",
       "lastCommit": "6d59ffdd6559759a6391c06436317057600d5607",
       "recordedAt": "2026-08-25T13:49:25.488Z"
+    },
+    "plex": {
+      "path": "plex",
+      "modulePath": "plex",
+      "lastCommit": "05d285769b2b4faf0597040f185695627f5a6fb4",
+      "recordedAt": "2026-08-25T13:49:25.676Z"
     }
   }
 }
