@@ -24,6 +24,12 @@
       "modulePath": "admin-ui",
       "lastCommit": "b40d46b47ae58dccfbe2153587b4b3b11ec85b64",
       "recordedAt": "2026-08-25T12:20:14.824Z"
+    },
+    "media-ui-app": {
+      "path": "media-ui-app",
+      "modulePath": "media-ui-app",
+      "lastCommit": "f7839fb044cd05446b5d23e0452362967b5b0230",
+      "recordedAt": "2026-08-25T12:21:10.931Z"
     }
   }
 }
