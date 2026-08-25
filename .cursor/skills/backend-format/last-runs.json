@@ -210,6 +210,12 @@
       "modulePath": "input-validate-jsonschema",
       "lastCommit": "b31d7b6c1a70a832022ddbd9342eb8d774f99028",
       "recordedAt": "2026-08-25T13:49:21.219Z"
+    },
+    "jellyfin": {
+      "path": "jellyfin",
+      "modulePath": "jellyfin",
+      "lastCommit": "0f16dd8b1d7c9094be99784b5afd9b0c1ee4c9e5",
+      "recordedAt": "2026-08-25T13:49:21.332Z"
     }
   }
 }
