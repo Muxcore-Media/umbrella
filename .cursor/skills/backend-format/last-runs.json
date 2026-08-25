@@ -36,6 +36,12 @@
       "modulePath": "contracts-media",
       "lastCommit": "0c39675bebad898d152fba192ce400369e652a68",
       "recordedAt": "2026-08-25T12:20:15.625Z"
+    },
+    "emby": {
+      "path": "emby",
+      "modulePath": "emby",
+      "lastCommit": "9e0cd3324a0f132dd838f1254cc6c8995823e0e7",
+      "recordedAt": "2026-08-25T12:21:11.066Z"
     }
   }
 }
