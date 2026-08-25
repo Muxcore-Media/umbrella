@@ -372,6 +372,12 @@
       "modulePath": "notification-default",
       "lastCommit": "43b6629aa085eb13e19e216c0e5d2d48e19416e4",
       "recordedAt": "2026-08-25T13:49:25.156Z"
+    },
+    "playback-guard": {
+      "path": "playback-guard",
+      "modulePath": "playback-guard",
+      "lastCommit": "42d4218575b1dd75d94afb6e274a0eedf3a60334",
+      "recordedAt": "2026-08-25T13:49:25.329Z"
     }
   }
 }
