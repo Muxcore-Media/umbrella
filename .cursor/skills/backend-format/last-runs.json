@@ -228,6 +228,12 @@
       "modulePath": "media-audiobooks",
       "lastCommit": "45f7da7c117893394d17f7f3587c8b90714589a2",
       "recordedAt": "2026-08-25T13:49:21.599Z"
+    },
+    "media-automation": {
+      "path": "media-automation",
+      "modulePath": "media-automation",
+      "lastCommit": "2ddc827de37fd595c48b413f56125c8b83b399c2",
+      "recordedAt": "2026-08-25T13:49:21.732Z"
     }
   }
 }
