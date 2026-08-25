@@ -414,6 +414,12 @@
       "modulePath": "scheduler-cron",
       "lastCommit": "6a38530ac24d956fb16b4ca4cb123224059549d4",
       "recordedAt": "2026-08-25T13:49:26.386Z"
+    },
+    "secrets-file": {
+      "path": "secrets-file",
+      "modulePath": "secrets-file",
+      "lastCommit": "57beee7b935b3b9d9af9bf9dc36778449cb5d548",
+      "recordedAt": "2026-08-25T13:49:26.572Z"
     }
   }
 }
