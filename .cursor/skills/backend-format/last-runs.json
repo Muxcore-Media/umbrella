@@ -378,6 +378,12 @@
       "modulePath": "playback-guard",
       "lastCommit": "42d4218575b1dd75d94afb6e274a0eedf3a60334",
       "recordedAt": "2026-08-25T13:49:25.329Z"
+    },
+    "playback-monitor": {
+      "path": "playback-monitor",
+      "modulePath": "playback-monitor",
+      "lastCommit": "6d59ffdd6559759a6391c06436317057600d5607",
+      "recordedAt": "2026-08-25T13:49:25.488Z"
     }
   }
 }
