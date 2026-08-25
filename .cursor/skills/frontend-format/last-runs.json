@@ -30,6 +30,12 @@
       "modulePath": "media-ui-app",
       "lastCommit": "f7839fb044cd05446b5d23e0452362967b5b0230",
       "recordedAt": "2026-08-25T12:21:10.931Z"
+    },
+    "muxcore-docs": {
+      "path": "muxcore-docs",
+      "modulePath": "muxcore-docs",
+      "lastCommit": "4ee1da76a5728927fc17a68607c0c78b5f39382c",
+      "recordedAt": "2026-08-25T12:21:10.998Z"
     }
   }
 }
