@@ -12,6 +12,12 @@
       "modulePath": null,
       "lastCommit": "fd058a53a48cda05f5549da078c7ddfaed1a8e21",
       "recordedAt": "2026-08-25T01:04:14.755Z"
+    },
+    "scripts-generate-module-agents": {
+      "path": "scripts/generate-module-agents",
+      "modulePath": null,
+      "lastCommit": "0e2ef66b4d4a0469359c9655e9c83a2661200005",
+      "recordedAt": "2026-08-25T01:04:30.661Z"
     }
   }
 }
