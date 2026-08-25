@@ -396,6 +396,12 @@
       "modulePath": "publish-policy-default",
       "lastCommit": "faeab005456ebc525c931409ff8d5072fbbdf137",
       "recordedAt": "2026-08-25T13:49:25.853Z"
+    },
+    "ratelimit-tokenbucket": {
+      "path": "ratelimit-tokenbucket",
+      "modulePath": "ratelimit-tokenbucket",
+      "lastCommit": "70c95664125ef7a4f95952e7d13dbad8c97938fb",
+      "recordedAt": "2026-08-25T13:49:26.025Z"
     }
   }
 }
