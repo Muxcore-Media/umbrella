@@ -204,6 +204,12 @@
       "modulePath": "encryption-aesgcm",
       "lastCommit": "2440b836548b67b14b2d51b272444fdcd5309f9b",
       "recordedAt": "2026-08-25T12:21:33.832Z"
+    },
+    "input-validate-jsonschema": {
+      "path": "input-validate-jsonschema",
+      "modulePath": "input-validate-jsonschema",
+      "lastCommit": "b31d7b6c1a70a832022ddbd9342eb8d774f99028",
+      "recordedAt": "2026-08-25T13:49:21.219Z"
     }
   }
 }
