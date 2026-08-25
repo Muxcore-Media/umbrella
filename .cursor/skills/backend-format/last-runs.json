@@ -324,6 +324,12 @@
       "modulePath": "media-subtitles",
       "lastCommit": "1f4d62b476ab1129666a70828f816a90df50dfba",
       "recordedAt": "2026-08-25T13:49:23.918Z"
+    },
+    "media-tagging": {
+      "path": "media-tagging",
+      "modulePath": "media-tagging",
+      "lastCommit": "48fe2356e2e24a030b756880a8a2a47a6c736fd9",
+      "recordedAt": "2026-08-25T13:49:24.071Z"
     }
   }
 }
