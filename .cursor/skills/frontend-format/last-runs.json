@@ -1,1 +1,11 @@
-{"version":1,"apps":{}}
+{
+  "version": 1,
+  "apps": {
+    "media-tvos-app": {
+      "path": "media-tvos-app",
+      "modulePath": "media-tvos-app",
+      "lastCommit": "e4d5fca95e237f74b3bfe90a35a316303d24c340",
+      "recordedAt": "2026-08-25T04:51:41.144Z"
+    }
+  }
+}
