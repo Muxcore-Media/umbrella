@@ -108,6 +108,12 @@
       "modulePath": "contracts-scanner",
       "lastCommit": "5b30f142a849cbbe7982589da0a619df2e2a0a18",
       "recordedAt": "2026-08-25T12:21:11.797Z"
+    },
+    "data-redaction-pattern": {
+      "path": "data-redaction-pattern",
+      "modulePath": "data-redaction-pattern",
+      "lastCommit": "c563121d4287497cc2cebbbba035cc472867f53e",
+      "recordedAt": "2026-08-25T12:21:11.863Z"
     }
   }
 }
