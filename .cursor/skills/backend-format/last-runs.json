@@ -60,6 +60,12 @@
       "modulePath": "contracts-media-admin",
       "lastCommit": "c061fb2dfc274c6fe5b0c9e612b9e91f1a79a778",
       "recordedAt": "2026-08-25T12:21:11.264Z"
+    },
+    "circuitbreaker-simple": {
+      "path": "circuitbreaker-simple",
+      "modulePath": "circuitbreaker-simple",
+      "lastCommit": "a29e655a42ded6d9dae61d54a518f98b65f82d76",
+      "recordedAt": "2026-08-25T12:21:11.331Z"
     }
   }
 }
