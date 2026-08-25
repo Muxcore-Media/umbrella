@@ -42,6 +42,12 @@
       "modulePath": "muxcorectl",
       "lastCommit": "cf35b9712a82477adecd9f171b6662d589164543",
       "recordedAt": "2026-08-25T13:50:35.071Z"
+    },
+    "muxcorectl-cli": {
+      "path": "muxcorectl-cli",
+      "modulePath": "muxcorectl-cli",
+      "lastCommit": "d1af42804adde417cbfa4de4d657ad59033a3508",
+      "recordedAt": "2026-08-25T13:50:35.236Z"
     }
   }
 }
