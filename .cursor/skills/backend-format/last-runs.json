@@ -126,6 +126,12 @@
       "modulePath": "database-postgres",
       "lastCommit": "327c18ee25577fb81f43be237ef0f83b43761afb",
       "recordedAt": "2026-08-25T12:21:11.998Z"
+    },
+    "contracts-playback": {
+      "path": "contracts-playback",
+      "modulePath": "contracts-playback",
+      "lastCommit": "873851ed5b314d6db541d2f17a9c5185e3a8a9f5",
+      "recordedAt": "2026-08-25T12:21:12.066Z"
     }
   }
 }
