@@ -21,6 +21,13 @@
       "lastCommit": "9249228807308cec53dea6efc50e351bc4f1648e",
       "recordedAt": "2026-08-25T01:09:10.360Z",
       "incompleteFiles": []
+    },
+    "muxcore-module-starter": {
+      "path": "muxcore-module-starter",
+      "modulePath": "muxcore-module-starter",
+      "lastCommit": "520b219879b38a7473e0b026aafdde84d0d7e0ed",
+      "recordedAt": "2026-08-25T01:10:24.980Z",
+      "incompleteFiles": []
     }
   }
 }
