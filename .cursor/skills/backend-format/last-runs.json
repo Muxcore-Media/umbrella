@@ -24,6 +24,12 @@
       "modulePath": "auth-oidc",
       "lastCommit": "152f0cffebb48d8b97d30380f95b880112d989a6",
       "recordedAt": "2026-08-25T12:20:15.406Z"
+    },
+    "cache-local": {
+      "path": "cache-local",
+      "modulePath": "cache-local",
+      "lastCommit": "5695288f3d45f2798b37a3a8b96938d71565399b",
+      "recordedAt": "2026-08-25T12:20:15.528Z"
     }
   }
 }
