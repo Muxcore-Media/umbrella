@@ -41,6 +41,22 @@ git add media-ui-app
 git commit -m "chore: bump media-ui-app"
 ```
 
+## Vault deploy & local stack
+
+Homelab soak deploy and SSH details: [`AGENTS.md`](AGENTS.md). Local MVP reference stack: [`_mvp/README.md`](_mvp/README.md).
+
+| Task | Command |
+|------|---------|
+| List deploy targets | `_mvp/scripts/deploy-module-to-vault.sh --list` |
+| Deploy module to vault | `_mvp/scripts/deploy-module-to-vault.sh <module> --verify-all` |
+| SSH preflight (before deploy) | `_mvp/scripts/preflight-vault-ssh.sh` |
+| Full vault smoke | `_mvp/scripts/smoke-vault-all.sh` |
+| Vault mesh CLI | `_mvp/scripts/muxcorectl-vault.sh health status` |
+| Vault HTTP smoke | `_mvp/scripts/smoke-vault-health.sh` |
+| Public edge smoke | `_mvp/scripts/smoke-vault-public.sh` |
+| Local stack status | `cd _mvp && ./run-host.sh status` |
+| Script tests (offline) | `_mvp/scripts/run-script-tests.sh` |
+
 ## Fan-out quality skills
 
 Planning uses the umbrella branch at root; file diffs run inside each submodule repo:

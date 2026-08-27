@@ -8,6 +8,82 @@ This checkout is an **umbrella repo**: the root git tracks `.cursor/skills`, `sc
 
 Clone/recurse/bump workflow: [`README-UMBRELLA.md`](README-UMBRELLA.md). Agent skills: [`.cursor/skills/README.md`](.cursor/skills/README.md).
 
+## Local dev tools (Nix)
+
+Dev workstations (`thin`, `desk`, and similar) have **Nix**. Do **not** assume `go`, `node`, `npm`, `golangci-lint`, or other toolchain binaries are on the host PATH outside a Nix shell. **Use `nix-shell` for any dev tool you need** — do not install packages with apt, brew, or curl installers when Nix can provide them.
+
+**1. Module `shell.nix` first** (when the module ships one — e.g. `muxcore-android`, `muxcore-ios`, `media-ui-tv`):
+
+```bash
+cd media-ui-tv
+nix-shell --run 'npm test'
+```
+
+**2. Ad-hoc packages** (same pattern as `_mvp/scripts/install-origin-module.sh`):
+
+```bash
+nix-shell -p go golangci-lint --run 'cd core && golangci-lint run ./...'
+nix-shell -p go --run 'cd admin-ui && go test ./...'
+nix-shell -p nodejs --run 'cd media-ui-app && npm ci && npm test'
+nix-shell -p nodejs --run 'node --test scripts/foo.test.mjs'
+```
+
+**3. Interactive session** when running many commands in one module:
+
+```bash
+cd media-ui-app
+nix-shell -p nodejs
+# npm ci && npm run typecheck && npm test
+```
+
+Common packages: `go`, `golangci-lint`, `nodejs`, `postgresql`, `shellcheck`, `swift`, `gradle` (or use the module's `shell.nix` for Android/iOS). Read the module's `README.md` / `AGENTS.md` for module-specific invocations before inventing flags.
+
+**Private Go modules:** modules import `github.com/Muxcore-Media/*` but resolve from Forgejo. On dev workstations use SSH (not HTTPS) so Cursor does not pop a `git.zem.systems` login dialog:
+
+```bash
+export GOPRIVATE='github.com/Muxcore-Media/*'
+export GONOSUMDB='github.com/Muxcore-Media/*'
+export GIT_TERMINAL_PROMPT=0
+git config --global url."ssh://forgejo@git.zem.systems:2222/muxcore/".insteadOf "https://github.com/Muxcore-Media/"
+```
+
+Pre-warm `golangci-lint` before parallel agent waves: `nix-shell -p go golangci-lint --run 'golangci-lint version'`.
+
+## Key hosts (vault & desk)
+
+Two hosts matter most for day-to-day MuxCore work. Both are reachable over **ZeroTier** (network `2ca2fd5d9eab729d`; local interface often `ztoe6fmlyd`). Prefer ZT IPv6; use `-6` with `ssh`/`scp`/`rsync` when needed.
+
+| Host | Role | SSH (as `ender`) |
+|------|------|------------------|
+| **vault** | **MuxCore dev deployment** — runs `muxcore-host.service`, Forgejo origin, module binaries, CI runner | `ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95` |
+| **desk** | **DNS & Cloudflare control plane** — `flarectl` (grey-cloud `*.zem.systems` records), `cloudflared` (tunnel cert), `wrangler` | `ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb` |
+
+Convenience variables (use in scripts):
+
+```bash
+VAULT='ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95'
+DESK='ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb'
+MVP=/mnt/fast-storage/appdata/muxcore/mvp   # vault MVP root
+```
+
+**When to use which:**
+
+- **Changed a module that runs on vault?** Build locally (via `nix-shell`), copy artifacts over SSH, restart with `./run-host.sh` — see [Vault dev / soak environment](#vault-dev--soak-environment) and **Agent deploy policy**.
+- **New/changed public hostname or DNS?** SSH to **desk**, run `flarectl` with `CF_API_TOKEN` from `~/.config/cloudflare/token` — see [desk — Cloudflare DNS tooling](#desk--cloudflare-dns-tooling). Grey-cloud records point `*.zem.systems` at dawn/dusk; TLS terminates on the edges, not vault.
+- **Cloudflare Tunnel changes?** Also on **desk** — `cloudflared` uses `~/.cloudflared/cert.pem`.
+- **NixOS / ingress / vault env vars?** Edit `~/Projects/zemdregon/nix-production`, then `nixos-rebuild switch` to vault/dawn/dusk — see [Deploy workflow after nix changes](#deploy-workflow-after-nix-changes).
+
+LAN fallbacks when on the home network: vault `192.168.40.153`, desk `192.168.68.138`.
+
+**IPv6 scp/rsync:** bracket the address in the remote path:
+
+```bash
+scp -6 file "ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]:/remote/path"
+rsync -avz -e 'ssh -6' ./local/ 'ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]:/remote/path/'
+```
+
+If SSH fails after a host migration: `ssh-keygen -R <zt-address>`.
+
 ## Topology
 
 ```
@@ -16,10 +92,10 @@ Browser → *.zem.systems (grey-cloud DNS RR)
        → vault over ZeroTier (origin services)
 ```
 
-- **vault** — NAS / soak host. Runs `muxcore-host.service` (the MVP stack), Forgejo origin, and module binaries. Does **not** terminate public HTTPS; dawn/dusk do.
+- **vault** — NAS / soak host. **Primary MuxCore dev deployment target** — runs `muxcore-host.service` (the MVP stack), Forgejo origin, and module binaries. Does **not** terminate public HTTPS; dawn/dusk do.
 - **dawn** — OVH US-East public edge (ingress, ZT controller identity, Gatus).
 - **dusk** — OVH US-West public edge (sister ingress + backup MX).
-- **desk** — Home LAN workstation. Hosts Cloudflare DNS tooling (`flarectl`); not a MuxCore runtime host.
+- **desk** — Home LAN workstation. **DNS & Cloudflare control plane** — `flarectl` (grey-cloud DNS), `cloudflared` (tunnels), `wrangler`; not a MuxCore runtime host.
 - **bastion** — Legacy name; ZT address alias for dawn (`zt-addrs.nix`).
 
 MuxCore UIs on vault (proxied publicly):
@@ -46,6 +122,8 @@ Canonical map: `nix-production/modules/zt-addrs.nix`
 Requires local ZeroTier membership on network `2ca2fd5d9eab729d` (interface often `ztoe6fmlyd`).
 
 ## SSH access
+
+See [Key hosts (vault & desk)](#key-hosts-vault--desk) for roles and convenience variables. Details below.
 
 ### vault
 
@@ -75,9 +153,15 @@ ssh-keygen -R fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95
 
 ### desk
 
+**DNS & Cloudflare control plane** — run `flarectl`, `cloudflared`, and `wrangler` here (not on vault). See [desk — Cloudflare DNS tooling](#desk--cloudflare-dns-tooling).
+
 ```bash
 ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb
 # LAN fallback: 192.168.68.138 (Host `desk` in ~/.ssh/config may need key refresh)
+
+# Example: list a public MuxCore hostname (run on desk)
+ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb \
+  'export CF_API_TOKEN=$(cat ~/.config/cloudflare/token); flarectl dns list --zone zem.systems --name mux.zem.systems'
 ```
 
 ### dawn / dusk
@@ -88,6 +172,8 @@ ssh root@[fd2c:a2fd:5d9e:ab72:9d99:939b:2e68:dd6d]   # dusk
 ```
 
 ## Vault dev / soak environment
+
+**SSH to vault** (`ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95`) for MuxCore dev deployment — this is where the live soak stack runs, not your local `_mvp/run-host.sh` checkout (same layout, different machine).
 
 Nix module: `nix-production/modules/muxcore-test.nix` (enabled on vault host).
 
@@ -120,7 +206,22 @@ ssh -6 "$VAULT" "export MUXCORE_GRPC_ADDR=127.0.0.1:9090 MUXCORE_INSECURE_DISABL
 
 Treat a module as **present** if its binary exists under `$MVP/bin/` **or** it appears in `./run-host.sh` (always-on or env-gated) and is running / expected for the task.
 
-**Redeploy a Go module binary** (typical path):
+**One-liner (preferred):** from the workspace, `_mvp/scripts/deploy-module-to-vault.sh` builds (via `nix-shell` when Go/Node are not on PATH), copies over SSH, and restarts the matching `run-host.sh` service. Handles `admin-ui`, `media-ui` / `mediauiprox`, `media-ui-app` (SPA rsync), origin-pinned acquisition modules, `core` / `muxcored`, and `muxcorectl`. Full helper inventory: [`USABILITY-DEPLOY-LOOP-SUMMARY.md`](USABILITY-DEPLOY-LOOP-SUMMARY.md).
+
+```bash
+_mvp/scripts/deploy-module-to-vault.sh admin-ui --verify-all
+_mvp/scripts/deploy-module-to-vault.sh media-ui-app
+_mvp/scripts/muxcorectl-vault.sh health status
+_mvp/scripts/smoke-vault-health.sh
+_mvp/scripts/smoke-vault-public.sh
+_mvp/scripts/smoke-vault-all.sh
+_mvp/scripts/preflight-vault-ssh.sh
+MVP_DEPLOY_SSH=ender@192.168.40.153 _mvp/scripts/deploy-module-to-vault.sh request-media
+```
+
+Local stack health: `cd _mvp && ./run-host.sh status`.
+
+**Redeploy a Go module binary** (manual path when the script does not cover your case):
 
 ```bash
 MODULE=admin-ui   # module dir name == run-host.sh service name in most cases
@@ -226,12 +327,14 @@ Local reference: `_mvp/run-host.sh` (same layout as vault MVP). Ports: `_mvp/POR
 
 ## desk — Cloudflare DNS tooling
 
+**SSH to desk first** (`ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb`). Desk is the control plane for public `*.zem.systems` DNS and Cloudflare Tunnel credentials — vault only runs the MuxCore stack behind dawn/dusk ingress.
+
 Cloudflare CLI tools live on **desk** in `~/.nix-profile/bin/`:
 
 | Tool | Use |
 |------|-----|
-| **flarectl** | Grey-cloud DNS records on `zem.systems` |
-| **cloudflared** | Tunnel management (`~/.cloudflared/cert.pem`) |
+| **flarectl** | Grey-cloud DNS records on `zem.systems` (A/AAAA → dawn + dusk) |
+| **cloudflared** | Tunnel management — cert at `~/.cloudflared/cert.pem` |
 | **wrangler** / **cfcli** | Workers / general CF API |
 
 API token: `~/.config/cloudflare/token` → export as `CF_API_TOKEN`.
