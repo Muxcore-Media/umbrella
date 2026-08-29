@@ -15,6 +15,18 @@ Consolidated skill for building on the Cloudflare platform. Use decision trees b
 
 Your knowledge of Cloudflare APIs, types, limits, and pricing may be outdated. **Prefer retrieval over pre-training** — the references in this skill are starting points, not source of truth.
 
+## MuxCore homelab (this workspace)
+
+Public `*.zem.systems` DNS and **cloudflared** tunnel credentials are managed on **desk**, not vault:
+
+- SSH: `ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb`
+- Tools on desk: `flarectl` (grey-cloud A/AAAA → dawn/dusk), `cloudflared` (`~/.cloudflared/cert.pem`), `wrangler`
+- API token: `~/.config/cloudflare/token` → `CF_API_TOKEN`
+
+**vault** runs the MuxCore stack (`muxcore-host.service`); it does not own public DNS. Edge TLS is on dawn/dusk via `nix-production`.
+
+Operational recipes: workspace [`AGENTS.md`](../../../AGENTS.md) → **Key hosts (vault & desk)** and **desk — Cloudflare DNS tooling**.
+
 ## Retrieval Sources
 
 Fetch the **latest** information before citing specific numbers, API signatures, or configuration options. Do not rely on baked-in knowledge or these reference files alone.

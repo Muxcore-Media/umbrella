@@ -26,7 +26,7 @@ Each plan row includes `modulePath`, `baseBranch`, and `head` for that module's 
 
 | Path | Purpose |
 | ---- | ------- |
-| [templates/muxcore-agent-setup.md](templates/muxcore-agent-setup.md) | Shared child setup + stack tooling |
+| [templates/muxcore-agent-setup.md](templates/muxcore-agent-setup.md) | Shared child setup, **nix-shell** dev tools, stack tooling |
 | [assets/.prettierrc](assets/.prettierrc) | Copy only when a JS module has no formatter |
 | [assets/eslint.config.js](assets/eslint.config.js) | Copy only when a JS module has no ESLint |
 

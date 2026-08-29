@@ -34,6 +34,7 @@ Progress:
 
 ## Defaults (do not grill per app)
 
+- Child agents run format/lint/test via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
 - Format until format-clean
 - Do not lint. Do not run page-accessibility
 - Do not replace existing formatter config (Staying Grounded, kapsalon `.prettierrc`, Flutter)

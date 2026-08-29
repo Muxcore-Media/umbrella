@@ -54,7 +54,7 @@ if (isDirectRun(import.meta.url)) {
 ## Tests (the flow that must run Node)
 
 - Add `{{STEM}}.test.mjs` next to the implementation.
-- Run `node --test {{STEM}}.test.mjs` until it passes.
+- Run `node --test {{STEM}}.test.mjs` until it passes (via `nix-shell -p nodejs --run '…'` when needed).
 - Test the public seam: `main(argv)` or spawning `process.execPath` on the `.mjs`. Expected values from the spec (required args, missing files, path building) — not a restatement of the implementation.
 - Do not call AWS, deploy, or mutate real cloud resources. Extract parse/build helpers when the script is a thin CLI over `aws`/`dotnet`.
 - GitHub **test** jobs that invoked this stem via `bash`/`pwsh` should call `node {{STEM}}.mjs` and path-filter the `.mjs`. Deploy jobs may keep calling the wrappers.

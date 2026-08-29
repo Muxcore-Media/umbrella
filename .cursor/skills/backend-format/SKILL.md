@@ -33,6 +33,7 @@ Progress:
 
 ## Defaults (do not grill per tree)
 
+- Child agents run format/lint/test via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
 - Format until format-clean (`dotnet format`)
 - Do not lint. Do not add CSharpier
 - Stay inside that tree's path

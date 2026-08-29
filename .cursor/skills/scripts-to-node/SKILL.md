@@ -36,8 +36,9 @@ Progress:
 
 ## Defaults (do not grill per stem)
 
+- Child agents run Node/tests via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
 - One stem per agent: the `.mjs` implementation, both wrappers, and `stem.test.mjs`
-- Tests run Node (`node --test`, or `node {{STEM}}.mjs`). Wrappers are not the test runner
+- Tests run Node (`node --test`, or `node {{STEM}}.mjs`). Wrappers are not the test runner. Run via **`nix-shell -p nodejs --run '…'`** when `node` is not on PATH (see workspace `AGENTS.md`).
 - Copy [templates/wrapper.sh](templates/wrapper.sh) and [templates/wrapper.ps1](templates/wrapper.ps1) — do not invent a second wrapper dialect
 - Stay on that stem's files (plus a test-job workflow line that already invoked this stem)
 - Never push

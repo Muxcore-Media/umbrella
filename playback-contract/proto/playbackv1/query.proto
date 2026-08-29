@@ -1,0 +1,85 @@
+syntax = "proto3";
+package muxcore.playback.v1;
+option go_package = "github.com/Muxcore-Media/playback-contract/proto/playbackv1;playbackv1";
+
+// Normalized session read model (monitor DB / public API shape).
+enum SessionState {
+  SESSION_STATE_UNSPECIFIED = 0;
+  SESSION_STATE_PLAYING = 1;
+  SESSION_STATE_PAUSED = 2;
+  SESSION_STATE_STOPPED = 3;
+}
+
+message Session {
+  string id = 1;
+  string server_id = 2;
+  string server_type = 3;
+  string external_session_id = 4;
+  SessionState state = 5;
+  string user_id = 6;
+  string user_name = 7;
+  string identity_id = 8;
+  string item_id = 9;
+  string muxcore_id = 10;
+  string title = 11;
+  string media_type = 12;
+  int64 started_at_unix = 13;
+  int64 stopped_at_unix = 14;
+  int64 last_progress_at_unix = 15;
+  int64 position_seconds = 16;
+  int64 duration_seconds = 17;
+  bool is_transcode = 18;
+  string platform = 19;
+  string device = 20;
+  string player = 21;
+  string ip_address = 22;
+  string source_module = 23;
+  string stream_resolution = 24;
+  string play_method = 25;
+  string geo_country = 26;
+  string geo_city = 27;
+  double geo_lat = 28;
+  double geo_lon = 29;
+}
+
+// Shared filter for history, analytics, and public API queries.
+message SessionFilter {
+  string server_id = 1;
+  string user_id = 2;
+  string identity_id = 3;
+  string user_name = 4;
+  string media_id = 5;
+  string rating_key = 6;
+  string media_type = 7;
+  string imdb_id = 8;
+  int64 tmdb_id = 9;
+  int64 tvdb_id = 10;
+  int64 since_unix = 11;
+  int64 until_unix = 12;
+  bool watched_only = 13;
+  bool transcode_only = 14;
+  string query = 15;
+}
+
+message StatsRangeQuery {
+  int32 days = 1;
+  string server_id = 2;
+  repeated string user_ids = 3;
+  string y_axis = 4; // plays | duration
+}
+
+message ChartQuery {
+  StatsRangeQuery range = 1;
+  int32 limit = 2;
+  bool grouping = 3;
+}
+
+message HomeStatsQuery {
+  int32 days = 1;
+  string server_id = 2;
+}
+
+message ConcurrentStreamsQuery {
+  int32 days = 1;
+  string server_id = 2;
+}

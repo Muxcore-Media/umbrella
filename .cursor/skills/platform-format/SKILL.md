@@ -32,6 +32,7 @@ Progress:
 
 ## Defaults (do not grill per tree)
 
+- Child agents run format/lint/test via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
 - Format until format-clean
 - CDK: `dotnet format` on `Mikepattyn.CDK.sln`, follow `infra/cdk/.editorconfig`
 - Email: .NET `dotnet format` (also `packages/Mikepattyn.Email.Tests` if you touch the package)

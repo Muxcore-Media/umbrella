@@ -8,7 +8,9 @@ git clone --recurse-submodules <umbrella-url> MuxCore
 
 See [`README-UMBRELLA.md`](../../README-UMBRELLA.md) for bump/push workflow.
 
-Operational reference: workspace [`AGENTS.md`](../../AGENTS.md).
+Operational reference: workspace [`AGENTS.md`](../../AGENTS.md) — **Local dev tools (Nix)**, **Key hosts (vault & desk)** (SSH, deploy, DNS/cloudflared on desk).
+
+Fan-out child agents read [app-fanout/templates/muxcore-agent-setup.md](app-fanout/templates/muxcore-agent-setup.md); run all build/lint/test commands inside `nix-shell`.
 
 ## Fan-out orchestrators
 
@@ -46,7 +48,7 @@ node scripts/app-fanout.mjs plan --skill frontend-lint --app media-ui-app
 | [responsive-frontend](responsive-frontend/) | Visual changes in `media-ui-app` / `admin-ui` |
 | [privacy-by-design](privacy-by-design/) | Privacy + retention on user/tracking data |
 | [conventional-commit](conventional-commit/) | Commit only this chat's paths |
-| [cloudflare](cloudflare/) | Cloudflare edge/docs work (grey-cloud `*.zem.systems` ingress lives in nix-production) |
+| [cloudflare](cloudflare/) | Cloudflare edge/docs work; **DNS + cloudflared on desk**, grey-cloud `*.zem.systems` ingress in nix-production |
 | [research](research/) / [research-summarizer](research-summarizer/) | Primary-source notes and briefs |
 
 ## Retired on this shelf

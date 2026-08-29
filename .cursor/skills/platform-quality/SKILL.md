@@ -45,6 +45,7 @@ Re-run `plan --skill platform-quality --wave <n>` after each wave's merges so di
 ## Defaults
 
 - Cap **40** agents per wave (shared across nested skills, not 40 each)
+- Child agents run build/lint/test via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
 - Task `description` = plan `agentName` (`frontend-page-accessibility-kapsalon`)
 - `best-of-n-runner`, `environment: local`, background when two or more
 - Do not poll. End the turn after launch

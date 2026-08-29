@@ -20,6 +20,9 @@ Changed files since last recorded commit (may be truncated):
 Read `.cursor/skills/app-fanout/templates/muxcore-agent-setup.md` and apply it with `{{MODULE_PATH}}` as the module directory.
 
 Do **not** run format-only passes beyond what `golangci-lint --fix` supports.
+Do **not** run `go mod tidy` unless required — it fetches private modules. Prefer existing `replace => ../…` directives in the module's `go.mod`.
+
+Export before Go commands: `GOPRIVATE=github.com/Muxcore-Media/* GONOSUMDB=github.com/Muxcore-Media/* GIT_TERMINAL_PROMPT=0`
 
 ## Implement
 

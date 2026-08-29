@@ -7,6 +7,8 @@ description: Ensures frontend code looks good on mobile, tablet, and desktop. Ap
 
 Every UI change must work at three viewports. Never ship a layout verified at only one width.
 
+Run builds and tests via **`nix-shell`** (see workspace `AGENTS.md` → **Local dev tools (Nix)**) — e.g. `nix-shell -p nodejs --run 'npm test'` in `media-ui-app`.
+
 ## Reference viewports
 
 | Device | Width | Watch for |

@@ -29,6 +29,7 @@ Progress:
 
 ## Defaults (do not grill per app)
 
+- Child agents run format/lint/test via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
 - Auto-fix, then leftovers until clean or **40** diagnostics
 - Capped leftovers are incomplete files; still commit completed work
 - Do not format

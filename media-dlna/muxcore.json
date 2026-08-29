@@ -1,0 +1,15 @@
+{
+  "name": "Media DLNA",
+  "description": "DLNA/UPnP media server exposing MuxCore library paths to TVs and renderers",
+  "version": "0.1.0",
+  "author": "MuxCore",
+  "roles": [
+    "media"
+  ],
+  "capabilities": [
+    "media.dlna",
+    "settings"
+  ],
+  "contracts": [],
+  "minCoreVersion": "0.5.0"
+}

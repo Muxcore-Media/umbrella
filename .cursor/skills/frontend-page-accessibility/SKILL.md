@@ -32,7 +32,8 @@ Progress:
 
 ## Defaults (do not grill per app)
 
-Resolved for every child unless the user overrides in this chat:
+- Child agents run build/lint/test via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
+- Resolved for every child unless the user overrides in this chat:
 
 - Accessibility target: WCAG 2.2 AA for the page and children
 - Verification: focused assertions + axe-core when the app already has it; note keyboard/screen-reader checks tools cannot prove
@@ -80,7 +81,7 @@ Also tell owned-tree children:
 
 - Read `.cursor/skills/page-accessibility/SKILL.md`
 - If `apps/<…>/.cursor/skills/page-accessibility/SKILL.md` exists, prefer that copy
-- Read `workspace AGENTS.md` and the app `CONTEXT.md`
+- Read `workspace AGENTS.md` and the app `CONTEXT.md`; run tests via **`nix-shell`** (see **Local dev tools (Nix)**)
 - Load `responsive-frontend` only when the a11y work changes layout/CSS
 
 ## 3. Merge, close, then record

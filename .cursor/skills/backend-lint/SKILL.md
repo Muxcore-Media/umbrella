@@ -29,6 +29,7 @@ Progress:
 
 ## Defaults (do not grill per tree)
 
+- Child agents run format/lint/test via **`nix-shell`** (workspace `AGENTS.md` → **Local dev tools (Nix)**)
 - `dotnet format --verify-no-changes` plus existing analyzers until clean or **40** diagnostics
 - Capped leftovers are incomplete files; still commit completed work
 - Do not format. Do not add CSharpier

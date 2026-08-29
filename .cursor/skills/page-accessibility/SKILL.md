@@ -20,7 +20,7 @@ Use this skill for accessibility work on a specific page, including the page she
    - If the page is unclear, ask one question before exploring widely.
 
 2. Load project context before feature work.
-   - Read `workspace AGENTS.md`.
+   - Read `workspace AGENTS.md` (use **`nix-shell`** for any dev tools — see **Local dev tools (Nix)**).
    - Read the relevant bounded-context `CONTEXT.md`.
    - Use glossary terms in questions, plans, docs, tests, and code.
    - If the user uses a conflicting or fuzzy term, call it out immediately and ask which meaning they intend.
