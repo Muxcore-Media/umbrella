@@ -183,7 +183,7 @@
 	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-transcoder-pool.git
 [submodule "media-tvos-app"]
 	path = media-tvos-app
-	url = https://git.zem.systems/muxcore/muxcore-tvos.git
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-tvos.git
 [submodule "media-tvshows"]
 	path = media-tvshows
 	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-tvshows.git
@@ -207,7 +207,7 @@
 	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-installer.git
 [submodule "muxcore-ios"]
 	path = muxcore-ios
-	url = https://git.zem.systems/muxcore/muxcore-ios.git
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-ios.git
 [submodule "muxcore-module-starter"]
 	path = muxcore-module-starter
 	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-module-starter.git
@@ -280,3 +280,36 @@
 [submodule "workflow-tapestry"]
 	path = workflow-tapestry
 	url = ssh://forgejo@git.zem.systems:2222/muxcore/workflow-tapestry.git
+[submodule "branding"]
+	path = branding
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/branding.git
+[submodule "downloader-native-usenet"]
+	path = downloader-native-usenet
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/downloader-native-usenet.git
+[submodule "downloader-qbittorrent"]
+	path = downloader-qbittorrent
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/downloader-qbittorrent.git
+[submodule "media-dlna"]
+	path = media-dlna
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-dlna.git
+[submodule "media-ui-tv"]
+	path = media-ui-tv
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/media-ui-tv.git
+[submodule "metadata-musicbrainz"]
+	path = metadata-musicbrainz
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/metadata-musicbrainz.git
+[submodule "muxcore-android"]
+	path = muxcore-android
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/muxcore-android.git
+[submodule "playback-contract"]
+	path = playback-contract
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/playback-contract.git
+[submodule "userdata-local"]
+	path = userdata-local
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/userdata-local.git
+[submodule "core.wiki"]
+	path = core.wiki
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/core-wiki.git
+[submodule "_wave1"]
+	path = _wave1
+	url = ssh://forgejo@git.zem.systems:2222/muxcore/wave1.git

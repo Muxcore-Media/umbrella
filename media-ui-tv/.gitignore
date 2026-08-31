@@ -1,9 +1,0 @@
-# Gradle / Android
-.gradle/
-build/
-local.properties
-.android-sdk/
-*.apk
-*.aab
-captures/
-.idea/
