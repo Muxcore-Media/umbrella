@@ -39,6 +39,7 @@
 ### P1 — Platform engineering
 
 - [x] **Per-module backlog** — 0 open todos from the 2026-08-28 fanout (**97 of 97** modules marked complete). Canonical list: [Appendix I](#appendix-i-per-module-todos-2026-08-28-fanout).
+- [x] **Wave1 closeout (2026-09-01)** — all fanout commits merged to `main` on Forgejo (including `core` tracing parent-span proto); vault soak redeployed (**69/69** running modules + `muxcorectl`); `smoke-vault-all.sh` PASS (vault HTTP + public edge + mesh).
 
 ### P2 — Consumer UI (`media-ui-app/AGENTS.md` §12)
 
