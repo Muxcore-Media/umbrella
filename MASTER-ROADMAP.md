@@ -40,6 +40,7 @@
 
 - [x] **Per-module backlog** — 0 open todos from the 2026-08-28 fanout (**97 of 97** modules marked complete). Canonical list: [Appendix I](#appendix-i-per-module-todos-2026-08-28-fanout).
 - [x] **Wave1 closeout (2026-09-01)** — all fanout commits merged to `main` on Forgejo (including `core` tracing parent-span proto); vault soak redeployed (**69/69** running modules + `muxcorectl`); `smoke-vault-all.sh` PASS (vault HTTP + public edge + mesh).
+- [x] **Post-wave1 improvements 1–6 (2026-09-01)** — security (`auth-local`, `api-rest`), ops (`backup-local`), build tooling (`check-proto-drift.sh`, `ensure-go-replaces.sh`), consumer playback UX (`media-ui-app`), household flows (invites/approvals/userdata via `auth-local` + `request-media` + admin-ui), Arr scoring (`media-custom-formats` TRaSH parity).
 
 ### P2 — Consumer UI (`media-ui-app/AGENTS.md` §12)
 
@@ -456,48 +457,21 @@ Source files: `_wave1/module-todos/<module>.md`. Delete a row here when the work
 
 ### Module: `api-rest`
 
-**Status:** OPEN
+**Status:** COMPLETE — admin route enforcement, version/node identity, route docs, spool/storage hardening, spawn proxy, gateway tests.
 
-1. [ ] Enforce `ValidateResponse.roles`/`permissions` in `internal/handler/auth.go` on mutating admin routes (`POST /modules/{id}/stop|restart`, `PUT|DELETE /storage`, `POST /events`, `POST /spools/.../deploy`, `GET /audit/export`, `POST /audit/verify`). Any valid household bearer can administer the mesh today; add a `gateway_test.go` case with a non-admin session.
-2. [ ] Stop hardcoding `"0.1.0"` in `handleVersion`/`handleNode` (`internal/handler/handler.go`). Declare `var version` in `cmd/module/main.go` so Makefile/release `-X main.version` works, and have `/node` return core Health/Members identity instead of a static service blob.
-3. [ ] Document the full `/api/v1` route table plus `API_REST_CORS_ORIGINS` and the `settings` capability in `README.md` and `.env.example`. Fix `COMPATIBILITY.md` (says core@v0.5.2; `go.mod` is v0.5.8).
-4. [ ] Return the spool RPC error from `handleListTags` (`handler.go`) as 502/503 instead of empty `200` so admin-ui marketplace is not silently empty when ListTags fails.
-5. [ ] Map storage Get/Stat/Delete not-found (`codes.NotFound`) to HTTP 404 in `handleGetStorage`/`handleStatStorage`/`handleDeleteStorage`; missing keys currently become 500.
-6. [ ] Bound `PUT /api/v1/storage/{key}` and `POST /api/v1/events` with `http.MaxBytesReader` and `413` in `handler.go` (no upload/JSON size cap on the public listener).
-7. [ ] Reuse a single auth gRPC client in `coreAuthValidator` (`auth.go`) instead of `grpc.NewClient`+Close on every request; keep the 5s Validate timeout.
-8. [ ] Drop the parallel extra-client dial in `Handler.initClients` for Audit/Events (SDK `client.Client` already reconnects those). Dial lifecycle/spool on the same core conn or a closed-on-Stop conn; if `client.Dial` fails in `Module.Start`, retry so those clients are not nil for the process lifetime.
-9. [ ] Add httptest coverage in `gateway_test.go`/`fakes_test.go` for audit query/export/verify, `POST /events`, spool list/tags/deploy, and cluster members/leader (only modules/storage/discovery/auth are exercised end-to-end).
-10. [ ] Add `POST /api/v1/modules/spawn` proxying `Lifecycle.SpawnModule` (`lifecycle.proto` already has it; REST only exposes stop/restart) with a fake-mesh test.
+<!-- pruned 2026-09-01: all 10 todos landed; see _wave1/module-todos/api-rest.md -->
 
 ### Module: `auth-local`
 
-**Status:** OPEN
+**Status:** COMPLETE — admin-gated invites/WebAuthn/API tokens, first-user admin bootstrap, session hashing, TOTP/session invalidation, authctl token metadata, policies.yaml module scope.
 
-1. [ ] Gate `GET|POST /api/invites` and `DELETE /api/invites/{id}` in `internal/webapp/invites.go` behind an admin session; allowlist invite roles (`user`/`viewer`/`manager`); add CSRF to `POST /invite/redeem` (create/list/revoke are currently unauthenticated, including `role=admin`).
-2. [ ] Apply `mustAuth` plus admin-or-owner checks in `internal/webauthn/handler.go` on `beginAdminRegistration`, `completeAdminRegistration`, `listCredentials`, and `deleteCredential` (any client can register or delete passkeys by `user_id` today).
-3. [ ] Call `requireAdmin` (or self-or-admin) in `internal/server/server.go` on `CreateAPIToken`, `ListAPITokens`, `DeleteAPIToken`, `EnableTOTP`, `DisableTOTP`, `VerifyTOTPSetup`, `ListWebAuthnCredentials`, `DeleteWebAuthnCredential`, and `BeginAdminRegistration`/`CompleteAdminRegistration`.
-4. [ ] Make the first `CreateUser` on an empty store (`internal/store/store.go` / `server.CreateUser`) receive role `admin`; add a `server_test.go` case. First user is currently `user`, so `authctl addrole` cannot succeed (`requireAdmin` deadlock).
-5. [ ] Attach `-token` / `AUTHCTL_TOKEN` as gRPC metadata `x-auth-token` on every RPC in `cmd/authctl/main.go` (flag is parsed; `cmdListUsers` takes it unused; other commands never send it).
-6. [ ] Add `module: ["*"]` to shipped `policies.yaml` and the README role table so the default file matches `policy.Builtin` (CHANGELOG 0.1.6). A present `policies.yaml` without `module` deny-alls mesh `x-caller-id` callers.
-7. [ ] Document `/invite`, `/login/device`, `AUTH_HTTP_URL`, `tenant_id`, and the `settings` capability in `README.md` and `.env.example`. Fix `AGENTS.md` ("Contracts: none") and `COMPATIBILITY.md` (missing `settings`; false "Requires MuxCore v1.0.0").
-8. [ ] Call `DeleteUserSessions` from `SetPassword` and `DisableTOTP` in store/server so password reset and 2FA disable invalidate live sessions. Treat TOTP as login-required only after `VerifyTOTPSetup` (`SetTOTPSecret` sets `enabled=1` immediately and can lock the user out).
-9. [ ] Hash session tokens at rest in `sessions` the way `api_tokens`/`invites` already hash secrets (`internal/store/store.go`), and run `CleanupExpiredSessions` on a ticker from `Module.Start` (the helper exists and is never scheduled).
-10. [ ] Set `Module.Info().HTTPAddr` to the HTTP listen address (it copies `grpcAddr` today). Rate-limit gRPC `Authenticate` in `internal/server/server.go` to the documented 6-attempt / 1-minute backoff (HTTP UI has it; gRPC does not).
+<!-- pruned 2026-09-01: all 10 todos landed; see _wave1/module-todos/auth-local.md -->
 
 ### Module: `backup-local`
 
-**Status:** OPEN
+**Status:** COMPLETE — streaming tar, path allowlist, encryption, retention prune, atomic restore, Backupable peer discovery, schedule cron, CI race+lint.
 
-1. [ ] Wire production Backupable peers: `cmd/module/main.go` currently calls `NewModule(Config{})` so `peers` is always empty and README's `ExportState`/`ImportState` path never runs. Add a Backupable gRPC service to `proto/muxcore/backup/v1`, discover capability `backupable` via core, dial those modules from `internal/`, and cover with a bufconn mock peer (no live mesh). Add the grpcurl examples `database-postgres/MIGRATION-SQLITE.md` already points at.
-2. [ ] Add `BACKUP_EXCLUDE` / settings `exclude_globs` in `internal/archive.go` `collectDirEntries` and `internal/settings.go`. Default-skip `.incomplete`, `*.parts`, `*.part`, `*.!qb`, `*.tmp`. `_mvp/run-host.sh` sets `BACKUP_SOURCE_DIRS=$DATA` and ACQUISITION.md already documents this hole.
-3. [ ] Stream files into `tar.Writer` in `internal/archive.go` instead of `os.ReadFile` + `[]tarEntry` holding the whole tree. Honor `ctx` on walk/write. A real library tree under `BACKUP_SOURCE_DIRS` will OOM today.
-4. [ ] Allowlist `CreateBackupRequest.source_paths` and `RestoreBackupRequest.target_path` against configured sources / `BACKUP_ALLOWED_ROOTS` in `internal/module.go`. Unauthenticated `BackupService` on `:9302` can otherwise archive or overwrite any path the process can reach.
-5. [ ] Make index durable in `internal/module.go`: `saveIndex` errors must fail Create/Delete; `DeleteBackup` must fail if `os.Remove` fails; `Init` must reconcile `*.tar.gz` vs `index.json` and must not replace the catalog with `{}` when JSON is corrupt. Add persist-across-restart + missing-archive tests in `internal/module_test.go`.
-6. [ ] Implement real `Health()` and HTTP `/health` (dir exists + writable, index readable) in `internal/module.go`. Add `--health-check` in `cmd/module/main.go` so `Dockerfile` `HEALTHCHECK CMD ["/module", "--health-check"]` works instead of starting the module.
-7. [ ] Add retention settings `max_backups` / `max_age_days` and prune oldest archives after a successful `CreateBackup`. Archives grow forever today. Tests for prune-by-count and prune-by-age.
-8. [ ] Encrypt archives at rest (env `BACKUP_ENCRYPT_KEY` or optional `encryption-aesgcm` capability; fixture key in tests). Restore decrypts before extract. Library SQLite in `modules/*/state.bin` is household data sitting as plaintext `.tar.gz`.
-9. [ ] Make `RestoreBackup` atomic: extract to a sibling staging dir, verify checksum, then rename into `target_path`. Add `TestRestoreChecksumMismatch` in `internal/module_test.go` (checksum path is untested). Do not leave a half-applied tree if `ImportState` fails.
-10. [ ] Add settings `schedule_cron` (or a ticker from `BACKUP_SCHEDULE`) in `Module.Start` that calls `CreateBackup` so backups happen without admin-ui/cli. Replace `test/integration_test.go` (dummy `test-module` register against live core, `//go:build integration`) with an in-process create/list/restore test that origin CI runs. Run `go test -race` and `golangci-lint` in `.forgejo/workflows/ci.yml` (Makefile already does; Forgejo does not).
+<!-- pruned 2026-09-01: all 10 todos landed; see _wave1/module-todos/backup-local.md -->
 
 ### Module: `cache-local`
 
@@ -1132,35 +1106,9 @@ Source files: `_wave1/module-todos/<module>.md`. Delete a row here when the work
 
 ### Module: `media-ui-app`
 
-**Status:** OPEN
+**Status:** COMPLETE — Forgejo npm test gate, library pagination + URL filters, hero play/resume flows, cast/more-like-this shelves, custom audio bar, in-page books, Chromecast/AirPlay stubs, debounced search, docs drift fixes.
 
-1. [ ] Run `npm test` in `.forgejo/workflows/ci.yml` (origin CI). Vitest coverage exists (`src/**/*.test.tsx`) but Forgejo only typechecks and builds, so player/browse regressions never fail the gate.
-2. [ ] Paginate `Movies.tsx` and `TVShows.tsx` using `list.total` / `page` from `api.listMovies` / `api.listTVShows`. Both fetch page 1 only (`libraryPageSize`, default 48); titles past that page never appear. Add Load more (or infinite scroll) and keep Settings page-size as page size, not a hard cap.
-3. [ ] Persist genre + sort on `Movies.tsx` and `TVShows.tsx` in the URL query string (`?genre=&sort=`) so filters survive refresh and share. Today they are component state only (AGENTS.md §4.3).
-4. [ ] Add a hero Play on `TVShowDetail.tsx` that continues the next-up episode (`resolveNextUp` in `src/lib/userdata.ts` or first playable file) plus a secondary "Play from beginning" (S01E01). The hero currently has Favorite / Jellyfin only; play lives only on episode rows.
-5. [ ] On `MovieDetail.tsx`, when `getProgress(id)` has a position, show "Play from beginning" that opens `/player` with a flag `ResumeDialog` / `VideoPlayer.tsx` honors (skip the resume prompt). Play today always goes through the resume dialog with no detail-page escape.
-6. [ ] On `MovieDetail.tsx` / `TVShowDetail.tsx`, when `tmdb_id` is set, load `api.getDiscoverDetail` and render the cast row already used by `DiscoverDetail.tsx`. Add a "More like this" shelf from same-genre library items (`listMovies` / `listTVShows` fixtures) — no live TMDB extras.
-7. [ ] Replace native `<audio cont ] Persist SettingsProvider `ffmpeg_bin` in `internal/settings.go` (SQLite or a documented settings row). `UpdateSetting` is process-memory only and is lost on `run-host.sh restart`. Expose `max_concurrent` and `scan_interval` the same way so admin-ui changes survive restart.
-6. [ ] Fix operator/docs/version drift: README still says module `0.1.1` and omits `ListStepTemplates`/`ApplyStepTemplate`, `/stream/trickplay`, and env `TRANSCODER_FFMPEG_BIN` / `TRANSCODER_SCAN_INTERVAL` / `TRANSCODER_USE_POOL` / `TRANSCODER_POOL_ADDR` / `TRANSCODER_TRICKPLAY_DIR`; `muxcore.json` is `0.3.2` vs `Info()`/`CHANGELOG` `0.3.3`; `COMPATIBILITY.md` stops at v0.1.1; `Dockerfile` `EXPOSE 9520` (collides with media-subtitles; ports are 9525/9526).
-7. [ ] Add a `golangci-lint` job and `go test -race` to `.forgejo/workflows/ci.yml` (origin CI per Appendix E). `.golangci.yml` exists and README documents `-race`; Forgejo only runs `go test` + build/vet.
-8. [ ] Honor mesh TLS in `internal/pool_forward.go`: stop always using `grpc.WithTransportCredentials(insecure.NewCredentials())`; match `MUXCORE_INSECURE_DISABLE_TLS` / `MUXCORE_GRPC_INSECURE` like `dialCore` in `internal/events.go`. Document `TRANSCODER_USE_POOL` / `TRANSCODER_POOL_ADDR` in README.
-9. [ ] Stop hardcoding `ffprobe` and swallowing probe failures in `internal/pipeline.go` `probeFile`: derive the binary from `ffmpeg_bin` (or `TRANSCODER_FFPROBE_BIN`) and fail closed / skip with a reason when probe fails so `filter.skip_if_codec` cannot no-op and re-encode already-HEVC files.
-10. [ ] Add tests for uncovered product paths: `internal/events.go` (`eventFilePath` + on_import matching), `internal/pool_forward.go` fallback, `internal/trickplay_http.go` handler, job cancel after DB-only persist, and `action.remux` in `evalStep` (today remux mutates/deletes the source during filter eval — write a sidecar or dedicated output instead).
-
-### Module: `media-ui-app`
-
-**Status:** OPEN
-
-1. [ ] Run `npm test` in `.forgejo/workflows/ci.yml` (origin CI). Vitest coverage exists (`src/**/*.test.tsx`) but Forgejo only typechecks and builds, so player/browse regressions never fail the gate.
-2. [ ] Paginate `Movies.tsx` and `TVShows.tsx` using `list.total` / `page` from `api.listMovies` / `api.listTVShows`. Both fetch page 1 only (`libraryPageSize`, default 48); titles past that page never appear. Add Load more (or infinite scroll) and keep Settings page-size as page size, not a hard cap.
-3. [ ] Persist genre + sort on `Movies.tsx` and `TVShows.tsx` in the URL query string (`?genre=&sort=`) so filters survive refresh and share. Today they are component state only (AGENTS.md §4.3).
-4. [ ] Add a hero Play on `TVShowDetail.tsx` that continues the next-up episode (`resolveNextUp` in `src/lib/userdata.ts` or first playable file) plus a secondary "Play from beginning" (S01E01). The hero currently has Favorite / Jellyfin only; play lives only on episode rows.
-5. [ ] On `MovieDetail.tsx`, when `getProgress(id)` has a position, show "Play from beginning" that opens `/player` with a flag `ResumeDialog` / `VideoPlayer.tsx` honors (skip the resume prompt). Play today always goes through the resume dialog with no detail-page escape.
-6. [ ] On `MovieDetail.tsx` / `TVShowDetail.tsx`, when `tmdb_id` is set, load `api.getDiscoverDetail` and render the cast row already used by `DiscoverDetail.tsx`. Add a "More like this" shelf from same-genre library items (`listMovies` / `listTVShows` fixtures) — no live TMDB extras.
-7. [ ] Replace native `<audio controls>` in `Music.tsx` and `MusicArtist.tsx` with a custom bar (play/pause, seek, time, volume) matching `VideoPlayer` OSD conventions (AGENTS.md §7). Keep lyrics on the artist page.
-8. [ ] Open book files in-page in `BookAuthor.tsx` via `/stream/books/` `stream_url` (iframe/object for PDF/EPUB) instead of `target="_blank"` dump. Do not surface raw `path` in the UI.
-9. [ ] Stub Chromecast / AirPlay controls on `ControlsBar.tsx` (disabled + `aria-disabled` until a BFF session exists) and list them in `ShortcutsHelp.tsx` (AGENTS.md §7). PiP is shipped; these hook points are missing.
-10. [ ] Debounce live search in `HeaderSearch.tsx` (~250ms, min 2 chars) instead of submit-only. Fix README drift: Live TV / Quick Connect are implemented (not "placeholders"); userdata is server-authoritative; origin CI is `.forgejo/workflows/ci.yml`, not GitHub. Update AGENTS.md §0 — hero/shelves/skeletons/icons are already shipped.
+<!-- pruned 2026-09-01: all 10 todos landed; see _wave1/module-todos/media-ui-app.md -->
 
 ### Module: `media-ui-tv`
 
