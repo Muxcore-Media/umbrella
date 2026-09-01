@@ -8,7 +8,7 @@ import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const SKIP_DIRS = new Set(['core.wiki', '_wave1']);
+export const SKIP_DIRS = new Set([]);
 
 export const COMMIT_MESSAGE = `chore: initialize MuxCore umbrella workspace
 
