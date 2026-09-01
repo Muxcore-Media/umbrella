@@ -49,6 +49,8 @@ git config --global url."ssh://forgejo@git.zem.systems:2222/muxcore/".insteadOf 
 
 Pre-warm `golangci-lint` before parallel agent waves: `nix-shell -p go golangci-lint --run 'golangci-lint version'`.
 
+**Workspace Go modules:** sibling modules under the umbrella checkout should use local `replace` directives for `core` when `../core` exists. Run `./scripts/ensure-go-replaces.sh` (or pass module paths) to add the standard set. Before pushing contract consumer changes, run `./scripts/check-proto-drift.sh` — it is also invoked from `_mvp/scripts/run-script-tests.sh`.
+
 ## Key hosts (vault & desk)
 
 Two hosts matter most for day-to-day MuxCore work. Both are reachable over **ZeroTier** (network `2ca2fd5d9eab729d`; local interface often `ztoe6fmlyd`). Prefer ZT IPv6; use `-6` with `ssh`/`scp`/`rsync` when needed.
