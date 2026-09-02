@@ -1,8 +1,18 @@
 # MuxCore umbrella workspace
 
-This directory is the **umbrella repo**: one git root that pins every Forgejo module as a **submodule** (gitlink), in the same spirit as the Mike Pattyn platform shelf.
+This directory is the **umbrella repo**: one git root that pins every module as a **submodule** (gitlink), in the same spirit as the Mike Pattyn platform shelf.
 
 ## Clone
+
+**GitHub (public mirror):**
+
+```bash
+git clone --recurse-submodules https://github.com/Muxcore-Media/umbrella.git MuxCore
+cd MuxCore
+git submodule update --init --recursive
+```
+
+**Forgejo (homelab origin):**
 
 ```bash
 git clone --recurse-submodules ssh://forgejo@git.zem.systems:2222/muxcore/umbrella.git MuxCore
@@ -10,7 +20,7 @@ cd MuxCore
 git submodule update --init --recursive
 ```
 
-Replace the remote URL once the umbrella repo exists on Forgejo.
+`.gitmodules` uses `https://github.com/Muxcore-Media/*` URLs. On homelab workstations, `url.*.insteadOf` in git config (see [`AGENTS.md`](AGENTS.md)) rewrites those fetches to Forgejo over SSH.
 
 ## Layout
 
@@ -19,8 +29,8 @@ Replace the remote URL once the umbrella repo exists on Forgejo.
 | `AGENTS.md` | Homelab deploy + vault SSH reference |
 | `.cursor/skills/` | Agent skill shelf + fan-out orchestrators |
 | `scripts/app-fanout.mjs` | Quality planner (submodule-aware) |
-| `.gitmodules` | Forgejo module URLs + pinned SHAs |
-| `*/` (module dirs) | Submodule checkouts — each still pushes to its own Forgejo repo |
+| `.gitmodules` | Module URLs (GitHub) + pinned SHAs |
+| `*/` (module dirs) | Submodule checkouts — each pushes to its own module repo |
 
 ## Day to day
 
