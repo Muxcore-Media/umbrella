@@ -34,14 +34,14 @@
 
 ### P0 — Distribution & CI
 
-- [ ] **Public GHCR consumer mirror** — scripts + `Dockerfile.monorepo` + `core/scripts/publish-muxcored-vault-ghcr.sh` (vault BUILD_ONLY verified 2026-08-22); **push** needs `gh auth refresh -s write:packages,read:packages,repo` then vault script or `publish-muxcored-ghcr.sh`
+- [ ] **Public GHCR consumer mirror** — `Dockerfile.monorepo`, `publish-muxcored-ghcr.sh`, `smoke-ghcr-build.sh` (local `BUILD_ONLY`); **push** still needs `gh auth refresh -s write:packages,read:packages,repo`
 
 
 ### P2 — Consumer UI (`media-ui-app/AGENTS.md` §12)
 
 ### P2 — Native clients (documented intentional gaps)
 
-- [ ] **`media-tvos-app`** — live validation on physical Apple TV ([`media-tvos-app/docs/HARDWARE-VALIDATION.md`](media-tvos-app/docs/HARDWARE-VALIDATION.md); BFF smoke via `_mvp/scripts/smoke-vault-public.sh` PASS on mux.zem.systems 2026-08-22; CI ships unsigned IPA only)
+- [ ] **`media-tvos-app`** — live validation on physical Apple TV ([`media-tvos-app/docs/HARDWARE-VALIDATION.md`](media-tvos-app/docs/HARDWARE-VALIDATION.md); [`bff-soak.sh`](media-tvos-app/scripts/bff-soak.sh) for BFF paths; CI ships unsigned IPA only)
 
 ### P3 — Phase 3 / long-term
 

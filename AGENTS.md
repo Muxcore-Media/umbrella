@@ -47,6 +47,16 @@ export GIT_TERMINAL_PROMPT=0
 git config --global url."ssh://forgejo@git.zem.systems:2222/muxcore/".insteadOf "https://github.com/Muxcore-Media/"
 ```
 
+**Non-interactive git (agents):** avoid SSH/credential prompts on `thin`/`desk`:
+
+```bash
+source scripts/muxcore-git-env.sh   # GIT_TERMINAL_PROMPT=0 + BatchMode SSH
+```
+
+- Forgejo push: `origin` remotes over SSH (`git.zem.systems` in `~/.ssh/config`, `BatchMode yes`).
+- GitHub push/mirror: **`gh auth`** (HTTPS). Credential helper: `scripts/git-credential-muxcore.sh` → `gh auth git-credential` with `GH_PROMPT_DISABLED=1` (never prompts). If `gh auth status` fails, restore from keyring: `secret-tool lookup service gh:github.com | gh auth login --with-token`, or `gh auth login -w`.
+- Full Forgejo→GitHub mirror: `_mvp/scripts/mirror-forgejo-to-github.sh` (uses `gh auth token` or `GITHUB_TOKEN`).
+
 Pre-warm `golangci-lint` before parallel agent waves: `nix-shell -p go golangci-lint --run 'golangci-lint version'`.
 
 **Workspace Go modules:** sibling modules under the umbrella checkout should use local `replace` directives for `core` when `../core` exists. Run `./scripts/ensure-go-replaces.sh` (or pass module paths) to add the standard set. Before pushing contract consumer changes, run `./scripts/check-proto-drift.sh` — it is also invoked from `_mvp/scripts/run-script-tests.sh`.
