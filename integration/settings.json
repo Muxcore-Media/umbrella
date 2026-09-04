@@ -1,0 +1,8 @@
+{
+  "geoip_mode": "",
+  "geoip_db": "",
+  "public_api_key": "",
+  "notify_on_session_start": false,
+  "notify_on_session_stop": false,
+  "history_retention_days": 0
+}
