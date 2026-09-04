@@ -12,6 +12,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 declare -a REPLACES=(
   'github.com/Muxcore-Media/core|../core'
   'github.com/Muxcore-Media/core/pkg/contracts|../core/pkg/contracts'
+  'github.com/Muxcore-Media/core/pkg/tenant|../core/pkg/tenant'
   'github.com/Muxcore-Media/core/sdk/go/module|../core/sdk/go/module'
   'github.com/Muxcore-Media/core/sdk/go/client|../core/sdk/go/client'
 )
@@ -30,6 +31,9 @@ ensure_module() {
   gomod="$mod_dir/go.mod"
   [[ -f "$gomod" ]] || return 0
   [[ -d "$mod_dir/../core" ]] || return 0
+  if grep -qE '^module[[:space:]]+github\.com/Muxcore-Media/core[[:space:]]*$' "$gomod"; then
+    return 0
+  fi
 
   local changed=0 entry pkg rel
   for entry in "${REPLACES[@]}"; do

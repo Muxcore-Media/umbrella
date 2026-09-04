@@ -104,3 +104,5 @@ replace github.com/Muxcore-Media/contracts-automation => ../contracts-automation
 replace github.com/Muxcore-Media/contracts-metadata => ../contracts-metadata
 
 replace github.com/Muxcore-Media/contracts-media-admin => ../contracts-media-admin
+
+replace github.com/Muxcore-Media/core/pkg/tenant => ../core/pkg/tenant
