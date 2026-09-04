@@ -1,0 +1,9 @@
+# MuxCore public household install.
+# Run from repository root:
+#   docker compose up -d
+#
+# Equivalent:
+#   docker compose -f _mvp/docker-compose.public.yml up -d
+
+include:
+  - path: _mvp/docker-compose.public.yml
