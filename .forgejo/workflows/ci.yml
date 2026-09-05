@@ -120,3 +120,13 @@ jobs:
           go-version: "1.26"
       - name: Run integration tests
         run: cd integration && go test -count=1 -race -timeout 10m -tags integration ./...
+
+  script-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run release automation script tests
+        run: |
+          set -euo pipefail
+          bash scripts/generate-changelog_test.sh
+          bash scripts/lint-commits_test.sh
