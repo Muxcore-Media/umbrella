@@ -13,6 +13,7 @@ declare -a REPLACES=(
   'github.com/Muxcore-Media/core|../core'
   'github.com/Muxcore-Media/core/pkg/contracts|../core/pkg/contracts'
   'github.com/Muxcore-Media/core/pkg/tenant|../core/pkg/tenant'
+  'github.com/Muxcore-Media/core/pkg/log|../core/pkg/log'
   'github.com/Muxcore-Media/core/sdk/go/module|../core/sdk/go/module'
   'github.com/Muxcore-Media/core/sdk/go/client|../core/sdk/go/client'
 )

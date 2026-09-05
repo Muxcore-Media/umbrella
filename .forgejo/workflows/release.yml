@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve previous tag
+        id: tags
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          if git describe --tags --abbrev=0 "${TAG}^" >/dev/null 2>&1; then
+            PREV="$(git describe --tags --abbrev=0 "${TAG}^")"
+          else
+            PREV="$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "prev=${PREV}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          set -euo pipefail
+          ./scripts/generate-changelog.sh \
+            --from "${{ steps.tags.outputs.prev }}" \
+            --to "${{ github.ref_name }}" \
+            --version "${{ steps.tags.outputs.tag }}" \
+            --output release-notes.md
+          {
+            echo "body<<EOF"
+            cat release-notes.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Update CHANGELOG.md
+        run: |
+          set -euo pipefail
+          ./scripts/generate-changelog.sh \
+            --from "${{ steps.tags.outputs.prev }}" \
+            --to "${{ github.ref_name }}" \
+            --version "${{ steps.tags.outputs.tag }}" \
+            --update CHANGELOG.md
+
+      - name: Commit changelog update
+        run: |
+          set -euo pipefail
+          if git diff --quiet CHANGELOG.md; then
+            echo "CHANGELOG.md unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: update CHANGELOG for ${{ steps.tags.outputs.tag }}"
+          git push origin HEAD:main || echo "Skipping changelog push (no write access or protected branch)"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tags.outputs.tag }}
+          name: ${{ steps.tags.outputs.tag }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
