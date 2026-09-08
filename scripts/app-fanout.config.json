@@ -33,6 +33,10 @@
           "path": "media-ui-app"
         },
         {
+          "id": "muxcore-android",
+          "path": "muxcore-android"
+        },
+        {
           "id": "muxcore-docs",
           "path": "muxcore-docs"
         },
@@ -66,6 +70,10 @@
         {
           "id": "media-ui-app",
           "path": "media-ui-app"
+        },
+        {
+          "id": "muxcore-android",
+          "path": "muxcore-android"
         },
         {
           "id": "muxcore-docs",
@@ -103,6 +111,10 @@
           "path": "media-ui-app"
         },
         {
+          "id": "muxcore-android",
+          "path": "muxcore-android"
+        },
+        {
           "id": "muxcore-docs",
           "path": "muxcore-docs"
         },
@@ -122,6 +134,30 @@
       ],
       "trees": [
         {
+          "id": "ai-filter",
+          "path": "ai-filter"
+        },
+        {
+          "id": "ai-librarian",
+          "path": "ai-librarian"
+        },
+        {
+          "id": "ai-recommend",
+          "path": "ai-recommend"
+        },
+        {
+          "id": "ai-runtime",
+          "path": "ai-runtime"
+        },
+        {
+          "id": "ai-subtitles",
+          "path": "ai-subtitles"
+        },
+        {
+          "id": "ai-tickets",
+          "path": "ai-tickets"
+        },
+        {
           "id": "api-rest",
           "path": "api-rest"
         },
@@ -136,6 +172,10 @@
         {
           "id": "backup-local",
           "path": "backup-local"
+        },
+        {
+          "id": "branding",
+          "path": "branding"
         },
         {
           "id": "cache-local",
@@ -160,6 +200,10 @@
         {
           "id": "config-watcher",
           "path": "config-watcher"
+        },
+        {
+          "id": "contracts-ai",
+          "path": "contracts-ai"
         },
         {
           "id": "contracts-automation",
@@ -226,6 +270,14 @@
           "path": "downloader-native-torrent"
         },
         {
+          "id": "downloader-native-usenet",
+          "path": "downloader-native-usenet"
+        },
+        {
+          "id": "downloader-qbittorrent",
+          "path": "downloader-qbittorrent"
+        },
+        {
           "id": "downloader-sabnzbd",
           "path": "downloader-sabnzbd"
         },
@@ -288,6 +340,10 @@
         {
           "id": "media-custom-formats",
           "path": "media-custom-formats"
+        },
+        {
+          "id": "media-dlna",
+          "path": "media-dlna"
         },
         {
           "id": "media-ffprobe",
@@ -354,6 +410,14 @@
           "path": "media-tvshows"
         },
         {
+          "id": "media-ui-tv",
+          "path": "media-ui-tv"
+        },
+        {
+          "id": "metadata-musicbrainz",
+          "path": "metadata-musicbrainz"
+        },
+        {
           "id": "metadata-tmdb",
           "path": "metadata-tmdb"
         },
@@ -368,6 +432,10 @@
         {
           "id": "notification-default",
           "path": "notification-default"
+        },
+        {
+          "id": "playback-contract",
+          "path": "playback-contract"
         },
         {
           "id": "playback-guard",
@@ -432,6 +500,10 @@
         {
           "id": "tracing-otlp",
           "path": "tracing-otlp"
+        },
+        {
+          "id": "userdata-local",
+          "path": "userdata-local"
         },
         {
           "id": "worker-pool-memory",
@@ -449,6 +521,30 @@
       ],
       "trees": [
         {
+          "id": "ai-filter",
+          "path": "ai-filter"
+        },
+        {
+          "id": "ai-librarian",
+          "path": "ai-librarian"
+        },
+        {
+          "id": "ai-recommend",
+          "path": "ai-recommend"
+        },
+        {
+          "id": "ai-runtime",
+          "path": "ai-runtime"
+        },
+        {
+          "id": "ai-subtitles",
+          "path": "ai-subtitles"
+        },
+        {
+          "id": "ai-tickets",
+          "path": "ai-tickets"
+        },
+        {
           "id": "api-rest",
           "path": "api-rest"
         },
@@ -463,6 +559,10 @@
         {
           "id": "backup-local",
           "path": "backup-local"
+        },
+        {
+          "id": "branding",
+          "path": "branding"
         },
         {
           "id": "cache-local",
@@ -487,6 +587,10 @@
         {
           "id": "config-watcher",
           "path": "config-watcher"
+        },
+        {
+          "id": "contracts-ai",
+          "path": "contracts-ai"
         },
         {
           "id": "contracts-automation",
@@ -553,6 +657,14 @@
           "path": "downloader-native-torrent"
         },
         {
+          "id": "downloader-native-usenet",
+          "path": "downloader-native-usenet"
+        },
+        {
+          "id": "downloader-qbittorrent",
+          "path": "downloader-qbittorrent"
+        },
+        {
           "id": "downloader-sabnzbd",
           "path": "downloader-sabnzbd"
         },
@@ -615,6 +727,10 @@
         {
           "id": "media-custom-formats",
           "path": "media-custom-formats"
+        },
+        {
+          "id": "media-dlna",
+          "path": "media-dlna"
         },
         {
           "id": "media-ffprobe",
@@ -681,6 +797,14 @@
           "path": "media-tvshows"
         },
         {
+          "id": "media-ui-tv",
+          "path": "media-ui-tv"
+        },
+        {
+          "id": "metadata-musicbrainz",
+          "path": "metadata-musicbrainz"
+        },
+        {
           "id": "metadata-tmdb",
           "path": "metadata-tmdb"
         },
@@ -695,6 +819,10 @@
         {
           "id": "notification-default",
           "path": "notification-default"
+        },
+        {
+          "id": "playback-contract",
+          "path": "playback-contract"
         },
         {
           "id": "playback-guard",
@@ -759,6 +887,10 @@
         {
           "id": "tracing-otlp",
           "path": "tracing-otlp"
+        },
+        {
+          "id": "userdata-local",
+          "path": "userdata-local"
         },
         {
           "id": "worker-pool-memory",

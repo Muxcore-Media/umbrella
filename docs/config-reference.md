@@ -244,6 +244,7 @@ FFmpeg transcoding sidecar.
 | `TRANSCODER_MAX_CONCURRENT` | media-transcoder | `2` | Max parallel transcode jobs. |
 | `TRANSCODER_MIN_FREE_MB` | media-transcoder | `1024` | Minimum free disk (MB) before starting a job. |
 | `TRANSCODER_MAX_PLAYBACK` | media-transcoder | `4` | Max concurrent playback transcodes. |
+| `TRANSCODER_HLS_CACHE` | media-transcoder | next to `TRANSCODER_DB_PATH` | Seekable HLS playlist/segment cache. |
 | `TRANSCODER_TRICKPLAY_DIR` | media-transcoder | — | Trickplay thumbnail output directory. |
 | `TRANSCODER_SCAN_INTERVAL` | media-transcoder | — | Library event scan interval. |
 | `TRANSCODER_VAAPI_DEVICE` | media-transcoder | — | VAAPI hardware device path. |
@@ -559,7 +560,7 @@ Set to `1` to start optional sidecars. Defaults vary; see `run-host.sh`.
 | `MVP_ENABLE_JELLYFIN` | _mvp | `0` | Jellyfin bridge (separate from NixOS Jellyfin). |
 | `MVP_ENABLE_USERDATA_LOCAL` | _mvp | `1` | Household userdata mesh. |
 | `MVP_ENABLE_BACKUP_LOCAL` | _mvp | `0` | Backup module. |
-| `MVP_ENABLE_PLAYBACK_MONITOR` | _mvp | `0` | Playback analytics. |
+| `MVP_ENABLE_PLAYBACK_MONITOR` | _mvp | auto with UI | Playback sessions / Now watching. Compose still `--profile playback-monitor`. |
 | `MVP_ENABLE_PLAYBACK_GUARD` | _mvp | `0` | Sharing detection. |
 | `MVP_ENABLE_MEDIA_LIBRARY_MAINTAINER` | _mvp | `0` | Library maintainer. |
 | `MVP_ENABLE_MEDIA_LIST_SYNC` | _mvp | `0` | Import list sync. |
