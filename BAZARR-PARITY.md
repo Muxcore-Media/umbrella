@@ -2,6 +2,8 @@
 
 **Goal:** `media-subtitles` (+ `admin-ui` operator surfaces) replaces Bazarr as MuxCore’s subtitle companion.
 
+This checkout’s `media-subtitles` **v0.5.0** ships the household Bazarr *loop* (wanted, providers, history, language profiles, Settings + admin-ui RPCs). It does **not** include the 56-provider scraper catalog claimed below — live search is OpenSubtitles when `OPENSUBTITLES_API_KEY` is set, plus a fixture provider for offline.
+
 Legend: `[x]` shipped · `[~]` partial · `[ ]` missing · **Waiver** = MuxCore-native equivalent accepted
 
 ---
