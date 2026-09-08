@@ -4,6 +4,24 @@
 [submodule "admin-ui"]
 	path = admin-ui
 	url = https://github.com/Muxcore-Media/admin-ui.git
+[submodule "ai-filter"]
+	path = ai-filter
+	url = https://github.com/Muxcore-Media/ai-filter.git
+[submodule "ai-librarian"]
+	path = ai-librarian
+	url = https://github.com/Muxcore-Media/ai-librarian.git
+[submodule "ai-recommend"]
+	path = ai-recommend
+	url = https://github.com/Muxcore-Media/ai-recommend.git
+[submodule "ai-runtime"]
+	path = ai-runtime
+	url = https://github.com/Muxcore-Media/ai-runtime.git
+[submodule "ai-subtitles"]
+	path = ai-subtitles
+	url = https://github.com/Muxcore-Media/ai-subtitles.git
+[submodule "ai-tickets"]
+	path = ai-tickets
+	url = https://github.com/Muxcore-Media/ai-tickets.git
 [submodule "api-rest"]
 	path = api-rest
 	url = https://github.com/Muxcore-Media/api-rest.git
@@ -34,6 +52,9 @@
 [submodule "config-watcher"]
 	path = config-watcher
 	url = https://github.com/Muxcore-Media/config-watcher.git
+[submodule "contracts-ai"]
+	path = contracts-ai
+	url = https://github.com/Muxcore-Media/contracts-ai.git
 [submodule "contracts-automation"]
 	path = contracts-automation
 	url = https://github.com/Muxcore-Media/contracts-automation.git
