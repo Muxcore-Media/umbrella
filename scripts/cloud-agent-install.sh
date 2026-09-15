@@ -64,8 +64,10 @@ apply_core_siblings() {
   go mod edit -dropreplace=github.com/Muxcore-Media/core/pkg/log -droprequire=github.com/Muxcore-Media/core/pkg/log 2>/dev/null || true
 }
 
-# replace every populated Muxcore-Media sibling; drop refs to empty repos
+# replace every populated Muxcore-Media sibling; drop refs to empty repos.
+# Operates on the go.mod in the current directory.
 apply_all_siblings() {
+  [ -f go.mod ] || { log "  (apply_all_siblings: no go.mod in $PWD)"; return 1; }
   local p sub
   for p in $(grep -oE 'github\.com/Muxcore-Media/[A-Za-z0-9._/-]+' go.mod | sed -E 's#\s.*##' | sort -u); do
     grep -qE "^module[[:space:]]+$p" go.mod && continue
@@ -151,20 +153,26 @@ GO
 }
 
 # ---------------------------------------------------------------------------
-# 5. mvp-smoke helpers + BFF proxy (need sibling replaces across _mvp go.mod)
+# 5. mvp-smoke helpers (mesh CLIs + auth token minting). These live in the
+#    _mvp (mvp-smoke) module and need sibling replaces across its go.mod.
+#    mediauiprox (consumer SPA BFF) is intentionally NOT built here: its
+#    master needs media-subtitles master APIs that are not published as the
+#    wave tag, and it also panics under Go 1.26's stricter net/http mux.
+#    The consumer SPA is disabled in .env accordingly.
 # ---------------------------------------------------------------------------
 build_mvp_helpers() {
-  ( cd "$MVP" && git checkout -- go.mod go.sum 2>/dev/null || true; rm -f go.sum; apply_all_siblings )
+  if [ ! -f "$MVP/go.mod" ]; then log "WARN _mvp not populated; skipping helpers"; return 0; fi
+  ( cd "$MVP" && { git checkout -- go.mod go.sum 2>/dev/null || true; }; rm -f go.sum; apply_all_siblings )
   local h
-  for h in mediauiprox listmodules gettoken addmovie addtvshow importscan listall; do
+  for h in gettoken listmodules addmovie addtvshow importscan listall; do
     [ -x "$BIN/$h" ] && continue
     ( cd "$MVP" && go build -o "$BIN/$h" "./cmd/$h" ) >/tmp/cai-mvp-$h.log 2>&1 \
       && log "built helper $h" || log "FAIL helper $h (see /tmp/cai-mvp-$h.log)"
   done
-  # authctl lives in auth-local
+  # authctl lives in auth-local (built at the same tag as the module)
   if [ ! -x "$BIN/authctl" ]; then
-    ( cd "$WS/auth-local" && go build -o "$BIN/authctl" ./cmd/authctl ) >/tmp/cai-authctl.log 2>&1 \
-      && log "built helper authctl" || log "FAIL helper authctl"
+    ( cd "$WS/auth-local" && rm -f go.sum && apply_core_siblings && go build -o "$BIN/authctl" ./cmd/authctl ) \
+      >/tmp/cai-authctl.log 2>&1 && log "built helper authctl" || log "FAIL helper authctl (see /tmp/cai-authctl.log)"
   fi
 }
 
@@ -193,7 +201,10 @@ TMDB_API_KEY=
 MVP_ADMIN_USER=admin
 MVP_ADMIN_PASSWORD=admin-dev-only
 MUXCORE_INSECURE_DISABLE_TLS=true
-MVP_ENABLE_MEDIA_UI=1
+# Consumer SPA BFF (mediauiprox) master needs unpublished dep versions and
+# panics under Go 1.26's stricter net/http mux; disable it. The operator
+# admin-ui remains the primary web app.
+MVP_ENABLE_MEDIA_UI=0
 # playback-monitor depends on the empty playback-contract mirror repo
 MVP_ENABLE_PLAYBACK_MONITOR=0
 # browser-reachable auth/admin URLs (no Caddy/edge in this VM)
