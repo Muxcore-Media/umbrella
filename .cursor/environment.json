@@ -1,0 +1,11 @@
+{
+  "name": "MuxCore umbrella (MVP host stack)",
+  "install": "bash scripts/cloud-agent-install.sh",
+  "start": "bash scripts/cloud-agent-start.sh",
+  "terminals": [
+    {
+      "name": "muxcore-stack-logs",
+      "command": "cd _mvp && (tail -n +1 -F run/core.log run/admin-ui.log run/auth-local.log run/media-scanner.log 2>/dev/null || sleep infinity)"
+    }
+  ]
+}
