@@ -59,7 +59,7 @@ text = re.sub(r"### P1 — Platform engineering\n\n", "", text)
 
 text = re.sub(
     r"## Appendix B: Radarr / Sonarr operator parity\n\n## Radarr / Sonarr → MuxCore operator parity\n\n\*\*Goal:\*\*[^\n]+\n\n\*\*Canonical modules:\*\*[^\n]+\n\nLegend:[^\n]+\n\n---\n\n### A\. Shared \(\*Arr\) operator surfaces\n\n\| \*Arr surface \| MuxCore target \| Status \|\n\|[-| ]+\|\n\n---\n\n### B\. Radarr \(movies\)[^\n]+\n\n\| Radarr surface \| MuxCore target \| Status \|\n\|[-| ]+\|\n\| Calendar \| N/A \(movies\) \| N/A \|\n\n---\n\n### C\. Sonarr \(TV\)[^\n]+\n\n\| Sonarr surface \| MuxCore target \| Status \|\n\|[-| ]+\|\n\n---\n",
-    "## Appendix B: Radarr / Sonarr operator parity\n\nNo open checklist rows. Import lists and one-shot migrate shipped (`LISTSYNC-PARITY.md`, admin-ui `/migrate`).\n\n---\n",
+    "## Appendix B: Radarr / Sonarr operator parity\n\nNo open checklist rows. Import lists and one-shot migrate shipped (`media-list-sync` + admin-ui `/list-sync` and `/migrate`).\n\n---\n",
     text,
     flags=re.DOTALL,
 )

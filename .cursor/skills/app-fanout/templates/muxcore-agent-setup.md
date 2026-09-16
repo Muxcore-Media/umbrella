@@ -7,10 +7,11 @@ MuxCore is an **umbrella repo**: the workspace root tracks gitlinks for Forgejo 
    `git reset --hard {{BASE_BRANCH}}`
    `git checkout -B {{WORKTREE_BRANCH}}`
    Create the worktree under `{{MODULE_PATH}}/.worktrees/{{WORKTREE_BRANCH}}` when the orchestrator placed you there.
-3. Read workspace `AGENTS.md` — especially **Local dev tools (Nix)** and **Key hosts (vault & desk)** — then `{{MODULE_PATH}}/AGENTS.md` when it exists.
-4. Do not edit `.cursor/skills/*/last-runs.json`. The parent records those files.
-5. Do not push. Never amend. Never skip hooks.
-6. On success, create one Conventional Commit scoped to this module only.
+3. Read workspace `AGENTS.md` — especially **Local dev tools (Nix)**, **Key hosts (vault & desk)**, and **Roadmaps and task lists** — then `{{MODULE_PATH}}/AGENTS.md` when it exists.
+4. Do not add or update `ROADMAP.md`, `TASKS.md`, remaining-work checklists, or status novels in the module. Open work belongs in workspace `MASTER-ROADMAP.md` and umbrella GitHub Issues.
+5. Do not edit `.cursor/skills/*/last-runs.json`. The parent records those files.
+6. Do not push. Never amend. Never skip hooks.
+7. On success, create one Conventional Commit scoped to this module only.
 
 ### Private Go modules (required before `go test` / `go mod tidy`)
 

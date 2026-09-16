@@ -8,6 +8,17 @@ This checkout is an **umbrella repo**: the root git tracks `.cursor/skills`, `sc
 
 Clone/recurse/bump workflow: [`README-UMBRELLA.md`](README-UMBRELLA.md). Agent skills: [`.cursor/skills/README.md`](.cursor/skills/README.md).
 
+## Roadmaps and task lists
+
+Open product and platform work lives **only** in this umbrella repo:
+
+- [`MASTER-ROADMAP.md`](MASTER-ROADMAP.md) — canonical checklist (delete rows when done)
+- GitHub Issues on `Muxcore-Media/umbrella` — execution tickets
+- [`docs/PROJECT-MANAGEMENT.md`](docs/PROJECT-MANAGEMENT.md) — how Issues are driven
+- [`docs/parity/`](docs/parity/) — shipped competitor-parity records (not open checklists)
+
+Do **not** add `ROADMAP.md`, `TASKS.md`, remaining-work checklists, status novels, or loop-summary markdown in module repos. Module `AGENTS.md` is for how to build, test, and deploy that module — not a backlog. When a module gap is real, put the row in `MASTER-ROADMAP.md` (and an umbrella Issue if it needs tracking).
+
 ## Local dev tools (Nix)
 
 Dev workstations (`thin`, `desk`, and similar) have **Nix**. Do **not** assume `go`, `node`, `npm`, `golangci-lint`, or other toolchain binaries are on the host PATH outside a Nix shell. **Use `nix-shell` for any dev tool you need** — do not install packages with apt, brew, or curl installers when Nix can provide them.
@@ -218,7 +229,7 @@ ssh -6 "$VAULT" "export MUXCORE_GRPC_ADDR=127.0.0.1:9090 MUXCORE_INSECURE_DISABL
 
 Treat a module as **present** if its binary exists under `$MVP/bin/` **or** it appears in `./run-host.sh` (always-on or env-gated) and is running / expected for the task.
 
-**One-liner (preferred):** from the workspace, `_mvp/scripts/deploy-module-to-vault.sh` builds (via `nix-shell` when Go/Node are not on PATH), copies over SSH, and restarts the matching `run-host.sh` service. Handles `admin-ui`, `media-ui` / `mediauiprox`, `media-ui-app` (SPA rsync), origin-pinned acquisition modules, `core` / `muxcored`, and `muxcorectl`. Full helper inventory: [`USABILITY-DEPLOY-LOOP-SUMMARY.md`](USABILITY-DEPLOY-LOOP-SUMMARY.md).
+**One-liner (preferred):** from the workspace, `_mvp/scripts/deploy-module-to-vault.sh` builds (via `nix-shell` when Go/Node are not on PATH), copies over SSH, and restarts the matching `run-host.sh` service. Handles `admin-ui`, `media-ui` / `mediauiprox`, `media-ui-app` (SPA rsync), origin-pinned acquisition modules, `core` / `muxcored`, and `muxcorectl`. Helper inventory is in this file under **Agent deploy policy**.
 
 ```bash
 _mvp/scripts/deploy-module-to-vault.sh admin-ui --verify-all

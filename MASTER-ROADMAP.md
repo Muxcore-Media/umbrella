@@ -1,7 +1,7 @@
 # MuxCore — Master Roadmap (Source of Truth)
 
 **Scope:** Entire workspace (`/home/ender/Projects/muxcore`) — core, MVP stack, all modules, CI/GHCR, ops, docs.
-**Rule:** This is the **only** living workspace notes document. Open work only — delete items when done; do not keep checked-off or historical narratives.
+**Rule:** This is the **only** living workspace notes document. Open work only — delete items when done; do not keep checked-off or historical narratives. Do **not** keep `ROADMAP.md` / `TASKS.md` / remaining-work lists in module repos — those belong here (and as GitHub Issues on `Muxcore-Media/umbrella`).
 
 **How to use**
 - Track open work with `[ ]` (missing) or `[~]` (partial).
@@ -39,6 +39,12 @@
 
 ### P2 — Consumer UI (`media-ui-app/AGENTS.md` §12)
 
+### P2 — `media-library-maintainer` (moved from module `ROADMAP.md`)
+
+- [ ] Forgejo CI: add `golangci-lint` job alongside test/vet/build
+- [ ] Backup/restore of SQLite state and rule YAML export/import from admin settings
+- [ ] Deeper Sonarr/Radarr history integration for download-client cleanup without direct client URLs
+
 ### P2 — Native clients (documented intentional gaps)
 
 - [ ] **`media-tvos-app`** — live validation on physical Apple TV ([`media-tvos-app/docs/HARDWARE-VALIDATION.md`](media-tvos-app/docs/HARDWARE-VALIDATION.md); [`bff-soak.sh`](media-tvos-app/scripts/bff-soak.sh) for BFF paths; CI ships unsigned IPA only)
@@ -51,11 +57,11 @@
 
 ## 2. Maintenance rules
 
-1. **One file** — Update this document (roadmap + appendices); do not recreate parallel root note files or status novels.
+1. **One file** — Update this document (roadmap + appendices); do not recreate parallel root note files, status novels, or per-module `ROADMAP.md` / `TASKS.md`.
 2. **Delete when done** — Prefer small atomic items; remove the line when the PR/tag lands.
 3. **Smoke is sacred** — No “Deployable” claim without `mvp/smoke.sh` PASS on fixture path.
 4. **Dumps are dead** — Never open feature work in polluted archive directories (Appendix H).
-5. **Wiki follows code** — After material milestones, sync Getting-Started / Deployment / Security; keep wiki Roadmap as a stub to this file.
+5. **Wiki follows code** — After material milestones, sync Getting-Started / Deployment / Security. Do not keep wiki Roadmap/Tasks pages; this file is the checklist.
 
 ---
 
@@ -210,7 +216,7 @@ Close those four, and the loom architecture becomes the reason people stay. Leav
 
 ## Appendix B: Radarr / Sonarr operator parity
 
-No open checklist rows. Import lists and one-shot migrate shipped (`LISTSYNC-PARITY.md`, admin-ui `/migrate`).
+No open checklist rows. Import lists and one-shot migrate shipped (`media-list-sync` + admin-ui `/list-sync` and `/migrate`).
 
 ---
 
@@ -244,7 +250,7 @@ No open Jellyfin-dashboard checklist rows for near-term ops.
 
 ## Appendix D: Bazarr → media-subtitles parity
 
-Shipped — see [`BAZARR-PARITY.md`](./BAZARR-PARITY.md).
+Shipped — see [`docs/parity/BAZARR-PARITY.md`](docs/parity/BAZARR-PARITY.md).
 
 ---
 

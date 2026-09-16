@@ -22,11 +22,15 @@
 - **Cursor Ultra:** Aggressive utilization target — exhaust quota before renewal
 
 ## GitHub-Native Tracking
-All task tracking migrated from Markdown to GitHub Issues + Projects:
-- MASTER-ROADMAP.md → GitHub Issues (labeled by priority/area/type)
-- _wave1/module-todos/ → GitHub Issues (per-module)
-- .tasks-loop-state.json → GitHub Project board
-- .improve-loop-state.json → GitHub Project board
+Execution tickets live in GitHub Issues (and [org project 2](https://github.com/orgs/Muxcore-Media/projects/2/views/1) when the agent can read it).
+
+**Markdown that stays (umbrella only):**
+- [`MASTER-ROADMAP.md`](../MASTER-ROADMAP.md) — canonical open-work checklist
+- [`docs/parity/`](parity/) — shipped competitor-parity records
+
+**Do not keep** `ROADMAP.md`, `TASKS.md`, remaining-work checklists, or status novels in module repos. Do not recreate `TASKS.md` or loop-summary files at the umbrella root.
+
+Historical `_wave1/module-todos/` and loop-state JSON files are retired.
 
 ## Heartbeat Responsibilities
 Every heartbeat:
@@ -39,11 +43,11 @@ Every heartbeat:
 ## Phase 1: Initial Setup (first 3 heartbeats)
 - [x] Migrate MASTER-ROADMAP tasks to GitHub Issues
 - [ ] Create GitHub Project board
-- [ ] Set up label taxonomy
+- [x] Set up label taxonomy
 - [ ] Research PM best practices for AI-managed projects
 - [ ] Identify tools/access needed
-- [ ] Clean up modules and repos
-- [ ] Delete Markdown task files after migration
+- [x] Clean up modules and repos — roadmaps/task lists belong in the umbrella only
+- [x] Delete Markdown pointer/legacy task files (`TASKS.md`, per-module `ROADMAP.md` stubs, loop summaries)
 
 ## Phase 2: Active Project Management
 - Direct Cursor agents on highest-priority issues

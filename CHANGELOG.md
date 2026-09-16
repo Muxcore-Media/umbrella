@@ -5,9 +5,8 @@ All notable changes to MuxCore will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-## [Unreleased]
-
-### Added
+### Changed
+- Roadmaps and task lists live only in this umbrella (`MASTER-ROADMAP.md`, Issues). Per-module `ROADMAP.md` / `TASKS.md` stubs and pointer files are removed. Shipped parity records moved to `docs/parity/`.
 - CI/CD pipeline — Forgejo Actions for Go test matrix, golangci-lint, release tagging (#10)
 - Changelog + release notes automation — this file and commit linting (#16)
 - Benchmark suite for gRPC mesh, DB queries, transcoder hot paths (#17)

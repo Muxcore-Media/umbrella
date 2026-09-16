@@ -127,6 +127,7 @@ describe('buildAgentsMarkdown', () => {
     assert.match(md, /media\.scanner, settings/);
     assert.match(md, /ScannerService \(contracts-scanner\)/);
     assert.match(md, /cd media-scanner/);
+    assert.match(md, /Do not add `ROADMAP.md` \/ `TASKS.md` in this repo/);
   });
 });
 

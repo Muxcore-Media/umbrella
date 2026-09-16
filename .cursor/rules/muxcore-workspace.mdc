@@ -9,7 +9,7 @@ alwaysApply: true
 - Agent skills shelf: `.cursor/skills/README.md`
 - Umbrella clone/bump workflow: `README-UMBRELLA.md`
 - Module ports: `_mvp/PORTS.md`
-- Architecture audit: `AGENT-MODULE-AUDIT-2026-08-21.md`
+- Open work / roadmaps / task lists: `MASTER-ROADMAP.md` and umbrella GitHub Issues only — never in module repos
 - Polluted dumps (do not edit): `MASTER-ROADMAP.md` Appendix H
 - Domain events canonical source: `contracts-media/events`
-- Per-module rules: each repo's `AGENTS.md`
+- Per-module rules: each repo's `AGENTS.md` (build/test/deploy only; no backlogs)
