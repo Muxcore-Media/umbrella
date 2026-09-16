@@ -27,6 +27,8 @@ git submodule update --init --recursive
 | Path | Role |
 | ---- | ---- |
 | `AGENTS.md` | Homelab deploy + vault SSH reference |
+| `docs/agents/` | Per-module agent notes (no `AGENTS.md` in module repos) |
+| `MASTER-ROADMAP.md` | Canonical open-work checklist |
 | `.cursor/skills/` | Agent skill shelf + fan-out orchestrators |
 | `scripts/app-fanout.mjs` | Quality planner (submodule-aware) |
 | `.gitmodules` | Module URLs (GitHub) + pinned SHAs |

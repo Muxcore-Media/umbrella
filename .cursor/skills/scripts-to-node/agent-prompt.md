@@ -27,7 +27,7 @@ Files on this stem:
    `git reset --hard {{BASE_BRANCH}}`
    `git checkout -B {{WORKTREE_BRANCH}}`
 2. Edit only this stem: `{{MJS}}`, `{{STEM}}.test.mjs`, the `.sh` and `.ps1` for `{{STEM}}`, and a CI workflow that already invoked this stem.
-3. Read workspace `AGENTS.md` (especially **Local dev tools (Nix)**) and `{{MODULE_PATH}}/AGENTS.md` when present.
+3. Read workspace `AGENTS.md` (especially **Local dev tools (Nix)**) and umbrella `docs/agents/` for the owning module when present.
 4. Run Node and tests via **`nix-shell`** — e.g. `nix-shell -p nodejs --run 'node --test {{STEM}}.test.mjs'`. Do not assume `node` is on PATH.
 5. Do not edit `.cursor/skills/scripts-to-node/last-runs.json`. Do not push.
 

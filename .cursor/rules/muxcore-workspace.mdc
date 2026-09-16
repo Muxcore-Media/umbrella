@@ -12,4 +12,4 @@ alwaysApply: true
 - Open work / roadmaps / task lists: `MASTER-ROADMAP.md` and umbrella GitHub Issues only — never in module repos
 - Polluted dumps (do not edit): `MASTER-ROADMAP.md` Appendix H
 - Domain events canonical source: `contracts-media/events`
-- Per-module rules: each repo's `AGENTS.md` (build/test/deploy only; no backlogs)
+- Per-module agent notes: `docs/agents/` (shared `sidecar.md` plus unique files; modules must not ship `AGENTS.md`)

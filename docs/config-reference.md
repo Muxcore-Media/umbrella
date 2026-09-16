@@ -623,10 +623,11 @@ Set to `1` to start optional sidecars. Defaults vary; see `run-host.sh`.
 ## Related documentation
 
 - [`AGENTS.md`](../AGENTS.md) — deployment, vault SSH, public URLs
+- [`docs/agents/`](agents/README.md) — per-module build/test notes (sidecars share `sidecar.md`)
 - [`_mvp/PORTS.md`](../_mvp/PORTS.md) — default listen ports
 - [`_mvp/.env.example`](../_mvp/.env.example) — annotated local dev template
 - [`admin-ui/docs/SETTINGS-COVERAGE.md`](../admin-ui/docs/SETTINGS-COVERAGE.md) — admin UI settings ↔ env mapping
-- Per-module `AGENTS.md` — build and test commands
+- Per-module `README.md` — operator-facing module docs
 
 ---
 

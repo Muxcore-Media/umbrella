@@ -1,7 +1,7 @@
 # MuxCore — Master Roadmap (Source of Truth)
 
 **Scope:** Entire workspace (`/home/ender/Projects/muxcore`) — core, MVP stack, all modules, CI/GHCR, ops, docs.
-**Rule:** This is the **only** living workspace notes document. Open work only — delete items when done; do not keep checked-off or historical narratives. Do **not** keep `ROADMAP.md` / `TASKS.md` / remaining-work lists in module repos — those belong here (and as GitHub Issues on `Muxcore-Media/umbrella`).
+**Rule:** This is the **only** living workspace notes document. Open work only — delete items when done; do not keep checked-off or historical narratives. Do **not** keep `ROADMAP.md` / `TASKS.md` / remaining-work lists / `AGENTS.md` in module repos — roadmaps belong here (and as GitHub Issues on `Muxcore-Media/umbrella`); agent notes belong in [`docs/agents/`](docs/agents/README.md).
 
 **How to use**
 - Track open work with `[ ]` (missing) or `[~]` (partial).
@@ -37,7 +37,7 @@
 - [ ] **Public GHCR consumer mirror** — `Dockerfile.monorepo`, `publish-muxcored-ghcr.sh`, `smoke-ghcr-build.sh` (local `BUILD_ONLY`); **push** still needs `gh auth refresh -s write:packages,read:packages,repo`
 
 
-### P2 — Consumer UI (`media-ui-app/AGENTS.md` §12)
+### P2 — Consumer UI (`docs/agents/media-ui-app.md` §12)
 
 ### P2 — `media-library-maintainer` (moved from module `ROADMAP.md`)
 
@@ -57,7 +57,7 @@
 
 ## 2. Maintenance rules
 
-1. **One file** — Update this document (roadmap + appendices); do not recreate parallel root note files, status novels, or per-module `ROADMAP.md` / `TASKS.md`.
+1. **One file** — Update this document (roadmap + appendices); do not recreate parallel root note files, status novels, or per-module `ROADMAP.md` / `TASKS.md` / `AGENTS.md` (agent notes: [`docs/agents/`](docs/agents/README.md)).
 2. **Delete when done** — Prefer small atomic items; remove the line when the PR/tag lands.
 3. **Smoke is sacred** — No “Deployable” claim without `mvp/smoke.sh` PASS on fixture path.
 4. **Dumps are dead** — Never open feature work in polluted archive directories (Appendix H).

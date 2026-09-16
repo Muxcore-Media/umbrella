@@ -17,7 +17,7 @@ Open product and platform work lives **only** in this umbrella repo:
 - [`docs/PROJECT-MANAGEMENT.md`](docs/PROJECT-MANAGEMENT.md) — how Issues are driven
 - [`docs/parity/`](docs/parity/) — shipped competitor-parity records (not open checklists)
 
-Do **not** add `ROADMAP.md`, `TASKS.md`, remaining-work checklists, status novels, or loop-summary markdown in module repos. Module `AGENTS.md` is for how to build, test, and deploy that module — not a backlog. When a module gap is real, put the row in `MASTER-ROADMAP.md` (and an umbrella Issue if it needs tracking).
+Do **not** add `AGENTS.md`, `ROADMAP.md`, `TASKS.md`, remaining-work checklists, status novels, or loop-summary markdown in module repos. Module build/test/deploy notes live in [`docs/agents/`](docs/agents/README.md) (shared sidecar rules plus unique files). When a module gap is real, put the row in `MASTER-ROADMAP.md` (and an umbrella Issue if it needs tracking).
 
 ## Local dev tools (Nix)
 
@@ -47,7 +47,7 @@ nix-shell -p nodejs
 # npm ci && npm run typecheck && npm test
 ```
 
-Common packages: `go`, `golangci-lint`, `nodejs`, `postgresql`, `shellcheck`, `swift`, `gradle` (or use the module's `shell.nix` for Android/iOS). Read the module's `README.md` / `AGENTS.md` for module-specific invocations before inventing flags.
+Common packages: `go`, `golangci-lint`, `nodejs`, `postgresql`, `shellcheck`, `swift`, `gradle` (or use the module's `shell.nix` for Android/iOS). Read the module's `README.md` and [`docs/agents/`](docs/agents/README.md) for module-specific invocations before inventing flags.
 
 **Private Go modules:** modules import `github.com/Muxcore-Media/*` but resolve from Forgejo. On dev workstations use SSH (not HTTPS) so Cursor does not pop a `git.zem.systems` login dialog:
 
@@ -484,3 +484,4 @@ ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
 - `_mvp/PORTS.md` — default module ports
 - `_mvp/tls/FORGEJO-RUNNER.md` — CI on vault
 - `muxcorectl-cli/README.md` — CLI usage
+- `docs/agents/` — per-module agent notes (sidecars share `sidecar.md`)
