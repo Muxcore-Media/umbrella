@@ -229,7 +229,7 @@ T-M8-01 iOS/tvOS simulator tests for auth + resume via manual macOS workflow (FR
 
 ## 8. Next actionable milestone
 
-M0 is done; M1 is done locally (its CI criteria wait on B-1 and B-2). Of M2, every task except T-M2-10's GitHub run is done (the clean-room job passes locally; CI needs B-1 and B-2). M3's nine tasks are done except ADR-0016 phase 2 (drop profile inference one train later) and the NFR-SEC-008/009 fan-out still open in §10. Next is that fan-out, then **M4 — Household completeness** (T-M4-01…07).
+M0 is done; M1 is done locally (its CI criteria wait on B-1 and B-2). Of M2, every task except T-M2-10's GitHub run is done (the clean-room job passes locally; CI needs B-1 and B-2). M3's nine tasks are done except ADR-0016 phase 2 (drop profile inference one train later). The NFR-SEC-008/009 audit rows in §10 are guarded. Next is **M4 — Household completeness** (T-M4-01…07). Do not close M3 until phase 2 lands with the next train.
 
 ## 9. Validation log
 
@@ -293,6 +293,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | indexer-torznab `5e365b6`, indexer-piratebay `e6c6cb8`, downloader-native-usenet `7f232c9`: `go test ./...` (Go 1.26.6) | Pass. Indexer requests use netguard Integration (VPN transports are checked before dial). NZB `allowPrivate` no longer skips metadata and link-local. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 | 2026-10-05 | core `c94f972`: `go test ./internal/spool/ ./internal/grpcmesh/ -run Spool` (Go 1.26.6) | Pass. Spool tag fetches use netguard (HTTPS; strict unless an allow-list names a LAN spool; metadata stays refused). Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 | 2026-10-05 | media-books `7ce670a`, media-comics `3a43e09`, media-audiobooks `709d315`, media-library-maintainer `28a6826`: `go test ./internal/` (Go 1.26.6) | Pass. Book, comic, and audiobook paths use pathguard (symlink escape refused). Maintainer move destinations stay under `MAINTAINER_MOVE_PATH`. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
+| 2026-10-05 | backup-local `953c14b`, media-music `ab1507c`, media-ffprobe `f23a1f6`, media-custom-formats `5abf997`: `go test ./internal/` (Go 1.26.6); `_mvp` `1b95f43`: `scripts/check-confine-env_test.sh` | Pass. Restore targets, music library paths, ffprobe paths, and TRaSH guide paths use pathguard. run-host sets `FFPROBE_ALLOWED_ROOTS`; compose and run-host set `BACKUP_RESTORE_DIR`. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -301,7 +302,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 - **Working trees:** no uncommitted work in any repo. Every listed release is pushed and tagged.
 - **Household install:** the default for the registry compose (`_mvp` cd23b18) and the installer (v0.3.11). It is verified locally with `scripts/clean-room.sh --restore-drill` on rootless podman, and run-host stays `dev`.
 
-**Security fan-out paused midway (NFR-SEC-008/009).**
+**Security fan-out audit rows are guarded (NFR-SEC-008/009).** M3 stays open for ADR-0016 phase 2.
 - **Audit file:** findings and `file:line` rows are in the session's private file. The tables are reproduced in SRS evidence and in the CHANGELOG of each module that shipped a fix.
 - **Shipped:**
   - core `sdk/go/module` v0.6.6 netguard/pathguard
@@ -318,17 +319,15 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
    - Arr migrate uses netguard Integration. Private LAN and loopback are allowed, because a household Arr instance lives there; link-local, cloud metadata, and non-HTTP schemes are refused. Assumption: there is no separate Arr host allow-list env var.
    - List-sync, indexer create/update/delete, arr migrate, and root creation require `admin`. Manager stays allowed on the other privileged routes, including root browse.
    - **Blocked here:** `scripts/clean-room.sh --restore-drill` (household and `--dev`) needs rootless podman plus docker-compose, and GitHub CI still needs B-1 and B-2. Do not cut train 2026.10.4 until that drill passes.
-2. **Remaining audit rows:**
-   - SSRF audit rows are guarded, including the core spool fetcher (`c94f972`). NFR-SEC-009 is Impl on that evidence. M3 stays open until the path rows below are done.
-   - Paths: backup-local, media-music, media-ffprobe, media-custom-formats. media-books (`7ce670a`), media-comics (`3a43e09`), media-audiobooks (`709d315`), and the library-maintainer move path (`28a6826`) use pathguard.
-   - Then close M3 (SM-4 = 100 % of Must NFR-SEC rows).
-3. **Follow-ups:**
+2. **Audited path and SSRF rows are guarded.** NFR-SEC-009 is Impl. NFR-SEC-008 is Impl on backup-local (`953c14b`), media-music (`ab1507c`), media-ffprobe (`f23a1f6`), media-custom-formats (`5abf997`), plus the earlier path pins. `_mvp` `1b95f43` sets `BACKUP_RESTORE_DIR` and run-host `FFPROBE_ALLOWED_ROOTS`. Compose media-ffprobe has no library mount, so it stays fail-closed until an operator mounts libraries and sets the allow-list. M3 stays open for ADR-0016 phase 2 (drop profile inference one train later). Do not close M3 or cut train 2026.10.4 until the clean-room drill passes.
+3. **Next unblocked slice:** M4 household completeness, starting at T-M4-01 (BFF parental middleware, FR-PLAY-007).
+4. **Follow-ups:**
    - Rework scheduler-cron's tagged integration test, which needs a loopback webhook.
    - The installer should take the player from the `mvp` repo, not the archived `media-ui`.
    - The installer compose runtime binds bare `:port` for gRPC.
    - Phase-2 removal of profile inference (ADR-0016).
    - ADR for the HTTP mesh-certificate caller allow-list (media-transcoder).
-4. **M4, then M5.**
+5. **Then M5.**
 
 **Owner actions:**
 - B-2: GitHub Actions billing / spending limit. No CI job starts.
