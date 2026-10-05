@@ -5,11 +5,11 @@ alwaysApply: true
 
 # MuxCore workspace
 
-- Homelab deploy, SSH, edge routing: `AGENTS.md` (workspace root)
+- Read first: `AGENTS.md` (workspace root), then `MASTER-ROADMAP.md` (canonical plan) and the linked specs in `docs/specs/SRS.md`
+- Architecture and decisions: `docs/architecture/`, `docs/adr/`
 - Agent skills shelf: `.cursor/skills/README.md`
 - Umbrella clone/bump workflow: `README-UMBRELLA.md`
 - Module ports: `_mvp/PORTS.md`
-- Architecture audit: `AGENT-MODULE-AUDIT-2026-08-21.md`
-- Polluted dumps (do not edit): `MASTER-ROADMAP.md` Appendix H
+- Archived dumps (do not edit): `media-ui`, `media-jellyfin`, `cache-memory`, `custom-scripts`, `muxcorectl` (PRD NG-7)
 - Domain events canonical source: `contracts-media/events`
 - Per-module rules: each repo's `AGENTS.md`

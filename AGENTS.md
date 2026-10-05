@@ -1,73 +1,108 @@
-# MuxCore infrastructure (agent reference)
+# MuxCore — agent instructions
 
-Scoped notes for developing and deploying MuxCore on the homelab stack. Source of truth for host config is `~/Projects/zemdregon/nix-production`; this doc captures the operational paths agents have used successfully.
+This is the authoritative agent-instruction file for the MuxCore umbrella. Read it first, then the roadmap.
+
+## Start here: plan, specs, and decisions
+
+1. **Read [`MASTER-ROADMAP.md`](MASTER-ROADMAP.md) before planning or implementing anything.** It is the canonical source for scope, priorities, milestones, tasks (`T-M*-*`), status, and completion criteria. Find the task you are working on and its referenced requirement IDs.
+2. **Read the linked specifications for that task** — at minimum the referenced `FR-*`/`NFR-*` rows in [`docs/specs/SRS.md`](docs/specs/SRS.md) and the design section the task cites.
+3. **Who owns what** (one home per subject; reference by ID, never restate):
+
+| Subject | Owner document |
+|---------|----------------|
+| Scope, priority, milestones, task status, risks, doc map | [`MASTER-ROADMAP.md`](MASTER-ROADMAP.md) |
+| Business outcomes, constraints, success measures (`BO-*`, `BC-*`, `SM-*`) | [`docs/specs/BRD.md`](docs/specs/BRD.md) |
+| Personas, capabilities, journeys, non-goals (`P-*`, `CAP-*`, `J-*`, `NG-*`) | [`docs/specs/PRD.md`](docs/specs/PRD.md) |
+| Workflows, business rules, state machines, permissions (`WF-*`, `RULE-*`) | [`docs/specs/FRD.md`](docs/specs/FRD.md) |
+| **Requirements** (`FR-*`, `NFR-*`) with status and verification | [`docs/specs/SRS.md`](docs/specs/SRS.md) |
+| Components, trust boundaries, topology, data flows | [`docs/architecture/HLD.md`](docs/architecture/HLD.md) |
+| Design patterns, collaboration, interface responsibilities | [`docs/architecture/SDD.md`](docs/architecture/SDD.md) |
+| Engineering choices: build, deps, CI, packaging, testing, security approach | [`docs/architecture/TDD.md`](docs/architecture/TDD.md) |
+| Subsystem detail (schemas, algorithms, state machines) | [`docs/architecture/lld/`](docs/architecture/lld/README.md) |
+| Architectural decisions | [`docs/adr/`](docs/adr/README.md) |
+
+4. **Keep docs and status in sync with code.** A PR that changes behaviour must, in the same PR: update the affected SRS rows (status/evidence), update the roadmap task status (and the validation log when you ran a check), and fix any FRD/LLD text it invalidates. Do not mark anything `Done` or `Impl` without having run its verification.
+5. **Record architecture changes as ADRs.** Changes to module boundaries, contracts, data ownership, security model, build/release/CI model, or product commitments need a new ADR in `docs/adr/` (rules in its README). Supersede, never rewrite, an accepted ADR. Mark who decided: `Owner`, `Delegated`, or `Historical` — never imply owner approval you do not have.
+6. **Conflicts and assumptions.** If code and a doc disagree, or two docs disagree: do not silently pick one. Resolve using, in order, explicit owner decisions (ADRs marked `Owner`), this file, accepted ADRs, then implementation evidence; record the resolution in the roadmap §4 conflict table (or a new ADR if architectural). State any assumption you rely on in the PR and, if it affects scope, add it to roadmap §4 "Assumptions". Superseded docs keep a banner linking to their replacement — do not delete history.
+7. **Hard constraints** (details in BRD §5): GitHub (`github.com/Muxcore-Media`) is the **only** origin, tracker, and CI host ([ADR-0002](docs/adr/0002-github-sole-origin.md)); acquisition is fixture-only ([ADR-0008](docs/adr/0008-fixture-only-acquisition-gate.md)); no paid services; never work in archived dumps (`media-ui`, `media-jellyfin`, `cache-memory`, `custom-scripts`, `muxcorectl`).
 
 ## Umbrella workspace
 
-This checkout is an **umbrella repo**: the root git tracks `.cursor/skills`, `scripts/`, and **gitlink SHAs** for every Forgejo module under `.gitmodules`. Module source still lives in each submodule directory and still pushes to its own `muxcore/<module>` repo.
+This checkout is an **umbrella repo**: the root git tracks the roadmap, specs, ADRs, `.cursor/skills`, `scripts/`, and **gitlink SHAs** for every module under `.gitmodules` (all `https://github.com/Muxcore-Media/<module>.git`). Module source lives in each submodule directory and pushes to its own GitHub repo; the umbrella records the integrated, known-good SHAs.
 
-Clone/recurse/bump workflow: [`README-UMBRELLA.md`](README-UMBRELLA.md). Agent skills: [`.cursor/skills/README.md`](.cursor/skills/README.md).
+Clone/recurse/bump workflow: [`README-UMBRELLA.md`](README-UMBRELLA.md). Agent skills: [`.cursor/skills/README.md`](.cursor/skills/README.md). Commit conventions: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## Local dev tools (Nix)
+## Subagent routing and orchestration
 
-Dev workstations (`thin`, `desk`, and similar) have **Nix**. Do **not** assume `go`, `node`, `npm`, `golangci-lint`, or other toolchain binaries are on the host PATH outside a Nix shell. **Use `nix-shell` for any dev tool you need** — do not install packages with apt, brew, or curl installers when Nix can provide them.
+The primary agent acts as an **orchestrator**, coordinating work through context-scoped subagents rather than performing coding and edits directly. This division of labor optimizes reasoning effort and keeps the main conversation focused on coordination and decision-making.
 
-**1. Module `shell.nix` first** (when the module ships one — e.g. `muxcore-android`, `muxcore-ios`, `media-ui-tv`):
+When delegating to subagents, route work based on task complexity and requirements. Models are listed from cheapest to most capable; prices are Anthropic first-party API rates per million input/output tokens as of 2026-09-25 (see the Anthropic pricing page for current rates):
 
-```bash
-cd media-ui-tv
-nix-shell --run 'npm test'
-```
+| Model | Price (in/out per MTok) | Route here |
+|-------|-------------------------|------------|
+| **Haiku 4.5** | $1 / $5 | Cheapest and fastest. Simple, well-defined tasks: file reads, pattern matching, routine edits, small scripts, exploratory searches, quick lookups. |
+| **Sonnet 5.5** | $2 / $10 | Balanced speed and capability for general-purpose work: multi-file refactoring, feature implementation, moderate analysis, code review. **Default choice for most substantive tasks.** |
+| **Opus 5.5** | $4 / $20 | Strong reasoning for complex, high-stakes work: architecture decisions, cross-system design, deep codebase analysis, security review, intricate bug diagnosis. Use when Sonnet's output quality is insufficient. |
+| **Fable 5.1** | $10 / $50 | Anthropic's most capable widely released model and the most expensive. Turns on hard tasks can run for many minutes. Reserve for the most demanding reasoning and long-horizon agentic work where Opus falls short. |
 
-**2. Ad-hoc packages** (same pattern as `_mvp/scripts/install-origin-module.sh`):
+**Orchestrator responsibilities:** define the task scope, provide context and constraints, verify subagent work, and coordinate across multiple efforts. Route simple, independent subtasks to Haiku or Sonnet to reduce latency and cost. Reserve Opus and Fable for genuinely complex problems requiring deep reasoning or when task failure would be costly.
 
-```bash
-nix-shell -p go golangci-lint --run 'cd core && golangci-lint run ./...'
-nix-shell -p go --run 'cd admin-ui && go test ./...'
-nix-shell -p nodejs --run 'cd media-ui-app && npm ci && npm test'
-nix-shell -p nodejs --run 'node --test scripts/foo.test.mjs'
-```
+**Subagent responsibilities:** execute focused work within defined scope — code writes, edits, file operations, targeted analysis. Report results clearly so the orchestrator can verify and coordinate the next step.
 
-**3. Interactive session** when running many commands in one module:
+### Delegation practices (MuxCore-specific)
 
-```bash
-cd media-ui-app
-nix-shell -p nodejs
-# npm ci && npm run typecheck && npm test
-```
+- **One module per subagent.** Module boundaries are repo boundaries (each submodule pushes to its own repo), so scope each subagent to a single module directory plus the contracts it consumes. Cross-module changes are sequenced by the orchestrator: `core` / `contracts-*` first, then consumers, then the umbrella gitlink bump.
+- **Hand over the spec, not the history.** Give each subagent the roadmap milestone/task ID, the relevant requirement IDs from [`docs/specs/SRS.md`](docs/specs/SRS.md), the module's own `AGENTS.md`/`README.md`, and the exact verification command it must run. Subagents should not need to re-read this whole file.
+- **Parallelize only independent work.** Fan out across modules that do not share an edited contract. Two subagents must never edit the same submodule checkout concurrently — use `git worktree` inside the module if parallel branches are needed.
+- **Verify before accepting.** The orchestrator re-runs (or inspects the output of) the subagent's stated test/lint command, and checks the diff stays inside the agreed scope. A subagent's "done" is a claim, not evidence.
+- **Read-only exploration is cheap.** Use Haiku/Explore-type agents for sweeps across many modules (e.g. "which modules implement `HealthChecker`"); escalate to Sonnet/Opus only for the module that needs changing.
+- **Escalate on failure, not by default.** If a Sonnet subagent fails the same task twice, re-scope it or escalate the model; do not retry identically.
 
-Common packages: `go`, `golangci-lint`, `nodejs`, `postgresql`, `shellcheck`, `swift`, `gradle` (or use the module's `shell.nix` for Android/iOS). Read the module's `README.md` / `AGENTS.md` for module-specific invocations before inventing flags.
 
-**Private Go modules:** modules import `github.com/Muxcore-Media/*` but resolve from Forgejo. On dev workstations use SSH (not HTTPS) so Cursor does not pop a `git.zem.systems` login dialog:
+## Workstation notes (`claude-workstation` container)
+
+Some sessions run inside the `claude-workstation` container on **vault** rather than on `thin`/`desk`:
+
+- **No Nix.** Toolchains come from `mise` (`mise ls`: Go, Node LTS, Python, Rust, uv). Run `go`, `node`, `npm` directly instead of `nix-shell -p …` wrappers. `golangci-lint` may need `mise use -g golangci-lint` (persists under `$HOME`).
+- `gh` is authenticated; run `gh auth setup-git` once so `git` and `go` can fetch private `Muxcore-Media` repos over HTTPS.
+- **You are on vault's hardware but not in its host namespace** — the MVP stack under `/mnt/fast-storage/appdata/muxcore/mvp` is not mounted here. Use the SSH paths below for deploys; do not assume localhost ports reach the vault stack.
+- Only `/home/claude` persists across container restarts.
+
+## Dev toolchain
+
+The repo must not depend on one toolchain manager ([TDD §1](docs/architecture/TDD.md#1-technology-stack-current-retained)). Use whichever the machine provides:
+
+- **Nix workstations** (`thin`, `desk`): do not assume binaries on PATH outside a Nix shell; prefer a module's `shell.nix` (`muxcore-ios`), else `nix-shell -p go golangci-lint --run 'cd core && golangci-lint run ./...'`, `nix-shell -p nodejs --run 'cd media-ui-app && npm ci && npm test'`. Do not install with apt/brew/curl when Nix provides the tool.
+- **mise / system toolchains**: run `go`, `node`, `npm` directly.
+
+Read the module's `README.md` / `AGENTS.md` for module-specific invocations before inventing flags.
+
+**Private Go modules** (all `github.com/Muxcore-Media/*` repos are private):
 
 ```bash
 export GOPRIVATE='github.com/Muxcore-Media/*'
 export GONOSUMDB='github.com/Muxcore-Media/*'
 export GIT_TERMINAL_PROMPT=0
-git config --global url."ssh://forgejo@git.zem.systems:2222/muxcore/".insteadOf "https://github.com/Muxcore-Media/"
+gh auth setup-git        # HTTPS credentials for git and go
 ```
 
-**Non-interactive git (agents):** avoid SSH/credential prompts on `thin`/`desk`:
+**Non-interactive git (agents):** `source scripts/muxcore-git-env.sh` (sets `GIT_TERMINAL_PROMPT=0`, `GH_PROMPT_DISABLED=1`). Push with `gh`-backed HTTPS credentials; if `gh auth status` fails, restore with `gh auth login`.
 
-```bash
-source scripts/muxcore-git-env.sh   # GIT_TERMINAL_PROMPT=0 + BatchMode SSH
-```
+**Workspace Go modules** ([ADR-0011](docs/adr/0011-go-workspace-and-published-versions.md)): module `go.mod` files require published GitHub tags and must not contain filesystem `replace` directives. For cross-module work, use the umbrella `go.work` (`scripts/gen-go-work.sh`, roadmap T-M1-09). Before pushing contract consumer changes, run `./scripts/check-proto-drift.sh` (also run by `_mvp/scripts/run-script-tests.sh`).
 
-- Forgejo push: `origin` remotes over SSH (`git.zem.systems` in `~/.ssh/config`, `BatchMode yes`).
-- GitHub push/mirror: **`gh auth`** (HTTPS). Credential helper: `scripts/git-credential-muxcore.sh` → `gh auth git-credential` with `GH_PROMPT_DISABLED=1` (never prompts). If `gh auth status` fails, restore from keyring: `secret-tool lookup service gh:github.com | gh auth login --with-token`, or `gh auth login -w`.
-- Full Forgejo→GitHub mirror: `_mvp/scripts/mirror-forgejo-to-github.sh` (uses `gh auth token` or `GITHUB_TOKEN`).
+**CI** runs on GitHub-hosted runners from umbrella templates ([ADR-0003](docs/adr/0003-ci-on-github-hosted-runners.md)). Do not add self-hosted runners or mirror-checkout actions.
 
-Pre-warm `golangci-lint` before parallel agent waves: `nix-shell -p go golangci-lint --run 'golangci-lint version'`.
+## Owner reference deployment (vault & desk)
 
-**Workspace Go modules:** sibling modules under the umbrella checkout should use local `replace` directives for `core` when `../core` exists. Run `./scripts/ensure-go-replaces.sh` (or pass module paths) to add the standard set. Before pushing contract consumer changes, run `./scripts/check-proto-drift.sh` — it is also invoked from `_mvp/scripts/run-script-tests.sh`.
+The sections below describe the **owner's own deployment** used for soak testing. They are operator environment notes, not product requirements, and they must not leak into product docs or specs. Source of truth for host config is the owner's NixOS repo `~/Projects/zemdregon/nix-production`.
 
-## Key hosts (vault & desk)
+#### Key hosts (vault & desk)
 
 Two hosts matter most for day-to-day MuxCore work. Both are reachable over **ZeroTier** (network `2ca2fd5d9eab729d`; local interface often `ztoe6fmlyd`). Prefer ZT IPv6; use `-6` with `ssh`/`scp`/`rsync` when needed.
 
 | Host | Role | SSH (as `ender`) |
 |------|------|------------------|
-| **vault** | **MuxCore dev deployment** — runs `muxcore-host.service`, Forgejo origin, module binaries, CI runner | `ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95` |
+| **vault** | **MuxCore dev deployment** — runs `muxcore-host.service`, module binaries | `ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95` |
 | **desk** | **DNS & Cloudflare control plane** — `flarectl` (grey-cloud `*.zem.systems` records), `cloudflared` (tunnel cert), `wrangler` | `ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb` |
 
 Convenience variables (use in scripts):
@@ -96,7 +131,7 @@ rsync -avz -e 'ssh -6' ./local/ 'ender@[fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95]
 
 If SSH fails after a host migration: `ssh-keygen -R <zt-address>`.
 
-## Topology
+### Topology
 
 ```
 Browser → *.zem.systems (grey-cloud DNS RR)
@@ -104,7 +139,7 @@ Browser → *.zem.systems (grey-cloud DNS RR)
        → vault over ZeroTier (origin services)
 ```
 
-- **vault** — NAS / soak host. **Primary MuxCore dev deployment target** — runs `muxcore-host.service` (the MVP stack), Forgejo origin, and module binaries. Does **not** terminate public HTTPS; dawn/dusk do.
+- **vault** — NAS / soak host. **Primary MuxCore dev deployment target** — runs `muxcore-host.service` (the MVP stack) and module binaries. Does **not** terminate public HTTPS; dawn/dusk do.
 - **dawn** — OVH US-East public edge (ingress, ZT controller identity, Gatus).
 - **dusk** — OVH US-West public edge (sister ingress + backup MX).
 - **desk** — Home LAN workstation. **DNS & Cloudflare control plane** — `flarectl` (grey-cloud DNS), `cloudflared` (tunnels), `wrangler`; not a MuxCore runtime host.
@@ -120,7 +155,7 @@ MuxCore UIs on vault (proxied publicly):
 
 Jellyfin remains at **media.zem.systems** (`:8096`) — not the MuxCore consumer SPA.
 
-## ZeroTier addresses
+### ZeroTier addresses
 
 Canonical map: `nix-production/modules/zt-addrs.nix`
 
@@ -133,11 +168,11 @@ Canonical map: `nix-production/modules/zt-addrs.nix`
 
 Requires local ZeroTier membership on network `2ca2fd5d9eab729d` (interface often `ztoe6fmlyd`).
 
-## SSH access
+### SSH access
 
 See [Key hosts (vault & desk)](#key-hosts-vault--desk) for roles and convenience variables. Details below.
 
-### vault
+#### vault
 
 ```bash
 # Preferred: ZT IPv6 as ender
@@ -163,7 +198,7 @@ If SSH fails after a host migration, remove stale keys:
 ssh-keygen -R fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95
 ```
 
-### desk
+#### desk
 
 **DNS & Cloudflare control plane** — run `flarectl`, `cloudflared`, and `wrangler` here (not on vault). See [desk — Cloudflare DNS tooling](#desk--cloudflare-dns-tooling).
 
@@ -176,20 +211,20 @@ ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb \
   'export CF_API_TOKEN=$(cat ~/.config/cloudflare/token); flarectl dns list --zone zem.systems --name mux.zem.systems'
 ```
 
-### dawn / dusk
+#### dawn / dusk
 
 ```bash
 ssh root@[fd2c:a2fd:5d9e:ab72:9d99:932c:a2fd:5d9e]   # dawn
 ssh root@[fd2c:a2fd:5d9e:ab72:9d99:939b:2e68:dd6d]   # dusk
 ```
 
-## Vault dev / soak environment
+### Vault dev / soak environment
 
 **SSH to vault** (`ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95`) for MuxCore dev deployment — this is where the live soak stack runs, not your local `_mvp/run-host.sh` checkout (same layout, different machine).
 
 Nix module: `nix-production/modules/muxcore-test.nix` (enabled on vault host).
 
-### Key paths on vault
+#### Key paths on vault
 
 | Path | Purpose |
 |------|---------|
@@ -201,7 +236,7 @@ Nix module: `nix-production/modules/muxcore-test.nix` (enabled on vault host).
 
 Systemd unit: **`muxcore-host.service`** — runs `./run-host.sh up` from the MVP dir.
 
-### Agent deploy policy (vault)
+#### Agent deploy policy (vault)
 
 **Default:** after you change a module repo, **rebuild and redeploy on vault** when that module is already part of the vault stack. Do not leave vault running stale binaries when the user asked for a fix or feature to land there.
 
@@ -218,7 +253,7 @@ ssh -6 "$VAULT" "export MUXCORE_GRPC_ADDR=127.0.0.1:9090 MUXCORE_INSECURE_DISABL
 
 Treat a module as **present** if its binary exists under `$MVP/bin/` **or** it appears in `./run-host.sh` (always-on or env-gated) and is running / expected for the task.
 
-**One-liner (preferred):** from the workspace, `_mvp/scripts/deploy-module-to-vault.sh` builds (via `nix-shell` when Go/Node are not on PATH), copies over SSH, and restarts the matching `run-host.sh` service. Handles `admin-ui`, `media-ui` / `mediauiprox`, `media-ui-app` (SPA rsync), origin-pinned acquisition modules, `core` / `muxcored`, and `muxcorectl`. Full helper inventory: [`USABILITY-DEPLOY-LOOP-SUMMARY.md`](USABILITY-DEPLOY-LOOP-SUMMARY.md).
+**One-liner (preferred):** from the workspace, `_mvp/scripts/deploy-module-to-vault.sh` builds (via `nix-shell` when Go/Node are not on PATH), copies over SSH, and restarts the matching `run-host.sh` service. Handles `admin-ui`, `media-ui` / `mediauiprox`, `media-ui-app` (SPA rsync), origin-pinned acquisition modules, `core` / `muxcored`, and `muxcorectl`. Full helper inventory: [`docs/history/USABILITY-DEPLOY-LOOP-SUMMARY.md`](docs/history/USABILITY-DEPLOY-LOOP-SUMMARY.md) (historical).
 
 ```bash
 _mvp/scripts/deploy-module-to-vault.sh admin-ui --verify-all
@@ -281,7 +316,7 @@ ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
   'systemctl is-active muxcore-host; curl -s -o /dev/null -w "admin:%{http_code}\n" http://127.0.0.1:8082/health; curl -s -o /dev/null -w "media:%{http_code}\n" http://127.0.0.1:5173/; curl -s -o /dev/null -w "auth:%{http_code}\n" http://127.0.0.1:9401/login'
 ```
 
-### muxcorectl on vault
+#### muxcorectl on vault
 
 Build locally, copy binary, smoke-test:
 
@@ -301,7 +336,7 @@ muxcorectl modules list | head
 EOF
 ```
 
-### media-ui-app + mediauiprox
+#### media-ui-app + mediauiprox
 
 Frontend changes: build locally, rsync `dist-app/`, restart the module:
 
@@ -319,7 +354,7 @@ ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
 
 BFF changes also require rebuilding `mediauiprox` and copying to `mvp/bin/mediauiprox`, then the same restart.
 
-### Origin-pinned Go modules (acquisition stack)
+#### Origin-pinned Go modules (acquisition stack)
 
 Do **not** scp unpublished binaries for `media-scanner`, `media-automation`, or `downloader-native-torrent`. Use:
 
@@ -333,11 +368,11 @@ MVP_DEPLOY_SSH=ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
 
 See `_mvp/docs/ACQUISITION.md` for vault acquisition workflow.
 
-### Local dev stack
+#### Local dev stack
 
 Local reference: `_mvp/run-host.sh` (same layout as vault MVP). Ports: `_mvp/PORTS.md`. Mesh gRPC on vault is **not** published to LAN (`:9090` stays on the VPN veth).
 
-## desk — Cloudflare DNS tooling
+### desk — Cloudflare DNS tooling
 
 **SSH to desk first** (`ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb`). Desk is the control plane for public `*.zem.systems` DNS and Cloudflare Tunnel credentials — vault only runs the MuxCore stack behind dawn/dusk ingress.
 
@@ -351,7 +386,7 @@ Cloudflare CLI tools live on **desk** in `~/.nix-profile/bin/`:
 
 API token: `~/.config/cloudflare/token` → export as `CF_API_TOKEN`.
 
-### Create / inspect DNS (grey-cloud RR to dawn + dusk)
+#### Create / inspect DNS (grey-cloud RR to dawn + dusk)
 
 Run on desk (or over SSH to desk):
 
@@ -377,7 +412,7 @@ Records are **grey-cloud** (`proxied: false` in `fleet.yml`). Clients hit dawn/d
 
 Inventory mirror: `nix-production/modules/infrahub/objects/fleet.yml` (DNS + service objects).
 
-## dawn / dusk — adding or changing proxy entries
+### dawn / dusk — adding or changing proxy entries
 
 Public reverse proxy config: **`nix-production/modules/roles/ingress.nix`**
 
@@ -394,7 +429,7 @@ Pattern for a new vault-origin vhost:
 
 Both **dawn** and **dusk** import this via `modules/roles/edge-public.nix` → `ingress.nix`. Shared names get DNS-01 ACME when `acme/cloudflareEnv` is in sops (`secrets/acme.yaml`).
 
-### MuxCore-specific env on vault
+#### MuxCore-specific env on vault
 
 When public URLs change, also update **`muxcore-test.nix`** env vars:
 
@@ -403,7 +438,7 @@ When public URLs change, also update **`muxcore-test.nix`** env vars:
 
 Then rebuild **vault** so `muxcore-host` picks up new env.
 
-### Deploy workflow after nix changes
+#### Deploy workflow after nix changes
 
 From a machine with Nix (`thin`, `desk`, etc.):
 
@@ -442,20 +477,7 @@ curl -sS -o /dev/null -w '%{http_code}\n' https://auth.zem.systems/login
 
 Health checks also in `nix-production/modules/uptime.nix` (Gatus on dawn).
 
-## Forgejo CI (vault)
-
-Origin git + CI run on vault, not GitHub Actions. See `_mvp/tls/FORGEJO-RUNNER.md`.
-
-- Forgejo: `http://127.0.0.1:3000` on vault; SSH git: `git@git.zem.systems:2222`
-- Runner: `gitea-runner-vault.service`, label `native`
-- Workflows: `.forgejo/workflows/` in each repo (bulk install: `_mvp/scripts/install-forgejo-ci.sh`)
-
-```bash
-ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
-  'systemctl is-active gitea-runner-vault.service forgejo.service'
-```
-
-## Common pitfalls
+### Common pitfalls (owner deployment)
 
 1. **Stale SSH host keys** after gryffindor→desk or host reinstall — `ssh-keygen -R <addr>`.
 2. **IPv6 scp** needs brackets around the address in the remote spec.
@@ -468,8 +490,9 @@ ssh ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95 \
 
 ## Related docs in this repo
 
+- [`MASTER-ROADMAP.md`](MASTER-ROADMAP.md) — canonical plan (§3 is the full documentation map)
+- [`docs/specs/`](docs/specs/SRS.md), [`docs/architecture/`](docs/architecture/HLD.md), [`docs/adr/`](docs/adr/README.md) — specifications, design, decisions
 - `_mvp/README.md` — local MVP stack
 - `_mvp/docs/ACQUISITION.md` — vault acquisition + origin pinning
 - `_mvp/PORTS.md` — default module ports
-- `_mvp/tls/FORGEJO-RUNNER.md` — CI on vault
 - `muxcorectl-cli/README.md` — CLI usage

@@ -5,8 +5,8 @@ commit conventions, changelog expectations, and the release process.
 
 ## Development setup
 
-See [`AGENTS.md`](AGENTS.md) for homelab deploy paths, Nix dev shells, and private
-Go module configuration. Submodule modules may have their own `CONTRIBUTING.md`
+See [`AGENTS.md`](AGENTS.md) for the reading order (roadmap and specs first), toolchain
+notes, and private Go module configuration. Submodule modules may have their own `CONTRIBUTING.md`
 files with module-specific build steps.
 
 ## Commit messages
@@ -49,7 +49,7 @@ Before opening a PR, lint commits against `main`:
 ./scripts/lint-commits.sh origin/main HEAD
 ```
 
-CI runs the same check in `.forgejo/workflows/commitlint.yml`.
+CI runs the same check in `.github/workflows/commitlint.yml`.
 
 ## Changelog
 
@@ -83,7 +83,7 @@ Releases are tagged on the umbrella repo with `v*` semver tags (for example `v0.
 
 ### 1. Prepare
 
-1. Ensure `main` is green in Forgejo CI (`.forgejo/workflows/ci.yml`).
+1. Ensure `main` is green in GitHub Actions (`.github/workflows/ci.yml`).
 2. Confirm submodule gitlinks on `main` reflect the intended module SHAs.
 3. Review `./scripts/generate-changelog.sh --version vX.Y.Z` output locally.
 
@@ -96,14 +96,13 @@ git tag -a vX.Y.Z -m "vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-Tags pushed to Forgejo trigger `.forgejo/workflows/release.yml`, which:
+Pushed tags trigger `.github/workflows/release.yml`, which:
 
 1. Generates release notes from conventional commits since the previous tag.
 2. Inserts a new section into `CHANGELOG.md` (before `[Unreleased]`).
 3. Creates a GitHub Release on `Muxcore-Media/umbrella` with the generated notes.
 
-The workflow needs `GITHUB_TOKEN` (or equivalent) with `contents: write` on the
-GitHub mirror. Forgejo is origin; GitHub releases are the public artifact.
+The workflow uses `GITHUB_TOKEN` with `contents: write`.
 
 ### 3. Verify
 

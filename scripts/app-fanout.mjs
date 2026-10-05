@@ -677,7 +677,6 @@ function planUmbrella(skillId, opts, config) {
     throw new Error(`umbrella '${skillId}' requires a non-empty waves array`);
   }
   const multi = isMultiRepo(config);
-  const umbrella = isUmbrellaWorkspace(config);
   const branch = multi ? null : resolveBaseBranch(opts);
   const head = multi ? null : resolveBaseSha(branch);
   const maxLaunch = maxLaunchOf(config);

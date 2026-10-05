@@ -1,5 +1,8 @@
 # Bazarr → MuxCore (`media-subtitles`) parity
 
+> **Accuracy note (2026-10-05 audit).** Several claims below do not match the code at the time of the audit: `media-subtitles` registers two providers (`opensubtitles`, `fixture`) in `internal/bazarr.go`, not 56; the language list is a short household set, not 184; `SyncLibrary` only counts rows, `UpgradeSubtitles` returns `Upgraded: 0`, and `TestArrConnection` always returns `Ok: false`; anti-captcha, ffsubsync, and Sonarr/Radarr HTTP sync are not present; the module version is 0.5.0, not 0.5.5. The canonical status is SRS `FR-SUB-001` (Partial) in [`docs/specs/SRS.md`](docs/specs/SRS.md); remaining work is roadmap task T-M5-09. This document is retained as a historical parity record.
+
+
 **Goal:** `media-subtitles` (+ `admin-ui` operator surfaces) replaces Bazarr as MuxCore’s subtitle companion.
 
 This checkout’s `media-subtitles` **v0.5.0** ships the household Bazarr *loop* (wanted, providers, history, language profiles, Settings + admin-ui RPCs). It does **not** include the 56-provider scraper catalog claimed below — live search is OpenSubtitles when `OPENSUBTITLES_API_KEY` is set, plus a fixture provider for offline.
