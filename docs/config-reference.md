@@ -71,6 +71,11 @@ Used by most gRPC sidecars. Set once in the host environment or `run-host.sh`.
 | `MUXCORE_TENANT_STORAGE_SYNC` | core | — | Cross-tenant storage sync behavior. |
 | `DATABASE_URL` | * | — | Shared Postgres URL (playback-monitor fallback). |
 
+Mesh identity (ADR-0017, read by `sdk/go/module/meshid`; prose because `scripts/check-env-docs.mjs` cannot resolve these constants yet):
+
+- `MUXCORE_TLS_DIR` (default `<MUXCORE_DATA_DIR>/mesh-id`): identity directory (`module.crt`, `module.key`, `ca.crt`; 0600 files), reused on restart, written on enrollment. Registry compose: a `<service>-id` volume at `/data/mesh-id`.
+- `MUXCORE_BOOTSTRAP_TOKEN`: single-use enrollment token (`mct_2_<id>_…`) used when no identity is stored. Registry compose passes `MUXCORE_ENROLL_TOKEN_<ID>` (module ID upper-cased, `-`/`.` as `_`) from `.env`, written by `_mvp/scripts/gen-enrollment.sh`.
+
 ---
 
 ## core
@@ -90,7 +95,7 @@ Core server (`muxcored`) and global infrastructure.
 | `MUXCORE_GRPC_TLS_KEY` | core | — | gRPC server TLS key. |
 | `MUXCORE_GRPC_MTLS_ENABLED` | core | `false` | Require mutual TLS on gRPC. |
 | `MUXCORE_GRPC_MTLS_CA` | core | — | CA cert for mTLS client verification. |
-| `MUXCORE_GRPC_CA_CERT_DIR` | core | `<data>/ca` | Ephemeral CA directory when mTLS auto-generates. |
+| `MUXCORE_GRPC_CA_CERT_DIR` | core | `<data>/ca` | Core CA directory (CA key, enrollment ledger `enrolled.json`, core's auto-issued server certificate). Registry compose: the `core-ca` volume at `/app/ca`, outside the backed-up `core-data`. |
 | `MUXCORE_GRPC_MAX_MESSAGE_SIZE_MB` | core | `32` | Max gRPC send/receive message size (MB). |
 | `MUXCORE_GRPC_JOIN_TOKEN` | core | — | Pre-shared cluster join token. Alias: `MUXCORE_CLUSTER_JOIN_TOKEN`. |
 | `MUXCORE_GRPC_SEED_NODES` | core | — | Comma-separated `host:port` seed nodes. |
@@ -132,6 +137,11 @@ Core server (`muxcored`) and global infrastructure.
 | `MUXCORE_SANDBOX_OCI_AUTO` | core | — | Auto OCI runtime selection. |
 | `MUXCORE_SANDBOX_SECCOMP` | core | — | Enable seccomp filtering. |
 | `MUXCORE_SANDBOX_SECCOMP_PROFILE` | core | — | Seccomp profile path. |
+
+Enrollment (ADR-0017; prose because `scripts/check-env-docs.mjs` cannot resolve these constants yet):
+
+- `MUXCORE_ENROLL_SECRET`: HMAC key (≥ 16 bytes) for single-use module enrollment tokens, `mct_2_<id>_` + hex(HMAC-SHA256(secret, id)) (`muxcored enroll token <id>`); unset disables them. The registry compose requires it (`_mvp/scripts/gen-enrollment.sh`).
+- `MUXCORE_ENROLL_SAN_ALLOW`: comma-separated extra DNS names/IPs (`*.suffix` wildcards) modules may request as certificate SANs, e.g. compose service names that differ from the module ID (`jellyfin-bridge`).
 
 ---
 
@@ -667,10 +677,16 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
+| `ADMIN_UI_BRANDING_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the branding settings file. |
 | `ADMIN_UI_HEALTH_MONITOR_TOKEN` | admin-ui | — | Bearer token admin-ui sends to health-monitor `/status` (falls back to `HEALTH_MONITOR_HTTP_TOKEN`). |
+| `ADMIN_UI_LIVETV_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the Live TV settings file. |
+| `ADMIN_UI_NETWORKING_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the networking settings file. |
+| `ADMIN_UI_PARENTAL_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the parental-controls settings file. |
+| `ADMIN_UI_PASSWORD_RESET_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the password-reset request file shared with the BFF. |
 | `ADMIN_UI_REQUEST_MEDIA_URL` | admin-ui | — | Request media url. |
 | `ADMIN_UI_RESTORE_ROOT` | admin-ui | backup-local restore area | Only directory restores may target (FR-BAK-003, RULE-VAL-1). |
 | `ADMIN_UI_SCHEDULER_TOKEN` | admin-ui | — | Bearer token admin-ui sends to scheduler-cron (falls back to `SCHEDULER_HTTP_TOKEN`). |
+| `ADMIN_UI_SESSION_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the persisted session store (0600, hashed tokens). |
 | `ADMIN_UI_SESSION_KEY` | admin-ui | generated, persisted 0600 under `ADMIN_UI_DATA_DIR` | Key protecting session tokens at rest (NFR-SEC-005). |
 | `MVP_RUN` | admin-ui, muxcorectl-cli | — | Mvp run. |
 | `SCHEDULER_HTTP_TOKEN` | scheduler-cron | — | Bearer token for every HTTP path except `/health`; required when `SCHEDULER_HTTP_ADDR` is not loopback (NFR-SEC-011). |
@@ -824,14 +840,18 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `MUXCORE_AUDIT_HMAC_KEY` | core | — | HMAC-SHA256 key for audit-log entry signatures (NFR-OPS-004). Prefer `MUXCORE_AUDIT_HMAC_KEY_FILE`. |
 | `MUXCORE_AUDIT_HMAC_KEY_FILE` | core | — | File holding the audit HMAC key (mode 0600); wins over `MUXCORE_AUDIT_HMAC_KEY`. Missing or empty file aborts startup. |
+| `MUXCORE_BOOTSTRAP_TOKEN` | SDK (`meshid`) | — | Single-use enrollment token for this module (`MUXCORE_ENROLL_TOKEN_<ID>` in compose). |
 | `MUXCORE_CA_EXPORT_DIR` | core | — | Directory core writes the public mesh `ca.crt` to (household profile); never the CA key (ADR-0016). |
 | `MUXCORE_DATA_DIR` | core | `./data` (`/app/data` in images) | Core data directory; the automatic CA lives in `<data>/ca` (ADR-0016). |
-| `MUXCORE_ENROLL_DNS_NAMES` | core | — | Muxcore enroll dns names. |
+| `MUXCORE_ENROLL_DNS_NAMES` | core SDK (`meshid`) | — | Extra DNS SANs (comma-separated) a module requests when it enrolls, e.g. its compose service name; core keeps only names in `MUXCORE_ENROLL_SAN_ALLOW` (the module ID is always a SAN). |
+| `MUXCORE_ENROLL_SAN_ALLOW` | core | module ID + loopback | Extra DNS names/IPs (comma list, `*.suffix` wildcards) allowed as SANs in enrolled module certificates. |
+| `MUXCORE_ENROLL_SECRET` | core | — | HMAC secret for single-use module enrollment tokens (`mct_2_`, ADR-0017); ≥ 16 bytes. Generated by `_mvp/scripts/gen-enrollment.sh`. |
 | `MUXCORE_METRICS_ADDR` | core | `127.0.0.1:9464` | Dedicated metrics listener (`/metrics`); a non-loopback address requires `MUXCORE_METRICS_TOKEN` (NFR-SEC-011). |
 | `MUXCORE_METRICS_TOKEN` | core | — | Bearer token for the metrics listener (or `MUXCORE_METRICS_TOKEN_FILE`). |
 | `MUXCORE_PROFILE` | core, run-host | inferred (ADR-0016) | Security profile: `dev` (insecure allowed, warning) or `household` (TLS + automatic CA, insecure flag fatal); `staging` = household. Unset: `dev` if the insecure flag is set, else `household`. |
 | `MUXCORE_REQUIRE_MODULE_CERTS` | core | `false` | Household stage 2 (ADR-0018): reject module registrations without a verified mesh certificate for every capability. |
-| `MUXCORE_TLS_SERVER_NAME` | core | — | TLS server name override for mesh dial. |
+| `MUXCORE_TLS_DIR` | SDK (`meshid`) | `<MUXCORE_DATA_DIR>/mesh-id` | Where a module stores its enrolled mesh certificate and key (0600). |
+| `MUXCORE_TLS_SERVER_NAME` | core SDK (`meshid`) | host of `MUXCORE_GRPC_ADDR` | Name used to verify core's certificate when a module enrolls. |
 | `MUXCORE_TLS_SERVER_SANS` | core | — | Extra names/IPs (comma-separated) for core's automatic server certificate, e.g. the compose service name modules dial. |
 | `TENANT_TRUST_HEADERS` | core (`pkg/tenant`) | — | `1` lets the tenant middleware honour `X-Tenant-ID`/`X-Auth-Claims-Tenant` headers; otherwise only an authenticated tenant is used (ADR-0019). |
 
@@ -1093,6 +1113,8 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `AUTOMATION_DB_PATH` | media-automation | — | SQLite database file path. |
 | `AUTOMATION_DEAD_TORRENT_PENALTY` | media-automation | — | Dead torrent penalty. |
+| `AUTOMATION_DOWNLOADER_TORRENT` | media-automation | discovered | Pin the torrent downloader module ID used for dispatch. |
+| `AUTOMATION_DOWNLOADER_USENET` | media-automation | discovered | Pin the usenet downloader module ID used for dispatch. |
 | `AUTOMATION_DOWNLOAD_DIR` | media-automation | — | Download dir. |
 | `AUTOMATION_EVENT_SUBSCRIBE_DELAY` | media-automation | — | Event subscribe delay. |
 | `AUTOMATION_GRPC_ADDR` | media-automation | — | gRPC listen address. |
@@ -1196,10 +1218,6 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
-| `MOVIES_TLS_CA` | media-movies | — | CA bundle for mesh TLS verification. |
-| `MOVIES_TLS_CERT` | media-movies | — | TLS certificate file for the module's mesh client/server. |
-| `MOVIES_TLS_DIR` | media-movies | — | Directory holding `tls.crt`/`tls.key`/`ca.crt`. |
-| `MOVIES_TLS_KEY` | media-movies | — | TLS private key file. |
 
 ### media-music
 
@@ -1302,6 +1320,9 @@ Variables read by active modules that are not described in the sections above. M
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
 | `MUXCORE_ADMIN_TOKEN` | muxcorectl-cli | — | Credential (secret). |
+| `MUXCORE_AUTH_URL` | muxcorectl-cli | discovered | auth-local HTTP base URL for invite commands. |
+| `MUXCORE_PLAYBACK_MONITOR_URL` | muxcorectl-cli | discovered | playback-monitor HTTP base URL for stream/notification commands. |
+| `MUXCORE_REQUEST_URL` | muxcorectl-cli | discovered | request-media HTTP base URL. |
 | `MUXCORE_TOKEN_FILE` | muxcorectl-cli | — | Muxcore token file. |
 | `SCHEDULER_URL` | muxcorectl-cli | — | Scheduler url. |
 
@@ -1391,10 +1412,6 @@ Variables read by active modules that are not described in the sections above. M
 | `REQUEST_MODULE_PRINCIPALS` | request-media | `media-library-maintainer` | Module IDs (verified mesh certificate CN) allowed to list/deny requests without a user token (ADR-0020). |
 | `REQUEST_PREFER_WORKFLOW` | request-media | — | Prefer workflow. |
 | `REQUEST_REQUIRE_APPROVAL` | request-media | — | Require approval. |
-| `REQUEST_TLS_CA` | request-media | — | CA bundle for mesh TLS verification. |
-| `REQUEST_TLS_CERT` | request-media | — | TLS certificate file for the module's mesh client/server. |
-| `REQUEST_TLS_DIR` | request-media | — | Directory holding `tls.crt`/`tls.key`/`ca.crt`. |
-| `REQUEST_TLS_KEY` | request-media | — | TLS private key file. |
 | `REQUEST_TRUST_CALLER_HEADER` | request-media | — | Dev only: with `MUXCORE_INSECURE_DISABLE_TLS=true`, `1` trusts `X-Caller-Id` without a bearer token (ADR-0019). |
 
 ### scheduler-cron

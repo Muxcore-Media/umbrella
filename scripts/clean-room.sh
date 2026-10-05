@@ -9,9 +9,13 @@
 #      selected compose profiles need at MUXCORE_IMAGE_TAG (release-train.env);
 #      muxcored is built from core/Dockerfile (publish-muxcored-local.sh)
 #   3. from the umbrella root: compose pull + `up -d --wait` with generated
-#      secrets (temp env file, 0600, never committed)
+#      secrets (temp env file, 0600, never committed) in the household security
+#      profile (ADR-0016): mesh enrollment secret + per-module tokens from
+#      _mvp/scripts/gen-enrollment.sh (ADR-0017); every module must come up with
+#      a verified certificate
 #   4. MUXCORE_SMOKE_REGISTRY=1 SMOKE_REQUIRE_ACQUISITION=1 _mvp/smoke.sh with the
-#      fixture acquisition profiles (ADR-0008: fixture indexer + fixture engine only)
+#      fixture acquisition profiles (ADR-0008: fixture indexer + fixture engine only);
+#      the smoke enrolls its own client identity (mvp-smoke) for mesh TLS
 #   5. optional: _mvp/scripts/restore-drill.sh --mode compose
 #   6. idle RSS of the stack (NFR-PERF-003, report; enforce with --enforce-rss)
 #   7. compose logs on failure; `down -v`, registry removal at the end
@@ -19,7 +23,9 @@
 # Usage:
 #   scripts/clean-room.sh [--profiles "indexer-piratebay downloader-torrent"]
 #                         [--restore-drill] [--enforce-rss[=MiB]] [--keep]
-#                         [--skip-build] [--log-dir DIR]
+#                         [--skip-build] [--log-dir DIR] [--dev]
+#
+#   --dev   run the insecure dev profile instead (adds _mvp/docker-compose.dev.yml)
 #
 # Env (all optional):
 #   CONTAINER_RUNTIME        docker | podman (default: docker if on PATH, else podman)
@@ -45,6 +51,7 @@ RSS_LIMIT="${CLEAN_ROOM_RSS_LIMIT_MIB:-2048}"
 KEEP=0
 SKIP_BUILD=0
 LOG_DIR="${CLEAN_ROOM_LOG_DIR:-}"
+DEV=0
 REG_PORT="${CLEAN_ROOM_REGISTRY_PORT:-5000}"
 REG_NAME="muxcore-cleanroom-registry"
 REG_IMAGE="docker.io/library/registry:2"
@@ -61,6 +68,7 @@ while [[ $# -gt 0 ]]; do
     --keep) KEEP=1; shift ;;
     --skip-build) SKIP_BUILD=1; shift ;;
     --log-dir) LOG_DIR="$2"; shift 2 ;;
+    --dev) DEV=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "clean-room: unknown argument $1" >&2; usage >&2; exit 2 ;;
   esac
@@ -80,8 +88,10 @@ COMPOSE="${COMPOSE:-docker compose}"
 RT="$CONTAINER_RUNTIME"
 export CONTAINER_RUNTIME
 
+COMPOSE_FILES=(-f "$ROOT/docker-compose.yml")
+[[ "$DEV" -eq 1 ]] && COMPOSE_FILES+=(-f "$MVP/docker-compose.dev.yml")
 # shellcheck disable=SC2086 # COMPOSE is a command line
-compose() { $COMPOSE -f "$ROOT/docker-compose.yml" "$@"; }
+compose() { $COMPOSE "${COMPOSE_FILES[@]}" "$@"; }
 
 for t in go npm jq python3 curl openssl tar; do
   command -v "$t" >/dev/null 2>&1 || die "$t not on PATH"
@@ -134,7 +144,8 @@ for p in "${profile_list[@]}"; do profile_args+=(--profile "$p"); done
 COMPOSE_PROFILES="$(IFS=,; echo "${profile_list[*]}")"
 export COMPOSE_PROFILES
 
-log "train=${MUXCORE_TRAIN:-?} tag=$MUXCORE_IMAGE_TAG core=$CORE_TAG runtime=$RT compose='$COMPOSE' profiles=$COMPOSE_PROFILES"
+SEC_PROFILE="$([[ "$DEV" -eq 1 ]] && echo dev || echo household)"
+log "train=${MUXCORE_TRAIN:-?} tag=$MUXCORE_IMAGE_TAG core=$CORE_TAG runtime=$RT compose='$COMPOSE' profiles=$COMPOSE_PROFILES security=$SEC_PROFILE"
 log "workdir=$WORK logs=$LOG_DIR"
 
 [[ -f "$MVP/.env" ]] && log "WARN: $MVP/.env exists; smoke.sh sources it and its values override this run's"
@@ -156,13 +167,17 @@ QBIT_FIXTURE=1
 USENET_ENGINE=fixture
 EOF
 )
+# Mesh enrollment (ADR-0017): MUXCORE_ENROLL_SECRET + one single-use token per
+# module ID of the registry compose, appended to the same 0600 file.
+"$MVP/scripts/gen-enrollment.sh" --env-file "$ENV_FILE" >/dev/null || die "gen-enrollment.sh failed"
 set -a
 # shellcheck disable=SC1090
 source "$ENV_FILE"
 set +a
 if [[ "${GITHUB_ACTIONS:-}" == true ]]; then
   # Keep generated secrets out of uploaded logs / the job transcript.
-  for v in "$MVP_ADMIN_PASSWORD" "$HEALTH_MONITOR_HTTP_TOKEN" "$SECRETS_MASTER_KEY"; do echo "::add-mask::$v"; done
+  for v in "$MVP_ADMIN_PASSWORD" "$HEALTH_MONITOR_HTTP_TOKEN" "$SECRETS_MASTER_KEY" "$MUXCORE_ENROLL_SECRET"; do echo "::add-mask::$v"; done
+  while IFS='=' read -r _ v; do echo "::add-mask::$v"; done < <(grep '^MUXCORE_ENROLL_TOKEN_' "$ENV_FILE")
 fi
 
 # ---------- cleanup / failure handling ----------
@@ -305,6 +320,38 @@ compose "${profile_args[@]}" up -d --wait --wait-timeout "${CLEAN_ROOM_UP_TIMEOU
 report "compose up --wait: $((SECONDS - t0))s"
 compose ps --format '{{.Service}}\t{{.State}}\t{{.Status}}' | sort | tee "$LOG_DIR/compose-ps-up.txt"
 
+# ---------- 3b. security profile evidence ----------
+# household: core runs the household profile over TLS, every running module
+# enrolled for (or reused) a core-issued certificate, nothing ran insecure.
+if [[ "$DEV" -eq 0 ]]; then
+  compose logs --no-color core >"$LOG_DIR/core-security.log" 2>&1 || true
+  grep -q 'security profile resolved.*profile=household' "$LOG_DIR/core-security.log" \
+    || die "core did not resolve the household profile (log: $LOG_DIR/core-security.log)"
+  grep -q 'gRPC TLS enabled' "$LOG_DIR/core-security.log" || die "core gRPC TLS not enabled"
+  # Services are "up" before they finish enrolling; give stragglers a moment.
+  mapfile -t missing_id < <(compose ps --services --status running | grep -vx core)
+  id_deadline=$((SECONDS + ${CLEAN_ROOM_ID_WAIT_SEC:-60}))
+  while :; do
+    still=()
+    for svc in "${missing_id[@]}"; do
+      compose logs --no-color "$svc" 2>&1 \
+        | grep -Eq 'meshid: (enrolled with core|using stored mesh identity)|media-ui: (enrolled with core|mesh identity)|mesh identity.*cert=' \
+        || still+=("$svc")
+    done
+    missing_id=("${still[@]}")
+    [[ ${#missing_id[@]} -eq 0 || $SECONDS -ge $id_deadline ]] && break
+    sleep 3
+  done
+  [[ ${#missing_id[@]} -eq 0 ]] || die "no mesh identity logged by: ${missing_id[*]}"
+  if compose logs --no-color 2>&1 \
+      | grep -E 'insecure=true|!!! INSECURE|DEV PROFILE|gRPC TLS is disabled|without TLS|meshid: insecure dev mode' \
+      >"$LOG_DIR/insecure-lines.log"; then
+    die "insecure-mode log lines in a household run (see $LOG_DIR/insecure-lines.log)"
+  fi
+  enrolled="$(compose exec -T core ./muxcored enroll list 2>/dev/null | grep -c . || true)"
+  report "household: core profile=household + TLS; $(compose ps --services --status running | grep -vc '^core$') services with a mesh identity; enrollment ledger entries: ${enrolled}"
+fi
+
 # ---------- 4. fixture smoke ----------
 smoke_env=(
   MUXCORE_SMOKE_REGISTRY=1
@@ -312,7 +359,9 @@ smoke_env=(
   MUXCORE_CONTAINER_CLI="$RT"
   MUXCORE_COMPOSE="$COMPOSE"
   MVP_TOKEN_FILE="$WORK/admin.token"
+  MUXCORE_SMOKE_ID_DIR="$WORK/smoke-id"
 )
+[[ "$DEV" -eq 1 ]] && smoke_env+=(MUXCORE_COMPOSE_EXTRA_FILES=docker-compose.dev.yml)
 log "smoke: ${smoke_env[*]:0:2} _mvp/smoke.sh"
 t0=$SECONDS
 env "${smoke_env[@]}" "$MVP/smoke.sh" 2>&1 | tee "$LOG_DIR/smoke.log" || die "smoke.sh failed (log: $LOG_DIR/smoke.log)"
@@ -376,4 +425,4 @@ if [[ "$RESTORE_DRILL" -eq 1 ]]; then
   report "restore drill: PASS in $((SECONDS - t0))s"
 fi
 
-report "clean-room: PASS (train ${MUXCORE_TRAIN:-?}, tag $MUXCORE_IMAGE_TAG, profiles $COMPOSE_PROFILES)"
+report "clean-room: PASS (train ${MUXCORE_TRAIN:-?}, tag $MUXCORE_IMAGE_TAG, profiles $COMPOSE_PROFILES, security $SEC_PROFILE)"
