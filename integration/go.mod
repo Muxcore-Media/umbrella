@@ -3,11 +3,11 @@ module github.com/Muxcore-Media/muxcore/integration
 go 1.26.6
 
 require (
-	github.com/Muxcore-Media/backup-local v0.1.4
-	github.com/Muxcore-Media/core v0.6.4
-	github.com/Muxcore-Media/media-movies v0.1.15
-	github.com/Muxcore-Media/media-transcoder v0.3.8
-	github.com/Muxcore-Media/playback-monitor v0.1.2
+	github.com/Muxcore-Media/backup-local v0.1.6
+	github.com/Muxcore-Media/core v0.6.12
+	github.com/Muxcore-Media/media-movies v0.1.18
+	github.com/Muxcore-Media/media-transcoder v0.3.9
+	github.com/Muxcore-Media/playback-monitor v0.1.3
 )
 
 require (
@@ -16,12 +16,12 @@ require (
 	github.com/Muxcore-Media/contracts-playback v0.2.0 // indirect
 	github.com/Muxcore-Media/contracts-reconciler v0.1.0 // indirect
 	github.com/Muxcore-Media/core/pkg/contracts v0.6.0 // indirect
-	github.com/Muxcore-Media/core/sdk/go/client v0.6.0 // indirect
-	github.com/Muxcore-Media/core/sdk/go/module v0.6.0 // indirect
-	github.com/Muxcore-Media/media-automation v0.1.46 // indirect
-	github.com/Muxcore-Media/media-root-folders v0.1.8 // indirect
-	github.com/Muxcore-Media/media-transcoder-pool v0.2.1 // indirect
-	github.com/Muxcore-Media/metadata-tmdb v0.1.6 // indirect
+	github.com/Muxcore-Media/core/sdk/go/client v0.6.1 // indirect
+	github.com/Muxcore-Media/core/sdk/go/module v0.6.3 // indirect
+	github.com/Muxcore-Media/media-automation v0.1.49 // indirect
+	github.com/Muxcore-Media/media-root-folders v0.1.9 // indirect
+	github.com/Muxcore-Media/media-transcoder-pool v0.2.3 // indirect
+	github.com/Muxcore-Media/metadata-tmdb v0.1.7 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
