@@ -641,6 +641,10 @@ Variables read by active modules that are not described in the sections above. M
 | `REQUEST_MEDIA_HTTP_URL` | _mvp | `http://127.0.0.1:9380` | HTTP base URL of the module. |
 | `ROOTS_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9540` | gRPC address the BFF dials for this module. |
 | `SCANNER_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9470` | gRPC address the BFF dials for this module. |
+| `SMOKE_ACQUISITION_DOWNLOADERS` | _mvp | native-torrent, qbittorrent | Downloader module IDs that enable the smoke acquisition step. |
+| `SMOKE_ACQUISITION_FILE_TIMEOUT_SEC` | _mvp | — | Smoke: seconds to wait for the imported file to appear on the movie. |
+| `SMOKE_ACQUISITION_INDEXERS` | _mvp | indexer-piratebay | Indexer module IDs that enable the smoke acquisition step. |
+| `SMOKE_ACQUISITION_TIMEOUT_SEC` | _mvp | 120 | Smoke: seconds to wait for the grab to complete. |
 | `SMOKE_HEALTH_MONITOR_STATUS` | _mvp | — | Smoke health monitor status. |
 | `SMOKE_JELLYFIN_WEBHOOK` | _mvp | — | Smoke jellyfin webhook. |
 | `SMOKE_MEDIA_UI_URL` | _mvp | — | Smoke media ui url. |
@@ -658,6 +662,8 @@ Variables read by active modules that are not described in the sections above. M
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
 | `ADMIN_UI_REQUEST_MEDIA_URL` | admin-ui | — | Request media url. |
+| `ADMIN_UI_RESTORE_ROOT` | admin-ui | backup-local restore area | Only directory restores may target (FR-BAK-003, RULE-VAL-1). |
+| `ADMIN_UI_SESSION_KEY` | admin-ui | generated, persisted 0600 under `ADMIN_UI_DATA_DIR` | Key protecting session tokens at rest (NFR-SEC-005). |
 | `MVP_RUN` | admin-ui, muxcorectl-cli | — | Mvp run. |
 
 ### ai-filter
@@ -802,6 +808,15 @@ Variables read by active modules that are not described in the sections above. M
 | `CONFIG_WATCHER_TLS_CERT` | config-watcher | — | TLS certificate file for the module's mesh client/server. |
 | `CONFIG_WATCHER_TLS_DIR` | config-watcher | — | Directory holding `tls.crt`/`tls.key`/`ca.crt`. |
 | `CONFIG_WATCHER_TLS_KEY` | config-watcher | — | TLS private key file. |
+
+### core
+
+| Env Var | Module | Default | Description |
+|---------|--------|---------|-------------|
+| `MUXCORE_AUDIT_HMAC_KEY` | core | — | HMAC-SHA256 key for audit-log entry signatures (NFR-OPS-004). Prefer `MUXCORE_AUDIT_HMAC_KEY_FILE`. |
+| `MUXCORE_AUDIT_HMAC_KEY_FILE` | core | — | File holding the audit HMAC key (mode 0600); wins over `MUXCORE_AUDIT_HMAC_KEY`. Missing or empty file aborts startup. |
+| `MUXCORE_METRICS_ADDR` | core | `127.0.0.1:9464` | Dedicated metrics listener (`/metrics`); a non-loopback address requires `MUXCORE_METRICS_TOKEN` (NFR-SEC-011). |
+| `MUXCORE_METRICS_TOKEN` | core | — | Bearer token for the metrics listener (or `MUXCORE_METRICS_TOKEN_FILE`). |
 
 ### data-redaction-pattern
 
@@ -983,6 +998,7 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `HEALTH_MONITOR_GRPC_ADDR` | health-monitor | — | gRPC listen address. |
 | `HEALTH_MONITOR_HTTP_ADDR` | health-monitor | — | HTTP listen address. |
+| `HEALTH_MONITOR_HTTP_TOKEN` | health-monitor | — | Bearer token for `/status`; required when `HEALTH_MONITOR_HTTP_ADDR` is not loopback (NFR-SEC-011). |
 | `HEALTH_MONITOR_INTERVAL` | health-monitor | — | Interval. |
 | `HEALTH_MONITOR_TLS_CA` | health-monitor | `MUXCORE_TLS_CA` | CA bundle for mesh TLS verification. |
 | `HEALTH_MONITOR_TLS_CERT` | health-monitor | `MUXCORE_TLS_CERT` | TLS certificate file for the module's mesh client/server. |
@@ -1021,6 +1037,13 @@ Variables read by active modules that are not described in the sections above. M
 | `VALIDATE_TLS_CERT` | input-validate-jsonschema | — | TLS certificate file for the module's mesh client/server. |
 | `VALIDATE_TLS_DIR` | input-validate-jsonschema | — | Directory holding `tls.crt`/`tls.key`/`ca.crt`. |
 | `VALIDATE_TLS_KEY` | input-validate-jsonschema | — | TLS private key file. |
+
+### jellyfin
+
+| Env Var | Module | Default | Description |
+|---------|--------|---------|-------------|
+| `AUTH_LOCAL_GRPC_ADDR` | userdata-local | — | gRPC listen address. |
+| `JELLYFIN_TRUST_CALLER_HEADER` | jellyfin | — | Dev only: with `MUXCORE_INSECURE_DISABLE_TLS=true`, `1` accepts header-only user identity on `/userdata/from-muxcore` (ADR-0019); otherwise a bearer token is required. |
 
 ### logging-file
 
@@ -1362,6 +1385,7 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `SCHEDULER_CATCH_UP` | scheduler-cron | — | Catch up. |
 | `SCHEDULER_HTTP_ADDR` | scheduler-cron | — | HTTP listen address. |
+| `SCHEDULER_HTTP_TOKEN` | scheduler-cron | — | Bearer token for every HTTP path except `/health`; required when `SCHEDULER_HTTP_ADDR` is not loopback (NFR-SEC-011). |
 | `SCHEDULER_STORE_PATH` | scheduler-cron | — | Store path. |
 | `SCHEDULER_TZ` | scheduler-cron | — | Tz. |
 
@@ -1498,7 +1522,6 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
-| `AUTH_LOCAL_GRPC_ADDR` | userdata-local | — | gRPC listen address. |
 | `USERDATA_LOCAL_DB_PATH` | userdata-local | — | SQLite database file path. |
 | `USERDATA_LOCAL_GRPC_ADDR` | userdata-local | — | gRPC listen address. |
 | `USERDATA_LOCAL_HTTP_ADDR` | userdata-local | — | HTTP listen address. |

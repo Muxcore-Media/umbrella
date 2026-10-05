@@ -174,7 +174,7 @@
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
 | NFR-SEC-001 | No shipped configuration contains a usable default password or token (admin bootstrap, `PLAYBACK_MONITOR_HTTP_TOKEN`, etc.). | M | Plan — defaults present | P: repo-wide lint in CI for known default literals | M3 |
-| NFR-SEC-002 | Registration of security-critical capabilities (`call.policy`, `publish.policy`, `authorizer`, `identity`, `auth`) shall require an authenticated module identity (mTLS client cert bound to module ID, or single-use bootstrap token). | M | Plan — `Register` is unauthenticated; CN binding documented but not coded | P: core grpcmesh tests | M3 |
+| NFR-SEC-002 | Registration of security-critical capabilities (`call.policy`, `publish.policy`, `authorizer`, `identity`, `auth`) shall require an authenticated module identity (mTLS client cert bound to module ID, or single-use bootstrap token). | M | Plan (designed: ADR-0017, ADR-0018) — `Register` is unauthenticated; CN binding documented but not coded | P: core grpcmesh tests | M3 |
 | NFR-SEC-003 | Mesh traffic shall use TLS (mTLS where module identity matters) in every non-dev profile; `MUXCORE_INSECURE_DISABLE_TLS` is allowed only in the dev profile and logs a warning. | M | Part — registry/GHCR compose and installer hard-code insecure; admin-ui dials with `insecure.NewCredentials()` (27 sites) | P: compose lint; admin-ui dial helper test | M3 |
 | NFR-SEC-004 | Browser-facing state-changing endpoints shall be protected against CSRF (token or strict Origin check) and use POST/PUT/PATCH/DELETE only. | M | Part — admin-ui double-submit CSRF; BFF none; BFF `GET /logout` | P: BFF middleware tests | M3 |
 | NFR-SEC-005 | Session and secret material at rest (session files, TOTP secrets) shall be stored hashed or encrypted, with file mode 0600, outside temp directories by default. | M | Part — plaintext session JSON in `os.TempDir()`; plaintext TOTP secret | P: tests | M3 |
@@ -183,7 +183,7 @@
 | NFR-SEC-008 | User-supplied paths shall be confined to allow-listed roots (RULE-VAL-1). | M | Part — library-plus yes; admin-ui restore no | P: tests | M3 |
 | NFR-SEC-009 | Outbound requests to user-configured URLs shall be SSRF-guarded (RULE-VAL-2). | M | Part — spool resolver yes; others unverified | P: audit + tests | M3 |
 | NFR-SEC-010 | Live acquisition shall be impossible unless the operator explicitly enables it and provides VPN config (fail-closed). | M | Part — RULE-ACQ-6/7 exist but default engine is live | P: engine default test | M3 |
-| NFR-SEC-011 | Unauthenticated HTTP control endpoints (scheduler-cron `:9200`, health-monitor `/status`, core `/metrics` when enabled) shall require auth or bind to loopback by default. | M | Part | P: tests | M3 |
+| NFR-SEC-011 | Unauthenticated HTTP control endpoints (scheduler-cron `:9200`, health-monitor `/status`, core `/metrics` when enabled) shall require auth or bind to loopback by default. | M | Part — scheduler-cron v0.1.7 and core v0.6.8 (`/metrics` on `127.0.0.1:9464`, token required off-loopback) done; health-monitor pending caller token support | P: tests | M3 |
 | NFR-SEC-012 | Secrets shall never be committed; CI shall scan for secrets. | M | Impl — gitleaks job in umbrella CI | P: secret-scan workflow | M0 |
 | NFR-SEC-013 | Dependencies shall be monitored for vulnerabilities (Dependabot + `govulncheck`). | S | Part — Dependabot active on GitHub; `govulncheck` in core CI | E: Dependabot runs; P: umbrella vuln job | M1 |
 
@@ -216,7 +216,7 @@ No performance requirement has been approved by the owner. The following are **[
 | NFR-OPS-001 | Every module shall expose a health signal consumed by core and visible in admin-ui. | M | Impl | E: core + admin-ui tests | — |
 | NFR-OPS-002 | Logs shall be structured (slog JSON) with configurable level and redaction. | S | Impl — shared slog contract (#15), `logging-file` | E: tests | — |
 | NFR-OPS-003 | Metrics (Prometheus) and traces (OTLP) shall be available when enabled; a starter Grafana dashboard ships in-repo. | C | Part — no dashboards | P: dashboard JSON lint | D |
-| NFR-OPS-004 | Core audit log shall be tamper-evident (hash chain; HMAC when a key is configured). | S | Part — chain yes; HMAC never wired | P: core test | M3 |
+| NFR-OPS-004 | Core audit log shall be tamper-evident (hash chain; HMAC when a key is configured). | S | Impl — core v0.6.8: HMAC-SHA256 over previous hash + entry when `MUXCORE_AUDIT_HMAC_KEY[_FILE]` is set; `audit.VerifyEntries` | P: core test (`internal/audit`) | M3 |
 | NFR-OPS-005 | Configuration shall be documented in one reference generated or checked against code. | S | Impl — `scripts/check-env-docs.mjs` (Go getenv-style reads in active modules + `_mvp` `MVP_*`/`SMOKE_*`) ok: 898 documented / 902 read, 4 allowlisted; 44 phantoms removed incl. `BACKUP_EXCLUDE`; generated rows need a human description pass | P: env-var drift check script | M2 |
 
 ### 2.5 Accessibility and UX — NFR-A11Y
