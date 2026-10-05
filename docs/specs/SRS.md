@@ -22,7 +22,7 @@
 
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
-| FR-INS-001 | The system shall be installable on a single Linux host from documented steps using only artefacts reachable from GitHub (`Muxcore-Media/*`) or a LAN OCI registry populated from them. | M | Part — `_mvp/docker-compose.registry.yml`, `run-host.sh`; root `docker-compose.yml` includes missing `_mvp/docker-compose.public.yml` | P: clean-room container install script runs smoke | M2 |
+| FR-INS-001 | The system shall be installable on a single Linux host from documented steps using only artefacts reachable from GitHub (`Muxcore-Media/*`) or a LAN OCI registry populated from them. | M | Part — root `docker-compose.yml` now includes `_mvp/docker-compose.registry.yml` (config validated); clean-room install job pending | P: clean-room container install script runs smoke | M2 |
 | FR-INS-002 | The canonical module set for a working household shall be defined in one manifest consumed by every install path. | M | Impl — `_mvp/household-manifest.yaml` used by `run-host.sh`, registry compose, `publish-module-images.sh` | E: `_mvp/scripts/check-household-manifest.sh` | — |
 | FR-INS-003 | Every install path shall default to fixture acquisition (`DOWNLOADER_ENGINE=fixture`, `INDEXER_FIXTURE=1`) and require explicit operator action to enable live acquisition. | M | Part — defaults in compose/run-host; native torrent engine defaults to live when unset | P: compose lint asserts fixture env; unit test that engine defaults to fixture when env unset in household profile | M3 |
 | FR-INS-004 | No install path shall ship a fixed default credential; first-admin bootstrap shall use an operator-supplied or randomly generated one-time secret. | M | Plan — `admin-dev-only` in `.env.example`, `bootstrap-auth.sh`, `setup.sh`, registry compose | P: `check-compose-*` test greps for known defaults; installer test | M3 |
@@ -119,7 +119,7 @@
 
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
-| FR-MM-001 | Music shall have a metadata source (MusicBrainz) via a buildable `metadata-musicbrainz` module. | S | Blk — GitHub repo empty; `media-music` `replace`s it | P: module restored + tests | M1 (restore) / M6 |
+| FR-MM-001 | Music shall have a metadata source (MusicBrainz) via a buildable `metadata-musicbrainz` module. | S | Part — rebuild in progress on branch `wip/rebuild` (proto only) | P: module restored + tests | M1 (restore) / M6 |
 | FR-MM-002 | `media-automation` shall consume requests and wanted items for music, books, comics, audiobooks. | S | Part — wanted sync exists for music/books; no `media.music.requested` subscriber | P: subscriber tests | M6 |
 | FR-MM-003 | Indexer queries shall be shaped per media type (categories, author/title, issue numbers). | S | Part — only movie/tv/music search types | P: automation + indexer tests | M6 |
 | FR-MM-004 | Library-plus imports shall move/rename into root folders like video imports, not register in place. | S | Plan | P: library-plus import tests | M6 |
@@ -156,11 +156,11 @@
 
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
-| FR-BRG-001 | Jellyfin, Plex, and Emby bridges shall sync library links and act as playback session sources. | S | Impl in code; **does not build** (empty `playback-contract`) | E: module tests once buildable | M1 |
+| FR-BRG-001 | Jellyfin, Plex, and Emby bridges shall sync library links and act as playback session sources. | S | Impl — jellyfin v0.3.1, plex v0.1.1, emby v0.1.1 build and test green (contracts-playback/playbackv1) | E: module tests once buildable | M1 |
 | FR-ANA-001 | Playback sessions, history, and statistics shall be recorded and viewable (Tautulli-style). | C | Impl — `playback-monitor` | E: tests (73) | — |
 | FR-ANA-002 | Account-sharing rules shall flag violations and optionally terminate streams. | C | Impl — `playback-guard` | E: tests | — |
 | FR-SUB-001 | Subtitles shall be searched and downloaded from configured providers per language profile; `fixture` provider works offline. | S | Part — `opensubtitles`, `fixture` only | E: media-subtitles tests | M5 |
-| FR-SUB-002 | `BAZARR-PARITY.md` claims shall match code. | S | Part — overclaims (56 providers, sync/upgrade) | P: doc corrected (M0 doc task) | M0 |
+| FR-SUB-002 | `BAZARR-PARITY.md` claims shall match code. | S | Impl — BAZARR-PARITY.md carries an accuracy note | P: doc corrected (M0 doc task) | M0 |
 | FR-TRN-001 | Transcode pipelines (setups, filters, review) shall run locally or on a worker pool. | S | Part — `media-transcoder`; pool profile RPCs `Unimplemented` | E: transcoder tests (64) | M5 |
 | FR-NAT-001 | iOS and tvOS apps shall sign in via BFF (Quick Connect, password+TOTP) and browse/play/resume. | S | Part — thin tests | E: `MuxCoreAPITests.swift`, `muxcore-ios/Tests` | M8 |
 | FR-NAT-002 | tvOS app shall be validated on physical Apple TV hardware. | S | Blk — needs device | E: `media-tvos-app/docs/HARDWARE-VALIDATION.md` checklist | M8 |
@@ -184,7 +184,7 @@
 | NFR-SEC-009 | Outbound requests to user-configured URLs shall be SSRF-guarded (RULE-VAL-2). | M | Part — spool resolver yes; others unverified | P: audit + tests | M3 |
 | NFR-SEC-010 | Live acquisition shall be impossible unless the operator explicitly enables it and provides VPN config (fail-closed). | M | Part — RULE-ACQ-6/7 exist but default engine is live | P: engine default test | M3 |
 | NFR-SEC-011 | Unauthenticated HTTP control endpoints (scheduler-cron `:9200`, health-monitor `/status`, core `/metrics` when enabled) shall require auth or bind to loopback by default. | M | Part | P: tests | M3 |
-| NFR-SEC-012 | Secrets shall never be committed; CI shall scan for secrets. | M | Part — `.gitignore` rules; no scanner | P: secret-scan workflow | M0 |
+| NFR-SEC-012 | Secrets shall never be committed; CI shall scan for secrets. | M | Impl — gitleaks job in umbrella CI | P: secret-scan workflow | M0 |
 | NFR-SEC-013 | Dependencies shall be monitored for vulnerabilities (Dependabot + `govulncheck`). | S | Part — Dependabot active on GitHub; `govulncheck` in core CI | E: Dependabot runs; P: umbrella vuln job | M1 |
 
 ### 2.2 Reliability and data — NFR-REL / NFR-DATA
@@ -230,15 +230,15 @@ No performance requirement has been approved by the owner. The following are **[
 
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
-| NFR-MNT-001 | Every active (non-archived) Go module shall `go build`, `go vet`, and `go test` green both **standalone** (published dependency versions) and in the **umbrella workspace** at the pinned SHA. | M | **Fail** — 46 of 97 Go modules failed to build at audit (2026-10-05): `core/pkg/tenant` module split, missing `core v0.5.8` tag on GitHub, absolute `/home/ender` replaces, empty `playback-contract` mirror, proto drift (`auth-local` `authv1.InviteInfo`, `circuitbreaker-simple`) | E: validation log in roadmap; P: umbrella workspace CI job | M1 |
-| NFR-MNT-002 | `media-ui-app` typecheck, tests, and build shall pass. | M | **Fail** — typecheck error (`Record<string,string>` with optional field); 1 failing test of 1,108 | E: `npm run typecheck`, `npm test`, `npm run build` | M1 |
-| NFR-MNT-003 | Umbrella scripts tests and lint shall pass. | M | **Fail** — 3 of 56 `node --test` failures; 1 eslint error | E: `node --test scripts/*.test.mjs`, `npx eslint` | M1 |
+| NFR-MNT-001 | Every active (non-archived) Go module shall `go build`, `go vet`, and `go test` green both **standalone** (published dependency versions) and in the **umbrella workspace** at the pinned SHA. | M | Part — ~90 modules green standalone (build/vet/test −race) at their 2026-10-05 tags; tail of 8 modules + `_mvp` + `integration` pending (roadmap §10) | E: validation log in roadmap; P: umbrella workspace CI job | M1 |
+| NFR-MNT-002 | `media-ui-app` typecheck, tests, and build shall pass. | M | Impl — typecheck/1,108 tests/build green (2026-10-05) | E: `npm run typecheck`, `npm test`, `npm run build` | M1 |
+| NFR-MNT-003 | Umbrella scripts tests and lint shall pass. | M | Impl — 60/60 node tests, eslint, shellcheck green | E: `node --test scripts/*.test.mjs`, `npx eslint` | M1 |
 | NFR-MNT-004 | The root `integration/` suite shall compile and run in CI with the `integration` tag. | M | **Fail** — imports non-existent `core/integsupport` at the pinned core SHA; added on core `main` (`3110189`) | P: CI job | M1 |
-| NFR-MNT-005 | Each repository shall have GitHub Actions CI on GitHub-hosted runners that builds, vets, tests, and lints on PR and push to `main` ([ADR-0003](../adr/0003-ci-on-github-hosted-runners.md)). | M | Fail — CI uses offline self-hosted runners and a retired-origin mirror checkout action | P: workflow present + green run | M0 |
-| NFR-MNT-006 | No repository content shall reference the retired self-hosted origin (its host, runners, or mirrors) except historical records under `docs/history/` and decision records under `docs/adr/` ([ADR-0002](../adr/0002-github-sole-origin.md)). | M | Fail — ~1,500 references in ~320 files | P: `rg` check in umbrella CI | M0 |
-| NFR-MNT-007 | Module `go.mod` files shall not contain filesystem `replace` directives; local multi-module development uses the umbrella `go.work` ([ADR-0011](../adr/0011-go-workspace-and-published-versions.md)). | M | Fail — 84 modules carry replaces, 2+ absolute | P: CI grep check | M1 |
+| NFR-MNT-005 | Each repository shall have GitHub Actions CI on GitHub-hosted runners that builds, vets, tests, and lints on PR and push to `main` ([ADR-0003](../adr/0003-ci-on-github-hosted-runners.md)). | M | Part — GitHub-hosted template CI in ~90 repos; 8 repos pending; ~60 repos lack `MUXCORE_CI_TOKEN` (roadmap B-1) | P: workflow present + green run | M0 |
+| NFR-MNT-006 | No repository content shall reference the retired self-hosted origin (its host, runners, or mirrors) except historical records under `docs/history/` and decision records under `docs/adr/` ([ADR-0002](../adr/0002-github-sole-origin.md)). | M | Part — clean except 6 unprocessed modules and core docs (`scripts/check-retired-origin.sh`) | P: `rg` check in umbrella CI | M0 |
+| NFR-MNT-007 | Module `go.mod` files shall not contain filesystem `replace` directives; local multi-module development uses the umbrella `go.work` ([ADR-0011](../adr/0011-go-workspace-and-published-versions.md)). | M | Part — 7 modules still carry sibling replaces (`scripts/check-no-replace.sh`) | P: CI grep check | M1 |
 | NFR-MNT-008 | Commits on `main` shall follow Conventional Commits. | S | Impl — `scripts/lint-commits.sh` | E: `lint-commits_test.sh` | — |
-| NFR-MNT-009 | Every umbrella submodule URL shall resolve to a non-empty GitHub repository containing the pinned SHA. | M | Fail — `media-ui-tv`, `metadata-musicbrainz`, `muxcore-android`, `playback-contract` are empty on GitHub | P: `scripts/check-submodules.sh` in CI | M0 |
+| NFR-MNT-009 | Every umbrella submodule URL shall resolve to a non-empty GitHub repository containing the pinned SHA. | M | Impl — `scripts/check-submodules.sh` green; empty repos removed; `metadata-musicbrainz` pinned to `wip/rebuild` | P: `scripts/check-submodules.sh` in CI | M0 |
 
 ### 2.7 Cost — NFR-COST
 
