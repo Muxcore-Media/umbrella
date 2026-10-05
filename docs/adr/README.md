@@ -36,3 +36,4 @@
 | [0018](0018-authenticated-registration.md) | Authenticated registration and exclusive security capabilities | Accepted | Delegated (2026-10-05) |
 | [0019](0019-end-user-identity-propagation.md) | End-user identity propagation | Accepted | Delegated (2026-10-05) |
 | [0020](0020-module-principal-allowlists.md) | Module-to-module calls without a user | Accepted | Delegated (2026-10-05) |
+| [0021](0021-concurrent-agent-roles.md) | Concurrent agent roles and a file-based coordination bus | Accepted | Owner (roles + text-file bus, 2026-10-05); split and protocol Delegated |

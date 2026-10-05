@@ -10,6 +10,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 ### Added
 - Canonical roadmap rewrite and specification set: BRD, PRD, FRD, SRS, HLD, SDD, TDD, LLD, ADR-0001…0011 (`docs/`).
 - Umbrella CI on GitHub Actions; module CI templates (`scripts/ci-templates/`) and `scripts/sync-ci.sh`.
+- Concurrent agent roles (platform, services, frontend, integrator) and a file-based coordination bus, `scripts/coord.mjs` (ADR-0021, `docs/agents/`).
 - Hygiene scripts: `check-docs.mjs`, `check-retired-origin.sh`, `check-no-replace.sh`, `check-submodules.sh`, `gen-go-work.sh`.
 
 ### Changed

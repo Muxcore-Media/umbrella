@@ -59,6 +59,10 @@ When delegating to subagents, route work based on task complexity and requiremen
 - **Escalate on failure, not by default.** If a Sonnet subagent fails the same task twice, re-scope it or escalate the model; do not retry identically.
 
 
+### Concurrent role agents
+
+When several agents run at once, each takes one of four roles — **platform**, **services**, **frontend**, **integrator** — and stays in its lane of modules ([`docs/agents/ROLES.md`](docs/agents/ROLES.md), [ADR-0021](docs/adr/0021-concurrent-agent-roles.md)). Set `MUXCORE_ROLE` and a shared `MUXCORE_COORD_DIR`, and coordinate only through `node scripts/coord.mjs` ([`docs/agents/COORDINATION.md`](docs/agents/COORDINATION.md)): open items for other lanes instead of editing their modules, `coord lock` a module before editing it, and when blocked run `coord wait --inbox` in the background instead of polling. Only the integrator edits the roadmap, SRS status, validation log, ADR index and gitlinks.
+
 ## Workstation notes (`claude-workstation` container)
 
 Some sessions run inside the `claude-workstation` container on **vault** rather than on `thin`/`desk`:

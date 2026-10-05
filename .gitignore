@@ -8,3 +8,6 @@ wg-mux.conf
 go.work
 go.work.sum
 node_modules/
+
+# Agent coordination bus default location (docs/agents/COORDINATION.md)
+.coord/
