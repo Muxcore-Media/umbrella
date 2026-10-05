@@ -87,7 +87,7 @@
 | C-15 | Umbrella `integration/` imported `integsupport` packages from core, media-movies, media-transcoder, playback-monitor, backup-local that were not in any published tag (core/backup-local versions only on orphaned branches), and asserted APIs that never existed (media-movies view state / batch refresh, playback-monitor rollups / anomaly detection) | Published `integsupport` in each module (core v0.6.3–v0.6.4 incl. caller-identity interceptor); tests for non-existent APIs rewritten to the published contracts; real bugs the suite exposed fixed upstream (media-transcoder v0.3.7–v0.3.8, media-movies v0.1.14–v0.1.15) | Implementation evidence (git history of each module) |
 | C-16 | Rebuilt `metadata-musicbrainz` briefly advertised the generic `metadata` capability, which media-movies/media-tvshows/media-list-sync use to discover the TMDB-style `MetadataProvider` | Advertise only `metadata.music` + `metadata.musicbrainz` | Consumer code (`FindByCapability(ctx, "metadata")`) |
 
-**Assumptions (labelled, revisit if wrong):** A-1 `MUXCORE_CI_TOKEN` exists in every repo (verified on `admin-ui` only). A-2 Content of the four empty GitHub repos is not recoverable from GitHub. A-3 Free-plan Actions minutes suffice once self-hosted jobs stop queueing. A-4 The owner's vault/homelab deployment remains in use as a reference deployment but is not a product requirement.
+**Assumptions (labelled, revisit if wrong):** A-1 `MUXCORE_CI_TOKEN` exists in every repo (verified on `admin-ui` only). A-2 Content of the four empty GitHub repos is not recoverable from GitHub. A-3 Free-plan Actions minutes suffice once self-hosted jobs stop queueing. A-4 The owner's vault/homelab deployment remains in use as a reference deployment but is not a product requirement. A-5 Agents on `claude-workstation` cannot reach vault (no ZeroTier, no SSH key); module releases since 2026-10-05 are not redeployed there until the owner pulls them or grants access.
 
 ## 5. Milestones and dependencies
 
@@ -112,8 +112,8 @@ v1.0 = M0–M5 + M7 complete. M6 and M8 are Should-level and may ship after v1.0
 
 | Milestone | Goal | Requirements closed | Status | Completion criteria (observable) |
 |-----------|------|---------------------|--------|----------------------------------|
-| **M0** | GitHub is the only origin; CI runs on GitHub-hosted runners; docs reconciled | NFR-MNT-005, NFR-MNT-006, NFR-MNT-009, NFR-SEC-012, NFR-COST-001, FR-SUB-002 | **In progress** (see tasks) | (1) `scripts/check-retired-origin.sh` reports 0 matches over active content (excludes `docs/history/`, `docs/adr/`); (2) every active repo has `.github/workflows/ci.yml` with `runs-on: ubuntu-latest` and no `self-hosted`/`checkout-mirror`; (3) no retired-origin workflow directories in active repos; (4) `scripts/check-submodules.sh` passes (every pinned SHA fetchable from GitHub); (5) superseded docs bannered |
-| **M1** | Every active module builds, vets, and tests green standalone and in the workspace | NFR-MNT-001…004, NFR-MNT-007, NFR-SEC-013, FR-BRG-001, FR-MM-001 (restore) | In progress | (1) umbrella workspace job: `go build ./... && go vet ./...` green for all active modules; (2) each active repo's GitHub CI green on `main` at the umbrella-pinned SHA; (3) `media-ui-app` typecheck/test/build green; (4) `node --test scripts/*.test.mjs` and `_mvp/scripts/run-script-tests.sh` green; (5) `integration` compiles and runs; (6) no filesystem `replace` in any active `go.mod` |
+| **M0** | GitHub is the only origin; CI runs on GitHub-hosted runners; docs reconciled | NFR-MNT-005, NFR-MNT-006, NFR-MNT-009, NFR-SEC-012, NFR-COST-001, FR-SUB-002 | **Done** (2026-10-05) — criteria 1–5 verified locally (§9); the submodule-level hygiene step in umbrella CI skips until B-1 | (1) `scripts/check-retired-origin.sh` reports 0 matches over active content (excludes `docs/history/`, `docs/adr/`); (2) every active repo has `.github/workflows/ci.yml` with `runs-on: ubuntu-latest` and no `self-hosted`/`checkout-mirror`; (3) no retired-origin workflow directories in active repos; (4) `scripts/check-submodules.sh` passes (every pinned SHA fetchable from GitHub); (5) superseded docs bannered |
+| **M1** | Every active module builds, vets, and tests green standalone and in the workspace | NFR-MNT-001…004, NFR-MNT-007, NFR-SEC-013, FR-BRG-001, FR-MM-001 (restore) | **Done locally** (2026-10-05) — criteria 1, 3–6 verified (§9); criterion 2 (per-repo CI green) and CI observation of 1/5 blocked by B-1 | (1) umbrella workspace job: `go build ./... && go vet ./...` green for all active modules; (2) each active repo's GitHub CI green on `main` at the umbrella-pinned SHA; (3) `media-ui-app` typecheck/test/build green; (4) `node --test scripts/*.test.mjs` and `_mvp/scripts/run-script-tests.sh` green; (5) `integration` compiles and runs; (6) no filesystem `replace` in any active `go.mod` |
 | **M2** | A fresh install reaches a passing fixture smoke that covers request → grab → import → play | FR-INS-001/003(partial)/005/006, FR-AUTH-004 (e2e), FR-BAK-002/004, NFR-DATA-002, NFR-REL-001, NFR-OPS-005, NFR-PERF-003 | Todo | (1) `docker compose up` from root succeeds in a clean container host and `_mvp/smoke.sh` passes; (2) smoke asserts fixture search→dispatch→import→library item; (3) one version pin across compose/installer/operator/starter (check script green); (4) restore drill script green; (5) upgrade test from previous tag green for household modules |
 | **M3** | Secure defaults | NFR-SEC-001…011, FR-INS-003/004, FR-EXT-003, FR-BAK-003, NFR-REL-003, NFR-OPS-004 | Todo | Secure-defaults checklist (TDD §8) all items have passing tests; SM-4 = 100 % |
 | **M4** | Household consumer completeness | FR-PLAY-007/009, FR-AUTH-010, FR-ADM-010, NFR-A11Y-001/002, NFR-DATA-003 | Todo | Playwright fixture e2e J-02, J-03, J-08 green; axe checks green on core pages; server-side parental table test green |
@@ -151,12 +151,12 @@ Prerequisites: M0 T-M0-01/02 (so results are visible in CI).
 | T-M1-03 | Rebuild minimal `metadata-musicbrainz` (fixture corpus, `contracts-metadata` music RPCs used by `media-music`) | FR-MM-001 | T-M1-01 | `media-music` builds standalone; metadata-musicbrainz tests green | Done — `metadata-musicbrainz` v0.1.0 on `main` (default branch): WS/2 client (User-Agent, `fmt=json`, 1 req/s, 429/5xx → Unavailable), `MUSICBRAINZ_FIXTURE=1` embedded corpus, gRPC fixture e2e test, capabilities `metadata.music` + `metadata.musicbrainz` (C-16); `media-music` v0.3.0 builds standalone against it |
 | T-M1-04 | Fix proto drift: `auth-local` (`authv1.InviteInfo`), `circuitbreaker-simple` (`ListRequest`) and any found by `check-proto-drift.sh` | NFR-MNT-001 | T-M1-01 | Both modules build/test green | Done — core v0.6.1; auth-local v0.1.14 (also restored missing `internal/policy` import), circuitbreaker-simple v0.1.5 |
 | T-M1-05 | Fan-out: every active Go module requires `core v0.6.0`, drops `core/pkg/tenant` requires and all filesystem `replace`s, moves to GitHub-available tags of siblings, `go mod tidy`, tests green, patch tag | NFR-MNT-001, NFR-MNT-007, ADR-0011 | T-M1-01…04 | Per-repo CI green; `scripts/check-no-replace.sh` green | Done — all active modules shipped with published deps, green build/vet/test −race and lint; `scripts/check-no-replace.sh` ok (2026-10-05). Tail releases: media-music v0.3.0, media-automation v0.1.46 (corrupt descriptor regenerated; TV wanted-sibling deletion bug), request-media v0.3.2 (C-14), media-list-sync v0.1.10, media-library-maintainer v0.1.12, media-graph v0.1.3, admin-ui v0.1.13, muxcorectl-cli v0.1.1, media-movies v0.1.15, `_mvp` `d166018` (no tag: deployment repo). Per-repo GitHub CI still blocked by B-1 for repos without the secret |
-| T-M1-06 | Root `integration/` compiles against `core v0.6.0` (`integsupport`) and runs with `-tags integration` | NFR-MNT-004 | T-M1-05 | Umbrella CI integration job green | In progress — compiles and passes locally against published core v0.6.4 and sibling `integsupport` packages (`go test -tags integration -race`, lint 0, C-15); umbrella CI job blocked by B-1 |
+| T-M1-06 | Root `integration/` compiles against `core v0.6.0` (`integsupport`) and runs with `-tags integration` | NFR-MNT-004 | T-M1-05 | Umbrella CI integration job green | Done (local) — compiles and passes locally against published core v0.6.4 and sibling `integsupport` packages (`go test -tags integration -race`, lint 0, C-15); umbrella CI job blocked by B-1 |
 | T-M1-07 | `media-ui-app`: fix typecheck error and failing test | NFR-MNT-002 | — | `npm run typecheck && npm test && npm run build` green | Done — media-ui-app typecheck, 1,108/1,108 tests, build green (`d0012f3`) |
 | T-M1-08 | Umbrella scripts: fix 3 failing `node --test` cases and eslint error | NFR-MNT-003 | — | `node --test scripts/*.test.mjs` and eslint green | Done — 60/60 node tests, eslint, shellcheck green |
-| T-M1-09 | `scripts/gen-go-work.sh` + workspace build job; retire `scripts/ensure-go-replaces.sh` | ADR-0011, TDD §4.2 | T-M1-05 | Workspace job green | In progress — `scripts/gen-go-work.sh` and umbrella workspace job exist; `ensure-go-replaces.sh` retired; job needs B-1 |
+| T-M1-09 | `scripts/gen-go-work.sh` + workspace build job; retire `scripts/ensure-go-replaces.sh` | ADR-0011, TDD §4.2 | T-M1-05 | Workspace job green | Done (local) — `gen-go-work.sh` now skips nested stub copies of other modules (`media-dlna/stub/core/...` made every workspace build fail); workspace `go build && go vet` green for all 97 active modules (2026-10-05); CI job needs B-1 |
 | T-M1-11 | Clear golangci-lint debt and make lint blocking (`LINT_BLOCKING=true` repo variable) | NFR-MNT-005 | T-M1-05 | Lint job green and blocking | Done — lint 0 issues and `LINT_BLOCKING=true` on every module shipped in T-M1-05, including the tail |
-| T-M1-10 | Bump umbrella pins to the green SHAs; regenerate `docs/FREEZE-PINS.md` | — | T-M1-05…09 | `git submodule status` clean; CI green | In progress — pins bumped to default-branch tips and `docs/FREEZE-PINS.md` regenerated (2026-10-05, after the T-M1-05 tail); spool versions/checksums pending ADR-0012 tooling |
+| T-M1-10 | Bump umbrella pins to the green SHAs; regenerate `docs/FREEZE-PINS.md` | — | T-M1-05…09 | `git submodule status` clean; CI green | Done — pins at default-branch tips, `docs/FREEZE-PINS.md` regenerated; spool catalog 2.5.0: all 68 modules at latest tags, checksums recomputed with the ADR-0012 canonical build (core v0.6.5, `_mvp` populate script rewrite; reproducibility re-checked), `validate.py` OK. Found and fixed: admin-ui had no `cmd/module` (unloadable by core's resolver, v0.1.14), plex/emby manifests declared the retired `playback-contract` (v0.1.2) |
 
 ### M2 — Install path & fixture e2e gate (tasks; refine when M1 lands)
 
@@ -212,7 +212,7 @@ T-M8-01 iOS/tvOS simulator tests for auth + resume via manual macOS workflow (FR
 
 ## 8. Next actionable milestone
 
-**M0 — GitHub-only origin & CI.** Prerequisites are met. Start with T-M0-03 and T-M0-05 (no dependencies) and T-M0-01, then T-M0-02. M0 is complete when the five criteria in §5 are observable in CI. M1 follows immediately; T-M1-07 and T-M1-08 have no dependencies and can run in parallel with M0.
+**M2 — Install path & fixture e2e gate**, with **M3 — Secure defaults** in parallel (both depend only on M1). M0 is done and M1 is done locally. M1's CI-observed criteria wait on B-1 and do not block M2 or M3. Start with T-M2-04 (single version train: today installer `v0.5.0`, operator `v0.5.4`, registry compose / Helm / household manifest `v0.5.7`, starter `v0.6.0`, core `v0.6.5`), T-M2-07 (env-var drift check) and T-M2-03 (fixture search → dispatch → import smoke).
 
 ## 9. Validation log
 
@@ -238,46 +238,34 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | `integration`: `go vet -tags integration`, `go test -tags integration -p 1 -race -count=3`, lint `--build-tags integration` (GOWORK=off, published versions) | Green |
 | 2026-10-05 | `scripts/sync-ci.sh --check`, `scripts/check-retired-origin.sh`, `scripts/check-no-replace.sh` | ok / ok / ok |
 | 2026-10-05 | GitHub Actions on the session-2 releases | Fail at private module fetch (B-1: no `MUXCORE_CI_TOKEN`); local verification is the evidence |
+| 2026-10-05 | Umbrella workspace: `scripts/gen-go-work.sh` + `go build ./... && go vet ./...` in every active Go module (Go 1.26.6) | Green (97/97) after the generator fix; first run failed 97/97 on ambiguous module paths from a nested stub |
+| 2026-10-05 | `ALL_MODULES=1 _mvp/scripts/populate-spool-checksums.sh spool/tags/*.json`; rerun into a copy of `minimal.json`; `spool/scripts/validate.py` | All tags populated; rerun byte-identical; validate OK |
+| 2026-10-05 | `scripts/check-submodules.sh`; `node --test scripts/*.test.mjs`; `node scripts/check-docs.mjs` | ok; 60/60; ok |
+| 2026-10-05 | SSH to vault (ZeroTier and LAN) from `claude-workstation` | Unreachable (no ZT interface, no SSH key) — vault redeploy not possible from this host (A-5) |
 
-## 10. Handoff (2026-10-05, end of session)
+## 10. Handoff (2026-10-05, end of session 2)
 
-**State.** M0 is nearly done and M1 is about 85 % done. Everything listed as Done above is pushed to GitHub with tags. There are no uncommitted changes in any submodule. Unverified work is on branches only.
+**State.**
+- **M0:** Done.
+- **M1:** done locally. Per-repo and workspace CI wait on B-1.
+- **Releases:** everything in §6 marked Done is pushed and tagged on GitHub. The umbrella pins every active submodule at its default-branch tip (`docs/FREEZE-PINS.md`).
+- **Spool:** catalog 2.5.0 carries reproducible checksums (ADR-0012, needs core ≥ v0.6.5).
+- **Working trees:** no uncommitted work in any submodule.
 
-**Next steps, in order** (each is mechanical with the tools below):
-1. **T-M1-03:** finish `metadata-musicbrainz` from branch `wip/rebuild`. Add `go.mod` (core v0.6.2, sdk v0.6.0), an `internal/` MusicBrainz WS/2 client with a `MUSICBRAINZ_FIXTURE=1` embedded corpus, `cmd/module`, tests, `muxcore.json` 0.1.0, README/AGENTS/CHANGELOG, CI from the template plus a proto job. Merge to `main` and tag `v0.1.0`. The API that `media-music` uses: `NewMusicBrainzServiceClient`, `SearchArtist*`, `GetArtist*`, `ArtistSearchResult`, `ReleaseGroup`.
-2. **T-M1-05 tail.** Run `modfix` → verify → ship, in this order:
-   - `media-music` (pin `media-automation v0.1.8` while the cycle resolves)
-   - `media-automation` (regenerate proto: the committed `automation.pb.go` descriptor is corrupt and panics at init)
-   - `request-media` (needs `contracts.CallerIDFromContext`, which is missing from `core/pkg/contracts`: add it in core or switch to the callerid helper)
-   - `media-list-sync`
-   - `media-library-maintainer` (test fakes: `DenyRequestRequest.DeniedBy`)
-   - `media-graph`
-   - `admin-ui`:
-     - `apikeys_test.go` uses non-existent `authv1.UserProto` and `APITokenProto`; the correct types are `UserInfo` and `APITokenInfo`
-     - `templ` errors: `formatBytes` declared twice, `backupScheduleSection` undefined, `ArtworkType` compared to a string
-     - drift against `listsyncv1`, `mediaadminv1`, `subtv1`, `automationv1`, `mgmntv1`
-   - `muxcorectl-cli` (`listsyncv1`/`subtv1` drift)
-   - `_mvp` (BFF):
-     - `TestPlaybackResolveUnknownAnalysisForcesTranscode` nil-pointer panic at `playback_subtitles.go:78`
-     - copylocks in `indexers_test.go`
-   - `integration` (T-M1-06)
+**Tools** (now committed): `scripts/module-release/{modfix,verify,ship}.sh` and their README. Set `MUXCORE_GO_ENV` to a file that puts Go 1.26.6 first on `PATH`, and `LINT` to the real golangci-lint 2.12.2 binary rather than the mise shim. Cap parallelism at 4 on the 12 GB workstation.
 
-   After each: `gh variable set LINT_BLOCKING -b true`.
-3. **T-M0-02 / T-M0-03 finish:**
-   - `scripts/sync-ci.sh` over all modules, then commit (template drift only, no tags).
-   - Scrub `core` docs (6 references).
-   - `scripts/check-retired-origin.sh` → 0 and `scripts/sync-ci.sh --check` → ok.
-4. **T-M1-10:** bump umbrella pins, regenerate `docs/FREEZE-PINS.md`, and refresh `spool/tags/*.json` versions and checksums (`_mvp/scripts/populate-spool-checksums.sh`).
-5. Then M2 (§6).
+**Next steps, in order:**
+1. **M2** (§6): T-M2-04 single train + `scripts/check-pins.sh`; T-M2-07 env drift check (phantom `BACKUP_EXCLUDE`); T-M2-03 smoke asserting fixture search → dispatch → import → library item; T-M2-02 publish set vs compose (`_mvp/scripts/publish-module-images.sh` lists 28 of ~65 compose services); T-M2-05 `state_dirs` + restore drill (no manifest declares `state_dirs`; backup-local now has `VerifyBackup`); T-M2-06 upgrade tests; T-M2-08 BFF route inventory (~281 routes in `_mvp/cmd/mediauiprox/main.go`); T-M2-09 wiki sync; T-M2-10 clean-room job.
+2. **M3** in parallel: the nine TDD §8 items, one task each. Dependabot reports open alerts on `core`, `media-automation` and `request-media`; triage them under M3.
+3. **Follow-ups found this session:**
+   - **muxcorectl-cli:** has no commands yet for 33 admin-ui routes (its parity table lists them).
+   - **admin-ui:** lost two features because the published modules no longer expose them: list-sync per-source import settings, and movie trailers. Decide whether to restore them in the modules (FR rows) or keep them dropped.
+   - **admin-ui CI:** the template doesn't check that generated templ files or Tailwind CSS are fresh.
+   - **media-automation:** still ships the legacy `proto/automationv1` (same proto package as contracts-automation). Its remaining consumers (media-list-sync, media-movies, request-media) should move to contracts-automation.
 
-**Tools used** (scratch, not committed; reproduce from TDD §3–4): a per-module script that does the following:
-- drop filesystem `replace` directives and the obsolete `core/pkg/tenant` require
-- pin siblings to their latest GitHub tag, or the default-branch pseudo-version, via `go mod edit -require`
-- copy the CI templates, regenerate protos in an isolated `GOBIN`, and migrate golangci v1 configs
-- run build, vet and `test -race`, then lint
-- ship: commit, push the default branch, tag the next patch version (or a higher `muxcore.json` version) and add a CHANGELOG entry
-
-Use Go 1.26.6 and call the real golangci-lint binary, not the mise shim. Protos are generated with protoc 25.3 unless a repo's committed code pins otherwise (core uses protoc 29.3 with plugin versions taken from its committed code).
-
-**Owner actions** (cannot be done by an agent): B-1 org CI secret; R-1 a GHCR `write:packages` token; R-6 a physical Apple TV; D-1 whether to start an Android client.
-
+**Owner actions** (an agent can't do these):
+- B-1: org CI secret.
+- R-1: a GHCR `write:packages` token.
+- R-6: a physical Apple TV.
+- D-1: whether to start an Android client.
+- A-5: vault redeploy or SSH access from the workstation.
