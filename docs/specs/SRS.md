@@ -148,7 +148,7 @@
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
 | FR-EXT-001 | Modules shall register capabilities with core and be discoverable by capability and role. | M | Impl — `registry.go`, `Discovery` | E: core grpcmesh tests | — |
-| FR-EXT-002 | Marketplace deploy shall verify repo host allow-list, checksum, publisher, and (when required) signature before running a module. | M | Impl — `SpoolService.DeployTag`, `spool/signature.go` | E: core spool tests + fuzz | — |
+| FR-EXT-002 | Marketplace deploy shall verify repo host allow-list, checksum, publisher, and (when required) signature before running a module. | M | Impl — `SpoolService.DeployTag`, `spool/signature.go`; checksums reproducible since core v0.6.5 ([ADR-0012](../adr/0012-reproducible-module-builds-for-spool-checksums.md)); spool catalog 2.5.0 recomputed and re-checked byte-identical | E: core spool tests + fuzz, `mgr` reproducibility test, `_mvp/scripts/populate-spool-checksums_test.sh` | — |
 | FR-EXT-003 | The household profile shall require signed modules for marketplace deploys. | S | Plan — opt-in today | P: compose/installer lint | M3 |
 | FR-EXT-004 | A module starter template shall generate a buildable module with CI against the current core. | S | Impl — `muxcore-module-starter` | E: `scripts/check-cookiecutter.sh` | — |
 

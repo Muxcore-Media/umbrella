@@ -18,9 +18,14 @@ goversion=$(go env GOVERSION | sed -E 's/^go([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
   echo "use ("
   while read -r m; do
     echo "	./$m"
-    # Nested modules (e.g. core/pkg/contracts, core/sdk/go/*).
+    parent=$(sed -n 's/^module[[:space:]]*//p' "$ROOT/$m/go.mod" | head -1)
+    # Nested modules (e.g. core/pkg/contracts, core/sdk/go/*). Only modules
+    # whose path lies under the parent's: stub copies of other modules (e.g.
+    # media-dlna/stub/core/...) would make module paths ambiguous.
     while read -r nested; do
       [[ "$nested" == "$ROOT/$m/go.mod" ]] && continue
+      path=$(sed -n 's/^module[[:space:]]*//p' "$nested" | head -1)
+      [[ "$path" == "$parent"/* ]] || continue
       echo "	./${nested#"$ROOT"/}" | sed 's#/go.mod$##'
     done < <(find "$ROOT/$m" -mindepth 2 -name go.mod -not -path '*/node_modules/*' -not -path '*/testdata/*' -not -path '*/cookiecutter/*' | sort)
   done < <(muxcore_active_go_modules)

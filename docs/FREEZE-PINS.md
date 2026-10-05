@@ -1,6 +1,6 @@
 # Umbrella safe-pin freeze
 
-Freeze recorded **2026-10-05** (`2026-10-05T06:17:59Z` UTC). Every **active** submodule
+Freeze recorded **2026-10-05** (`2026-10-05T06:39:43Z` UTC). Every **active** submodule
 gitlink points at the default-branch tip at freeze time. Rename twins
 (`media-ui`, `media-jellyfin`, `muxcorectl`), the archived dumps (`cache-memory`,
 `custom-scripts`) and the historical `_wave1` are intentionally not bumped (listed as
@@ -8,7 +8,7 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 
 | Path | Repository | SHA | Branch |
 | ---- | ---------- | --- | ------ |
-| `admin-ui` | Muxcore-Media/admin-ui | `623dc178def6990e109a886b8b8b3fc29e638ed4` | `main` |
+| `admin-ui` | Muxcore-Media/admin-ui | `e2f22b7885eb23aa2eb4d4b9df7093d288c57e5e` | `main` |
 | `ai-filter` | Muxcore-Media/ai-filter | `1337ca2a4044cd5b0f4684c79d0c092a199f036a` | `main` |
 | `ai-librarian` | Muxcore-Media/ai-librarian | `0fc683e221930f0917dead4780091270e9a76720` | `main` |
 | `ai-recommend` | Muxcore-Media/ai-recommend | `f19c732fe150c09f70a91388b4b1656470b9e7d9` | `main` |
@@ -37,7 +37,7 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 | `contracts-playback` | Muxcore-Media/contracts-playback | `af33cd4c9b9505aeb808c68fd0bd328e2160fab3` | `main` |
 | `contracts-reconciler` | Muxcore-Media/contracts-reconciler | `d53d4bfaef08b69fea96f5433fb0959c2d5731af` | `main` |
 | `contracts-scanner` | Muxcore-Media/contracts-scanner | `b92e5f7321026d0ff7515259c2f2bbc1c161d083` | `main` |
-| `core` | Muxcore-Media/core | `f97bcba255eca280e4849ae85e99ae7fc09dc85d` | `master` |
+| `core` | Muxcore-Media/core | `609f4133309a2c33c9ee1042e9c96b5426dfa71e` | `master` |
 | `core.wiki` | Muxcore-Media/core.wiki | `4a9e703e8b00805368ae692303383bb2bb2040c3` | *(unchanged — empty or missing branch)* |
 | `custom-scripts` | Muxcore-Media/custom-scripts | `7b8e65c71f3401d35a9d93a17202a2e37f21af0f` | *(frozen twin — not bumped)* |
 | `database-postgres` | Muxcore-Media/database-postgres | `f8d35af82c41dde248ea3e589f6342442785da79` | `main` |
@@ -49,7 +49,7 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 | `downloader-native-usenet` | Muxcore-Media/downloader-native-usenet | `a609a5782f0e60c90046fdfa3840a3a4e29563b1` | `main` |
 | `downloader-qbittorrent` | Muxcore-Media/downloader-qbittorrent | `012556b0e2c239649766ed33dfdeb55030ce1ab2` | `main` |
 | `downloader-sabnzbd` | Muxcore-Media/downloader-sabnzbd | `05247c5cf8985b587ac29ca7aea886ffcdbaf7b0` | `main` |
-| `emby` | Muxcore-Media/emby | `952a1166f384083915046353462ac0cb2a062703` | `main` |
+| `emby` | Muxcore-Media/emby | `e501b305112d0c68729e03dfa83d5860180b97d6` | `main` |
 | `encryption-aesgcm` | Muxcore-Media/encryption-aesgcm | `aa5b87899386711cdf4c28548e081561595662fa` | `master` |
 | `executor-shell` | Muxcore-Media/executor-shell | `649cd9a79422101337524f746caacd545aaa441c` | `master` |
 | `feature-flags-file` | Muxcore-Media/feature-flags-file | `2f13d156df04de14c80695ba6b979e8a1eb528e2` | `master` |
@@ -94,12 +94,12 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 | `muxcore-ios` | Muxcore-Media/muxcore-ios | `830d14d4c373341a10c22fbe143b457dbb8ea35e` | `main` |
 | `muxcore-module-starter` | Muxcore-Media/muxcore-module-starter | `5d702c142384abe27c28a6310ba3f004e0c98cc1` | `main` |
 | `muxcore-operator` | Muxcore-Media/muxcore-operator | `2ab0768e38ad0de3c330cdc3c532eed102363303` | `main` |
-| `_mvp` | Muxcore-Media/mvp | `d1660180f0bf5a819eba2eaac789997cf80ab4c8` | `main` |
+| `_mvp` | Muxcore-Media/mvp | `900977ce767230a3bb9ec7c447b98dd847c08a12` | `main` |
 | `notification-apprise` | Muxcore-Media/notification-apprise | `7e5c0e894b361d5e7737341302f2dc52b72441cd` | `main` |
 | `notification-default` | Muxcore-Media/notification-default | `e9e75a605ec01a3e283bf1d2418921b41536177a` | `master` |
 | `playback-guard` | Muxcore-Media/playback-guard | `b0970f7214a0022f5f83595d8d426ab4100c0e63` | `main` |
 | `playback-monitor` | Muxcore-Media/playback-monitor | `6a2287627217d1322d40709084a0224bcde3d41d` | `main` |
-| `plex` | Muxcore-Media/plex | `7aab33d5a10dfec0d0bb2662390a81a3b4d6f089` | `main` |
+| `plex` | Muxcore-Media/plex | `1c0dac6a3d1c1281ed27ba8c2a10ec9e7f821a6d` | `main` |
 | `publish-policy-default` | Muxcore-Media/publish-policy-default | `a20f27ac140f1935f6addf9de9c329d80fa90d93` | `master` |
 | `ratelimit-tokenbucket` | Muxcore-Media/ratelimit-tokenbucket | `ac3ed5202e959294ee0ea4d65955f7aacffda873` | `master` |
 | `request-media` | Muxcore-Media/request-media | `97fe58a4a1c6087731d04c88c5a85bf4705317ac` | `master` |
@@ -107,7 +107,7 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 | `secrets-file` | Muxcore-Media/secrets-file | `ac79ad57076902b7b478ba8d4c98ec8610a276e2` | `master` |
 | `secrets-vault` | Muxcore-Media/secrets-vault | `20da41354c0d70c047a864f14a6377154bf1f547` | `master` |
 | `serialization-safe` | Muxcore-Media/serialization-safe | `45b04a472df8a66daa89bd84bc1ff1bdfb808f18` | `main` |
-| `spool` | Muxcore-Media/spool | `37bdabe7b900da2f09609981fe162b5b7af35701` | `main` |
+| `spool` | Muxcore-Media/spool | `7107796325cdca0e30c26fa92aaf5c0401d356be` | `main` |
 | `spool-resolver-http` | Muxcore-Media/spool-resolver-http | `227ce920abad1e5af8291615e539510b7f703224` | `main` |
 | `storage-ceph` | Muxcore-Media/storage-ceph | `f627d0a8974ec89e40aca8fe44d3dd237abb500f` | `main` |
 | `storage-overlay` | Muxcore-Media/storage-overlay | `d8525150227587978f0c05bdaf7205f5f79abae6` | `main` |
@@ -120,7 +120,7 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 
 ## Summary
 
-- Bumped: 94
-- Unchanged (already at tip): 8
+- Bumped: 6
+- Unchanged (already at tip): 96
 - Skipped (rename twins): 6
 - Failed / kept prior pin: 1
