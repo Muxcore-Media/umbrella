@@ -229,7 +229,7 @@ T-M8-01 iOS/tvOS simulator tests for auth + resume via manual macOS workflow (FR
 
 ## 8. Next actionable milestone
 
-M0 is done; M1 is done locally (its CI criteria wait on B-1 and B-2). Of M2, every task except T-M2-10's GitHub run is done (the clean-room job passes locally; CI needs B-1 and B-2). M3 is nearly done: the household profile is the compose default and has been verified end to end. What remains of M3: switching the installer to household and the phase-2 removal of profile inference (ADR-0016). Next comes **M4 — Household completeness** (T-M4-01…07), together with the follow-ups in §10.
+M0 is done; M1 is done locally (its CI criteria wait on B-1 and B-2). Of M2, every task except T-M2-10's GitHub run is done (the clean-room job passes locally; CI needs B-1 and B-2). M3's nine tasks are done except ADR-0016 phase 2 (drop profile inference one train later) and the NFR-SEC-008/009 fan-out still open in §10. Next is that fan-out, then **M4 — Household completeness** (T-M4-01…07).
 
 ## 9. Validation log
 
@@ -283,6 +283,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | auth-local v0.1.19: TOTP encryption + session hashing with migration; v0.1.5 upgrade fixture still authenticates | Pass |
 | 2026-10-05 | `scripts/clean-room.sh --restore-drill` (T-M2-10; rootless podman 4.3.1 + docker-compose v5.6.0, train-2026.10.2 / v0.6.13, profiles indexer-piratebay, downloader-torrent, backup-local) | PASS: 27 images built + pushed in 57 s; `up --wait` ok; smoke PASS incl. `OK acquisition fixture` (fixture indexer → torrent fixture engine → scanner import → media-movies → BFF stream 206 + playback resolve); idle RSS 469.9 MiB over 27 containers (NFR-PERF-003 budget 2 GiB); compose restore drill PASS (16 modules restored, snapshot equal, decoy password refused). Six earlier runs failed on the `_mvp` defects listed in T-M2-10 |
 | 2026-10-05 | `_mvp/scripts/run-script-tests.sh` (incl. new `check-compose-grpc-binds_test.sh`, `check-smoke-protoset_test.sh`), `~/.muxcore-orch/verify.sh _mvp`, shellcheck of the new scripts | Green |
+| 2026-10-05 | `_mvp/scripts/check-confine-env_test.sh`; `bash -n run-host.sh`; `yq` parse of `docker-compose.registry.yml` | OK. `check-compose-security_test.sh` did not run here: this host's `yq`/`jq` reject `-o=json` |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -300,19 +301,14 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
   - notification-default v0.1.11, notification-apprise v0.1.9, playback-monitor v0.1.6, scheduler-cron v0.1.10, media-list-sync v0.1.13
   - media-movies v0.1.21, media-tvshows v0.1.20, downloader-native-torrent v0.3.16, downloader-qbittorrent v0.1.5, downloader-sabnzbd v0.1.6
   - auth-local v0.1.19 (NFR-SEC-005)
-- **Not yet wired into the stack** (these modules refuse operations until the variables are set; the current train pins older images, so nothing deployed is affected):
-  - `TRANSCODER_MEDIA_ROOTS`, `TRANSCODER_URL_SOURCE_HOSTS`, `TRANSCODER_ALLOW_URL_SOURCES`
-  - `ROOTS_ALLOWED_PREFIXES`, `RENAME_ALLOWED_ROOTS`, `SUBS_MEDIA_ROOTS`, `SCANNER_ALLOWED_ROOTS`
-  - `DOWNLOADER_INDEXER_HOSTS`, `QBIT_DOWNLOAD_ROOTS`
-  - The BFF's mesh-TLS client for transcoder playback (`TRANSCODER_HTTP_URL=https://media-transcoder:9526`).
+- **Allow-lists wired** (`_mvp` `c6e8829`, not yet a release train): registry compose and `run-host.sh` set `TRANSCODER_MEDIA_ROOTS`, `TRANSCODER_URL_SOURCE_HOSTS`, `TRANSCODER_ALLOW_URL_SOURCES`, `ROOTS_ALLOWED_PREFIXES`, `RENAME_ALLOWED_ROOTS`, `SUBS_MEDIA_ROOTS`, `SCANNER_ALLOWED_ROOTS`, `DOWNLOADER_INDEXER_HOSTS` and `QBIT_DOWNLOAD_ROOTS` to the library, download and fixture-indexer addresses those processes already use. Rename and subtitles mount the movie/TV libraries; qBittorrent mounts `downloads`. Helm emits `DOWNLOADER_INDEXER_HOSTS` only when `acquisition.indexerHosts` is set. The kustomize media-stack scanner sets the same library roots; that overlay is still the insecure sketch and does not mount the volumes. Images in train-2026.10.3 predate some of these guards, so a deploy of that train is unchanged until the next image build.
 
 **Next steps, in order:**
-1. **`_mvp` wiring** (compose, dev compose, run-host, Helm/kustomize):
-   - Set the variables above.
+1. **Finish `_mvp` wiring**, then cut train 2026.10.4:
    - Give the BFF a transcoder transport with the mesh client certificate, and restrict `playbackSourceURL` to `/stream/movies|tv/`.
    - Guard BFF arr migrate with netguard Integration.
    - Make list-sync, indexer, arr-migrate and root creation admin-only, not `manager`.
-   - Then rerun `scripts/clean-room.sh --restore-drill` in household and `--dev`, and cut train 2026.10.4.
+   - Rerun `scripts/clean-room.sh --restore-drill` in household and `--dev`.
 2. **Remaining audit rows:**
    - SSRF: jellyfin, plex, emby, metadata-tmdb, ai-runtime, auth-oidc, media-library-maintainer, indexer-torznab, indexer-piratebay, downloader-native-usenet, admin-ui arr migrate, core spool fetcher.
    - Paths: backup-local, media-books, media-comics, media-audiobooks, media-music, media-ffprobe, media-custom-formats, library-maintainer move path.
@@ -332,6 +328,6 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
   - Move `~/.muxcore/userdata.db` into `data/userdata/`.
   - Set `HEALTH_MONITOR_HTTP_TOKEN`.
   - Check `DOWNLOADER_ENGINE`.
-  - Set the new root variables above.
+  - Pull `_mvp` at `c6e8829` or later so run-host sets the library allow-lists.
 - Workstation image: add the podman CNI `dnsname` plugin and a docker-compose binary.
 - R-1, R-6, D-1 as before.
