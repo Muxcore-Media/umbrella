@@ -1,6 +1,6 @@
 # ADR-0018: Authenticated registration and exclusive security capabilities
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0022](0022-registration-rules-dev-restarts.md)
 - **Date:** 2026-10-05
 - **Decided by:** Delegated
 
