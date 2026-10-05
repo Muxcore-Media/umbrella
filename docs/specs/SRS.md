@@ -223,7 +223,7 @@ No performance requirement has been approved by the owner. The following are **[
 
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
-| NFR-A11Y-001 | `media-ui-app` and `admin-ui` shall meet WCAG 2.1 AA **[Proposed]** for core journeys (keyboard, focus, contrast, labels, reduced motion). | S | Part — focus-visible, reduced motion, aria in ~109 files; no automated checks | P: axe checks in vitest (`vitest-axe`) and admin-ui `templ/a11y_test.go` | M4 |
+| NFR-A11Y-001 | `media-ui-app` and `admin-ui` shall meet WCAG 2.1 AA **[Proposed]** for core journeys (keyboard, focus, contrast, labels, reduced motion). | S | Part — vitest-axe on Home, Search, Forgot password, and Quick Connect (jsdom skips color-contrast); admin-ui landmark checks remain; other pages unchecked | E: `src/a11y/core-pages.test.tsx`, `Home.test.tsx`, `Search.test.tsx`; admin-ui `templ/a11y_test.go` | M4 |
 | NFR-A11Y-002 | Layouts shall work from 375 px to 1920 px widths. | S | Part — jsdom breakpoint test only | E: `breakpoints.test.tsx`; P: Playwright viewport snapshots | M4 |
 
 ### 2.6 Maintainability, build, and delivery — NFR-MNT
