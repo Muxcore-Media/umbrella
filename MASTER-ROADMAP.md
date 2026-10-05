@@ -289,6 +289,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | jellyfin `d0030b1`: `go test ./...` (Go 1.26.6) | Pass. Jellyfin and userdata-local outbound URLs use netguard Integration |
 | 2026-10-05 | plex `13251c1` and emby `a3ee7e4`: `go test ./...` (Go 1.26.6) | Pass. Plex (including plex.tv and SSE) and Emby (including the session websocket base) use netguard Integration. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 | 2026-10-05 | metadata-tmdb `5d9c0a1`, ai-runtime `8feb268`, auth-oidc `8d26400`: `go test ./...` (Go 1.26.6) | Pass. TMDB, OpenAI-compatible completions, and OIDC discovery/token/end-session use netguard Integration. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
+| 2026-10-05 | media-library-maintainer `ee64f12`: `go test ./...` (Go 1.26.6) | Pass. Shared outbound HTTP uses netguard Integration. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -315,7 +316,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
    - List-sync, indexer create/update/delete, arr migrate, and root creation require `admin`. Manager stays allowed on the other privileged routes, including root browse.
    - **Blocked here:** `scripts/clean-room.sh --restore-drill` (household and `--dev`) needs rootless podman plus docker-compose, and GitHub CI still needs B-1 and B-2. Do not cut train 2026.10.4 until that drill passes.
 2. **Remaining audit rows:**
-   - SSRF: media-library-maintainer, indexer-torznab, indexer-piratebay, downloader-native-usenet, core spool fetcher. admin-ui arr migrate (`e80fd24`), jellyfin (`d0030b1`), plex (`13251c1`), emby (`a3ee7e4`), metadata-tmdb (`5d9c0a1`), ai-runtime (`8feb268`), and auth-oidc (`8d26400`) use netguard Integration.
+   - SSRF: indexer-torznab, indexer-piratebay, downloader-native-usenet, core spool fetcher. admin-ui arr migrate (`e80fd24`), jellyfin (`d0030b1`), plex (`13251c1`), emby (`a3ee7e4`), metadata-tmdb (`5d9c0a1`), ai-runtime (`8feb268`), auth-oidc (`8d26400`), and media-library-maintainer (`ee64f12`) use netguard Integration.
    - Paths: backup-local, media-books, media-comics, media-audiobooks, media-music, media-ffprobe, media-custom-formats, library-maintainer move path.
    - Then close M3 (SM-4 = 100 % of Must NFR-SEC rows).
 3. **Follow-ups:**
