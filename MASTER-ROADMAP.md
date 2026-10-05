@@ -279,58 +279,59 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | `scripts/clean-room.sh --restore-drill` in **household** after the fan-out; `--dev` | PASS: 26 services enrolled, smoke incl. acquisition, restore drill (16 modules), idle RSS 531 MiB; dev PASS |
 | 2026-10-05 | muxcore-installer household: real fresh install (core v0.6.15 + 21 modules, 20 enrolled, `profile=household`), v0.3.10 → opt-in upgrade + smoke, `--dev`, lost-identity re-enrollment | Pass |
 | 2026-10-05 | Race regression tests media-tvshows/automation/scanner (fail on old code with ~60 reports each) | Pass on new code |
+| 2026-10-05 | SSRF/path-confinement audit (33 URL sites, 29 path sites) → sdk/go/module v0.6.6 netguard/pathguard (tests incl. DNS rebinding, odd IP literals, symlink and sibling-prefix escapes) | Done; per-module fixes verified with verify.sh before each release (16 modules shipped) |
+| 2026-10-05 | auth-local v0.1.19: TOTP encryption + session hashing with migration; v0.1.5 upgrade fixture still authenticates | Pass |
 | 2026-10-05 | `scripts/clean-room.sh --restore-drill` (T-M2-10; rootless podman 4.3.1 + docker-compose v5.6.0, train-2026.10.2 / v0.6.13, profiles indexer-piratebay, downloader-torrent, backup-local) | PASS: 27 images built + pushed in 57 s; `up --wait` ok; smoke PASS incl. `OK acquisition fixture` (fixture indexer → torrent fixture engine → scanner import → media-movies → BFF stream 206 + playback resolve); idle RSS 469.9 MiB over 27 containers (NFR-PERF-003 budget 2 GiB); compose restore drill PASS (16 modules restored, snapshot equal, decoy password refused). Six earlier runs failed on the `_mvp` defects listed in T-M2-10 |
 | 2026-10-05 | `_mvp/scripts/run-script-tests.sh` (incl. new `check-compose-grpc-binds_test.sh`, `check-smoke-protoset_test.sh`), `~/.muxcore-orch/verify.sh _mvp`, shellcheck of the new scripts | Green |
 
-## 10. Handoff (2026-10-05, end of session 2)
+## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
 **State.**
-- **Release train:** `train-2026.10.3` (`release-train.env`): core and images v0.6.15, spool catalog 2.7.0 with reproducible checksums (ADR-0012). `scripts/check-pins.sh` is ok.
-- **Modules:** all active modules are tagged, run on core ≥ v0.6.12 / `sdk/go/module` ≥ v0.6.4, report their version from `muxcore.json` (ADR-0021), and serve and dial over mesh TLS unless the dev insecure flag is set.
-- **Umbrella:** pins at default-branch tips (`docs/FREEZE-PINS.md`).
-- **Working trees:** nothing uncommitted.
+- **Release train:** `train-2026.10.3` (`release-train.env`): core and images v0.6.15, spool 2.7.0. `check-pins` is ok.
+- **Working trees:** no uncommitted work in any repo. Every listed release is pushed and tagged.
+- **Household install:** the default for the registry compose (`_mvp` cd23b18) and the installer (v0.3.11). It is verified locally with `scripts/clean-room.sh --restore-drill` on rootless podman, and run-host stays `dev`.
 
-**Verified locally** (§9):
-- `scripts/clean-room.sh --restore-drill` in **household**: install from the root compose, smoke including fixture acquisition, compose restore drill. Also passes with `--dev`.
-- The host-mode restore drill.
-- The workspace build.
-- Every hygiene check: docs, env-docs, pins, default creds, no-replace, retired origin, sync-ci, submodules, script tests.
-
-**Tools:**
-- `scripts/module-release/` handles single-module releases.
-- `scripts/clean-room.sh` runs the real install gate. It needs rootless podman with the CNI `dnsname` plugin, plus a docker-compose v2 binary, `podman system service` and `DOCKER_HOST`.
-- `_mvp/scripts/restore-drill.sh`.
-- `scripts/upgrade-fixtures/snapshot.sh`.
-- The check scripts above.
-
-Use Go 1.26.6 and the real golangci-lint 2.12.2 binary. On the 12 GB host keep parallelism at 4 or lower.
+**Security fan-out paused midway (NFR-SEC-008/009).**
+- **Audit file:** findings and `file:line` rows are in the session's private file. The tables are reproduced in SRS evidence and in the CHANGELOG of each module that shipped a fix.
+- **Shipped:**
+  - core `sdk/go/module` v0.6.6 netguard/pathguard
+  - media-transcoder v0.3.11 (critical unauthenticated :9526 fixed: mesh-cert caller allow-list, src confinement)
+  - media-subtitles v0.5.5, media-root-folders v0.1.12, media-scanner v0.1.34, media-rename v0.2.12
+  - notification-default v0.1.11, notification-apprise v0.1.9, playback-monitor v0.1.6, scheduler-cron v0.1.10, media-list-sync v0.1.13
+  - media-movies v0.1.21, media-tvshows v0.1.20, downloader-native-torrent v0.3.16, downloader-qbittorrent v0.1.5, downloader-sabnzbd v0.1.6
+  - auth-local v0.1.19 (NFR-SEC-005)
+- **Not yet wired into the stack** (these modules refuse operations until the variables are set; the current train pins older images, so nothing deployed is affected):
+  - `TRANSCODER_MEDIA_ROOTS`, `TRANSCODER_URL_SOURCE_HOSTS`, `TRANSCODER_ALLOW_URL_SOURCES`
+  - `ROOTS_ALLOWED_PREFIXES`, `RENAME_ALLOWED_ROOTS`, `SUBS_MEDIA_ROOTS`, `SCANNER_ALLOWED_ROOTS`
+  - `DOWNLOADER_INDEXER_HOSTS`, `QBIT_DOWNLOAD_ROOTS`
+  - The BFF's mesh-TLS client for transcoder playback (`TRANSCODER_HTTP_URL=https://media-transcoder:9526`).
 
 **Next steps, in order:**
-1. **Finish M3:**
-   - Installer to the household profile (enrollment tokens, CA export, identity dirs) — T-M3-02(g) installer.
-   - Phase-2 removal of profile inference after one train.
-   - Close M3 against its §5 criteria.
-2. **Follow-ups found this session:**
-   - Unguarded core-client readers (`m.mc`) in media-tvshows, media-automation and media-scanner; use an `atomic.Pointer` as media-movies does.
-   - userdata-local defaults its database to `$HOME/.muxcore`.
-   - media-music and media-transcoder state is not yet in the household manifest.
-   - media-library-maintainer should dial request-media with its mesh certificate (ADR-0020).
-   - Path inputs in admin-ui that are owned by other modules (scanner import, rename, transcode, list-sync roots) should be confined in those modules.
-   - Unify `-X main.version` ldflags left in Makefiles.
-   - muxcorectl-cli has no commands for 33 admin-ui routes.
-   - admin-ui lost list-sync import settings and movie trailers; restore them or keep them dropped.
-3. **M4** (§6): server-side parental middleware, profiles, Cast/AirPlay hiding, moving operator settings to admin-ui, `vitest-axe`, Playwright fixture e2e, user deletion fan-out.
-4. **M5** after M4.
+1. **`_mvp` wiring** (compose, dev compose, run-host, Helm/kustomize):
+   - Set the variables above.
+   - Give the BFF a transcoder transport with the mesh client certificate, and restrict `playbackSourceURL` to `/stream/movies|tv/`.
+   - Guard BFF arr migrate with netguard Integration.
+   - Make list-sync, indexer, arr-migrate and root creation admin-only, not `manager`.
+   - Then rerun `scripts/clean-room.sh --restore-drill` in household and `--dev`, and cut train 2026.10.4.
+2. **Remaining audit rows:**
+   - SSRF: jellyfin, plex, emby, metadata-tmdb, ai-runtime, auth-oidc, media-library-maintainer, indexer-torznab, indexer-piratebay, downloader-native-usenet, admin-ui arr migrate, core spool fetcher.
+   - Paths: backup-local, media-books, media-comics, media-audiobooks, media-music, media-ffprobe, media-custom-formats, library-maintainer move path.
+   - Then close M3 (SM-4 = 100 % of Must NFR-SEC rows).
+3. **Follow-ups:**
+   - Rework scheduler-cron's tagged integration test, which needs a loopback webhook.
+   - The installer should take the player from the `mvp` repo, not the archived `media-ui`.
+   - The installer compose runtime binds bare `:port` for gRPC.
+   - Phase-2 removal of profile inference (ADR-0016).
+   - ADR for the HTTP mesh-certificate caller allow-list (media-transcoder).
+4. **M4, then M5.**
 
-**Owner actions** (an agent can't do these):
-- B-2: fix GitHub Actions billing / spending limit. **No CI job starts at all.**
-- B-1: org secret `MUXCORE_CI_TOKEN`.
-- A-5: vault access, or redeploy yourself. Before upgrading vault:
+**Owner actions:**
+- B-2: GitHub Actions billing / spending limit. No CI job starts.
+- B-1: `MUXCORE_CI_TOKEN`.
+- A-5: vault access or redeploy. Before redeploying vault:
   - Move `~/.muxcore/userdata.db` into `data/userdata/`.
   - Set `HEALTH_MONITOR_HTTP_TOKEN`.
-  - Check `DOWNLOADER_ENGINE` (`live` or `anacrolix` for live acquisition).
-  - Note that run-host stays `dev`.
-- Workstation image: add the podman CNI `dnsname` plugin (and a docker-compose binary) so the clean-room runs survive restarts.
-- R-1: a GHCR token for module images.
-- R-6: a physical Apple TV.
-- D-1: whether to start an Android client.
+  - Check `DOWNLOADER_ENGINE`.
+  - Set the new root variables above.
+- Workstation image: add the podman CNI `dnsname` plugin and a docker-compose binary.
+- R-1, R-6, D-1 as before.
