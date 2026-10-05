@@ -105,3 +105,45 @@ test('generated block adds rows for undocumented vars and preserves edited rows'
   const r = compare(scan, parseDoc(out), new Map());
   assert.deepEqual(r.undocumented, []);
 });
+
+test('package-qualified constants from another package of the module resolve', () => {
+  const root = fixture({
+    'mod/internal/enroll/e.go': 'package enroll\nconst (\n\tEnvSecret = "MUXCORE_ENROLL_SECRET"\n\tenvHidden = "MUXCORE_ENROLL_HIDDEN"\n)\n',
+    'mod/cmd/main.go':
+      'package main\nimport ("os"; "x/internal/enroll")\nfunc f() {\n\t_ = os.Getenv(enroll.EnvSecret)\n\t_ = os.Getenv(enroll.Missing)\n\t_ = os.Getenv(other.EnvSecret)\n}\n',
+  });
+  const { reads } = scanAll(root, ['mod']);
+  assert.deepEqual([...reads.keys()], ['MUXCORE_ENROLL_SECRET']);
+});
+
+test('reader helpers without "env" in the name: parameter heuristic and explicit list', () => {
+  const root = fixture({
+    'mod/pkg/c.go': 'package pkg\nconst EnvDir = "MUXCORE_TLS_DIR"\nconst EnvOther = "OTHER_THING"\n',
+    'mod/a.go': `package m
+import "os"
+func get(getenv func(string) string) {
+	pick := func(v, key string) string {
+		if v != "" { return v }
+		return getenv(key)
+	}
+	_ = pick("x", pkg.EnvDir)
+	_ = pick("y", "MUXCORE_BOOTSTRAP_TOKEN")
+	_ = pick("z", pkg.EnvOther)
+	_ = lookup("MUXCORE_VIA_HELPER")
+	_ = lookup("OTHER_STUFF")
+	_ = unrelated("MUXCORE_NOT_A_READER")
+}
+func lookup(name string) string { return os.Getenv(name) }
+func unrelated(s string) string { return s }
+`,
+  });
+  const { reads } = scanAll(root, ['mod']);
+  // pick is on the explicit list, so OTHER_THING counts there; lookup is heuristic and
+  // therefore prefix-gated; `unrelated` never reads env.
+  assert.deepEqual(
+    [...reads.keys()].sort(),
+    ['MUXCORE_BOOTSTRAP_TOKEN', 'MUXCORE_TLS_DIR', 'MUXCORE_VIA_HELPER', 'OTHER_THING'],
+  );
+  const wider = scanAll(root, ['mod'], { prefixes: ['MUXCORE_', 'OTHER_'] }).reads;
+  assert.ok(wider.has('OTHER_STUFF'));
+});

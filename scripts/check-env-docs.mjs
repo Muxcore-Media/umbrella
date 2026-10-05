@@ -12,6 +12,14 @@
 //      * string literal OR identifier arguments; identifiers are resolved through
 //        `name = "ENV_NAME"` constants declared in the same module,
 //      * `for _, k := range []string{"A", "B"}` single-line loops in files that read env.
+//      * package-qualified constants (`os.Getenv(enroll.EnvSecret)`): a per-module map
+//        package -> const -> value is built from all non-test files, and bare / `pkg.Const`
+//        identifiers are resolved through it,
+//      * reader helpers whose name lacks "env": the EXTRA_READERS list (e.g. `pick`), plus a
+//        heuristic: a function (or `x := func`) whose body calls an env function on one of
+//        its own parameters is a reader for that parameter; call arguments at that position
+//        count when they resolve to an UPPER_CASE name with a known prefix (MUXCORE_ plus
+//        the first segment of every documented variable).
 //    Writers (Setenv, Unsetenv) and ExpandEnv/Environ are ignored.
 //  - `_mvp` stack launcher: shell scripts, compose files and Dockerfiles are scanned for
 //    `$VAR` / `${VAR...}` but ONLY for the documented `MVP_*` and `SMOKE_*` namespaces
@@ -125,13 +133,67 @@ function parseArgs(src, start) {
 const CALL = /(?<![\w.])((?:[A-Za-z_]\w*\.)*)([A-Za-z_]\w*)\(/g;
 const WRITER = /^(Setenv|Unsetenv|ExpandEnv|Environ|Clearenv)$/;
 
+// Reader helpers that cannot be detected by name or by the parameter heuristic.
+export const EXTRA_READERS = ['pick'];
+export const DEFAULT_PREFIXES = ['MUXCORE_'];
+
+// Env-name prefixes derived from documented variable names (`BACKUP_X` -> `BACKUP_`).
+export function prefixesFromDoc(docs) {
+  const out = new Set(DEFAULT_PREFIXES);
+  for (const n of docs.keys()) {
+    const i = n.indexOf('_');
+    if (i > 0) out.add(n.slice(0, i + 1));
+  }
+  return [...out];
+}
+
+// Index of the matching "}" for the "{" at `open` (string/rune aware), or src.length.
+function matchBrace(src, open) {
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    const c = src[i];
+    if (c === '"' || c === '`' || c === "'") {
+      let j = i + 1;
+      while (j < src.length && src[j] !== c) j += c !== '`' && src[j] === '\\' ? 2 : 1;
+      i = j;
+    } else if (c === '{') depth++;
+    else if (c === '}' && --depth === 0) return i;
+  }
+  return src.length;
+}
+
+// Functions / closures that pass one of their parameters to an env function:
+// returns Map<name, Set<paramIndex>>.
+function findReaders(src) {
+  const out = new Map();
+  const defs = /(?:\bfunc\s+(?:\([^)]*\)\s*)?([A-Za-z_]\w*)|\b([A-Za-z_]\w*)\s*:?=\s*func)\s*\(([^)]*)\)[^{\n]*\{/g;
+  for (const m of src.matchAll(defs)) {
+    const name = m[1] ?? m[2];
+    if (isEnvFunc(name)) continue;
+    const params = m[3].split(',').map((x) => /^\s*(\w+)/.exec(x)?.[1]);
+    const open = m.index + m[0].length - 1;
+    const body = src.slice(open, matchBrace(src, open));
+    for (const c of body.matchAll(CALL)) {
+      if (!isEnvFunc(c[2])) continue;
+      const first = parseArgs(body, c.index + c[0].length)[0];
+      const idx = params.indexOf(first);
+      if (first && idx >= 0) {
+        if (!out.has(name)) out.set(name, new Set());
+        out.get(name).add(idx);
+      }
+    }
+  }
+  return out;
+}
+
 function isEnvFunc(name) {
   if (WRITER.test(name)) return false;
   return name === 'Getenv' || name === 'LookupEnv' || /env/i.test(name);
 }
 
 // Scan one module's Go sources. Returns { reads: Map<name, Set<source>>, prefixes: Map<prefix, Set<source>> }.
-export function scanGoModule(modDir, modName) {
+export function scanGoModule(modDir, modName, opts = {}) {
+  const known = opts.prefixes ?? DEFAULT_PREFIXES;
   const origs = new Map();
   const files = walk(modDir, isGoSource).map((p) => {
     const orig = readFileSync(p, 'utf8');
@@ -139,12 +201,27 @@ export function scanGoModule(modDir, modName) {
     return [p, stripComments(orig)];
   });
   const consts = new Map();
-  for (const [, src] of files) {
+  // package name -> const name -> Set<value> (all non-test files of the module).
+  const pkgConsts = new Map();
+  const pkgOf = new Map();
+  const readers = new Map();
+  for (const [p, src] of files) {
+    const pkg = /^\s*package\s+(\w+)/m.exec(src)?.[1] ?? '';
+    pkgOf.set(p, pkg);
+    if (!pkgConsts.has(pkg)) pkgConsts.set(pkg, new Map());
+    const pc = pkgConsts.get(pkg);
     for (const m of src.matchAll(/\b([A-Za-z_]\w*)\s+(?:string\s*)?=\s*"([A-Z][A-Z0-9_]+)"/g)) {
       if (!consts.has(m[1])) consts.set(m[1], new Set());
       consts.get(m[1]).add(m[2]);
+      if (!pc.has(m[1])) pc.set(m[1], new Set());
+      pc.get(m[1]).add(m[2]);
+    }
+    for (const [name, idxs] of findReaders(src)) {
+      if (!readers.has(name)) readers.set(name, new Set());
+      idxs.forEach((i) => readers.get(name).add(i));
     }
   }
+  for (const n of EXTRA_READERS) if (!readers.has(n)) readers.set(n, null);
   const reads = new Map();
   const prefixes = new Map();
   const info = new Map();
@@ -169,35 +246,58 @@ export function scanGoModule(modDir, modName) {
       if (!locals.has(m[1])) locals.set(m[1], new Set());
       locals.get(m[1]).add(m[2]);
     }
+    const pkg = pkgOf.get(path);
+    // Resolve an argument to env names: literal, `pkg.Const`, bare const or local.
+    const resolve = (a) => {
+      const lit = /^"([^"]*)"$/.exec(a);
+      if (lit) return ENV_NAME.test(lit[1]) ? [lit[1]] : [];
+      const q = /^([A-Za-z_]\w*)\.([A-Za-z_]\w*)$/.exec(a);
+      if (q) return [...(pkgConsts.get(q[1])?.get(q[2]) ?? [])];
+      if (/^[A-Za-z_]\w*$/.test(a)) {
+        return [
+          ...new Set([
+            ...(pkgConsts.get(pkg)?.get(a) ?? []),
+            ...(consts.get(a) ?? []),
+            ...(locals.get(a) ?? []),
+          ]),
+        ];
+      }
+      return [];
+    };
     for (const m of src.matchAll(CALL)) {
       const fn = m[2];
-      if (!isEnvFunc(fn)) continue;
       // Skip declarations: `func envOr(` and `func (r *T) envOr(`.
       if (/func\s+(\([^)]*\)\s*)?$/.test(src.slice(Math.max(0, m.index - 80), m.index))) continue;
+      if (!isEnvFunc(fn)) {
+        if (!readers.has(fn)) continue;
+        const explicit = EXTRA_READERS.includes(fn);
+        const idxs = readers.get(fn);
+        const args = parseArgs(src, m.index + m[0].length);
+        args.forEach((a, i) => {
+          if (!explicit && !idxs?.has(i)) return;
+          for (const v of resolve(a)) {
+            if (!explicit && !known.some((p) => v.startsWith(p))) continue;
+            if (!/^[A-Z][A-Z0-9_]{2,}$/.test(v)) continue;
+            add(reads, v, where);
+            note(v, m, [], origs.get(path));
+            readsEnv = true;
+          }
+        });
+        continue;
+      }
       const args = parseArgs(src, m.index + m[0].length);
       const variadic = /first/i.test(fn);
       const considered = variadic ? args : args.slice(0, 1);
       for (const a of considered) {
-        const lit = /^"([^"]*)"$/.exec(a);
-        if (lit) {
-          if (ENV_NAME.test(lit[1])) {
-            add(reads, lit[1], where);
-            note(lit[1], m, args, origs.get(path));
-            readsEnv = true;
-          }
-          continue;
-        }
         const cat = /^"([A-Z][A-Z0-9_]*_)"\s*\+/.exec(a);
         if (cat) {
           add(prefixes, cat[1], where);
           readsEnv = true;
           continue;
         }
-        if (/^[A-Za-z_]\w*$/.test(a) && (consts.has(a) || locals.has(a))) {
-          for (const v of new Set([...(consts.get(a) ?? []), ...(locals.get(a) ?? [])])) {
-            add(reads, v, where);
-            note(v, m, args, origs.get(path));
-          }
+        for (const v of resolve(a)) {
+          add(reads, v, where);
+          note(v, m, args, origs.get(path));
           readsEnv = true;
         }
       }
@@ -266,7 +366,7 @@ export function parseAllow(text) {
   return allow;
 }
 
-export function scanAll(root, modules) {
+export function scanAll(root, modules, opts = {}) {
   const reads = new Map();
   const prefixes = new Map();
   const info = new Map();
@@ -279,7 +379,7 @@ export function scanAll(root, modules) {
   for (const mod of modules) {
     const dir = join(root, mod);
     if (!existsSync(dir)) continue;
-    const r = scanGoModule(dir, mod);
+    const r = scanGoModule(dir, mod, opts);
     merge(reads, r.reads);
     merge(prefixes, r.prefixes);
     for (const [k, v] of r.info) {
@@ -400,7 +500,8 @@ function main() {
   const docPath = join(ROOT, 'docs/config-reference.md');
   const allowPath = join(HERE, 'check-env-docs.allow');
   const allow = existsSync(allowPath) ? parseAllow(readFileSync(allowPath, 'utf8')) : new Map();
-  const scan = scanAll(ROOT, activeModules(ROOT));
+  const docText = existsSync(docPath) ? readFileSync(docPath, 'utf8') : '';
+  const scan = scanAll(ROOT, activeModules(ROOT), { prefixes: prefixesFromDoc(parseDoc(docText)) });
   if (write) {
     const next = renderGenerated(readFileSync(docPath, 'utf8'), scan, allow);
     writeFileSync(docPath, next);

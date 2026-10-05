@@ -1,6 +1,8 @@
 # MuxCore household install (registry compose, ADR-0007).
-# Run from repository root:
-#   docker compose up -d
+# Run from repository root (household security profile, ADR-0016/ADR-0017):
+#   _mvp/scripts/gen-enrollment.sh     # mesh enrollment secret + per-module tokens into _mvp/.env
+#   docker compose --env-file _mvp/.env up -d
+# Insecure dev loop: add `-f docker-compose.yml -f _mvp/docker-compose.dev.yml`.
 #
 # Images come from ${MUXCORE_REGISTRY} (default LAN registry localhost:5000/muxcore,
 # see _mvp/local-registry.sh; ghcr.io/muxcore-media once images are published there)
