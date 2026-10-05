@@ -43,7 +43,7 @@
 | FR-AUTH-007 | Admins shall view and revoke **all** active sessions/devices for any user (not only admin-ui sessions). | S | Part — admin-ui `/devices` lists own sessions only | P: admin-ui handler test against auth-local session list RPC | M5 |
 | FR-AUTH-008 | OIDC login (Keycloak/Authentik/Dex) shall be supported with role mapping from claims. | S | Impl — `auth-oidc` PKCE + `AUTH_OIDC_ROLE_MAP` | E: auth-oidc tests incl. `keycloak_compose_test.go` (Docker-gated) | — |
 | FR-AUTH-009 | When the identity provider does not support an operation (user CRUD, TOTP, tokens, invites under `auth-oidc`), admin-ui shall hide or disable the page with an explanation instead of failing. | S | Plan | P: admin-ui test with OIDC stub returning `Unimplemented` | M5 |
-| FR-AUTH-010 | Household profiles: one account may hold multiple viewer profiles (incl. kids profiles with PIN) with separate userdata and parental settings. | S | Plan — no profile switcher in `media-ui-app` | P: BFF + SPA tests | M4 |
+| FR-AUTH-010 | Household profiles: one account may hold multiple viewer profiles (incl. kids profiles with PIN) with separate userdata and parental settings. | S | Part — directory in the account userdata blob, sibling blobs per extra profile, PIN to leave ([ADR-0024](../adr/0024-viewer-profiles-in-userdata.md)); no profile delete | E: `_mvp` `profiles_test.go`; `media-ui-app` `HouseholdProfiles.test.tsx` | M4 |
 
 ### 1.3 Discover and request — CAP-03
 

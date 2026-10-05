@@ -18,7 +18,7 @@
 | Module | Store / main tables | Personal data | Retention |
 |--------|---------------------|---------------|-----------|
 | `auth-local` | `users`, `sessions`, `api_tokens`, `totp`, `webauthn_*`, `invites` | **Yes** (usernames, credentials) | Sessions expire 24 h (rows pruned); users until deleted |
-| `userdata-local` | `user_blobs` (progress, favorites, prefs, playlists, queue) | **Yes** (viewing behaviour) | Until user deleted |
+| `userdata-local` | `user_blobs` (progress, favorites, prefs, playlists, queue). Extra viewer profiles are further blobs keyed `accountUserID~p~profileID`; the directory is `prefs.profiles` on the account blob ([ADR-0024](../../adr/0024-viewer-profiles-in-userdata.md)) | **Yes** (viewing behaviour) | Until user deleted (profile blobs included when NFR-DATA-003 lands) |
 | `request-media` | `requests`, `request_ready_notified` | **Yes** (who requested what) | Until deleted |
 | `playback-monitor` | `sessions`, `library_items`, `user_identities`, storage-daily, notification rules | **Yes** (viewing history, IPs/devices) | **[Proposed]** configurable history retention (default 365 days) — not implemented |
 | `playback-guard` | `guard_rules`, `violations`, `trust_scores`, `user_aliases`, `module_settings` | **Yes** | Until deleted |

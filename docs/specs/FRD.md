@@ -50,6 +50,7 @@ Roles and permissions are owned by the identity module (`auth-local`; `auth-oidc
 
 - **Alternate:** native clients use `/api/mobile/auth/*` (iOS deep link `muxcore://auth/callback`) or `/api/tv/login` + Quick Connect (tvOS).
 - **Alternate:** `auth-oidc` replaces auth-local's login with an OIDC PKCE flow; user CRUD, TOTP, API tokens, and invites are then **unavailable** (RPCs return `Unimplemented`). admin-ui must hide those pages → `FR-AUTH-009`.
+- **Viewer profiles (FR-AUTH-010, [ADR-0024](../adr/0024-viewer-profiles-in-userdata.md)):** the signed-in account holds a profile directory in its userdata prefs. The primary profile uses that blob. Each other profile has its own userdata blob. Leaving a profile that has a PIN requires that PIN. The login account does not change.
 - **Failure:** code exchange timeout (8 s in BFF) → error page, no session. Invalid/expired session → redirect to login.
 - **Current defects / Target:** BFF has no CSRF token or Origin check; `GET /logout` mutates state; BFF sessions are lost on restart; admin-ui session file stores bearer tokens in plaintext under `os.TempDir()` by default → `NFR-SEC-004`, `NFR-SEC-005`, `NFR-SEC-006`.
 

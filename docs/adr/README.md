@@ -39,3 +39,4 @@
 | [0021](0021-module-version-single-source.md) | A module's version has one source — its `muxcore.json` | Accepted | Delegated (2026-10-05) |
 | [0022](0022-registration-rules-dev-restarts.md) | Registration rules, with dev-mode restarts | Accepted | Delegated (2026-10-05) |
 | [0023](0023-mesh-identity-outside-backups.md) | Mesh CA and module identities are not backed up | Accepted | Delegated (2026-10-05) |
+| [0024](0024-viewer-profiles-in-userdata.md) | Viewer profiles live in the account userdata blob | Accepted | Delegated (2026-10-05) |
