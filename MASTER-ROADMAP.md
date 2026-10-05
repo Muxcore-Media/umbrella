@@ -229,7 +229,7 @@ T-M8-01 iOS/tvOS simulator tests for auth + resume via manual macOS workflow (FR
 
 ## 8. Next actionable milestone
 
-**M2 — Install path & fixture e2e gate**, with **M3 — Secure defaults** in parallel (both depend only on M1). M0 is done and M1 is done locally. M1's CI-observed criteria wait on B-1 and do not block M2 or M3. Start with T-M2-04 (single version train: today installer `v0.5.0`, operator `v0.5.4`, registry compose / Helm / household manifest `v0.5.7`, starter `v0.6.0`, core `v0.6.5`), T-M2-07 (env-var drift check) and T-M2-03 (fixture search → dispatch → import smoke).
+M0 is done; M1 is done locally (its CI criteria wait on B-1 and B-2). Of M2, every task except T-M2-10's GitHub run is done (the clean-room job passes locally; CI needs B-1 and B-2). M3 is nearly done: the household profile is the compose default and has been verified end to end. What remains of M3: switching the installer to household and the phase-2 removal of profile inference (ADR-0016). Next comes **M4 — Household completeness** (T-M4-01…07), together with the follow-ups in §10.
 
 ## 9. Validation log
 
@@ -283,27 +283,52 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 ## 10. Handoff (2026-10-05, end of session 2)
 
 **State.**
-- **M0:** Done.
-- **M1:** done locally. Per-repo and workspace CI wait on B-1.
-- **Releases:** everything in §6 marked Done is pushed and tagged on GitHub. The umbrella pins every active submodule at its default-branch tip (`docs/FREEZE-PINS.md`).
-- **Spool:** catalog 2.5.0 carries reproducible checksums (ADR-0012, needs core ≥ v0.6.5).
-- **Working trees:** no uncommitted work in any submodule.
+- **Release train:** `train-2026.10.3` (`release-train.env`): core and images v0.6.15, spool catalog 2.7.0 with reproducible checksums (ADR-0012). `scripts/check-pins.sh` is ok.
+- **Modules:** all active modules are tagged, run on core ≥ v0.6.12 / `sdk/go/module` ≥ v0.6.4, report their version from `muxcore.json` (ADR-0021), and serve and dial over mesh TLS unless the dev insecure flag is set.
+- **Umbrella:** pins at default-branch tips (`docs/FREEZE-PINS.md`).
+- **Working trees:** nothing uncommitted.
 
-**Tools** (now committed): `scripts/module-release/{modfix,verify,ship}.sh` and their README. Set `MUXCORE_GO_ENV` to a file that puts Go 1.26.6 first on `PATH`, and `LINT` to the real golangci-lint 2.12.2 binary rather than the mise shim. Cap parallelism at 4 on the 12 GB workstation.
+**Verified locally** (§9):
+- `scripts/clean-room.sh --restore-drill` in **household**: install from the root compose, smoke including fixture acquisition, compose restore drill. Also passes with `--dev`.
+- The host-mode restore drill.
+- The workspace build.
+- Every hygiene check: docs, env-docs, pins, default creds, no-replace, retired origin, sync-ci, submodules, script tests.
+
+**Tools:**
+- `scripts/module-release/` handles single-module releases.
+- `scripts/clean-room.sh` runs the real install gate. It needs rootless podman with the CNI `dnsname` plugin, plus a docker-compose v2 binary, `podman system service` and `DOCKER_HOST`.
+- `_mvp/scripts/restore-drill.sh`.
+- `scripts/upgrade-fixtures/snapshot.sh`.
+- The check scripts above.
+
+Use Go 1.26.6 and the real golangci-lint 2.12.2 binary. On the 12 GB host keep parallelism at 4 or lower.
 
 **Next steps, in order:**
-1. **M2** (§6): T-M2-04 single train + `scripts/check-pins.sh`; T-M2-07 env drift check (phantom `BACKUP_EXCLUDE`); T-M2-03 smoke asserting fixture search → dispatch → import → library item; T-M2-02 publish set vs compose (`_mvp/scripts/publish-module-images.sh` lists 28 of ~65 compose services); T-M2-05 `state_dirs` + restore drill (no manifest declares `state_dirs`; backup-local now has `VerifyBackup`); T-M2-06 upgrade tests; T-M2-08 BFF route inventory (~281 routes in `_mvp/cmd/mediauiprox/main.go`); T-M2-09 wiki sync; T-M2-10 clean-room job.
-2. **M3** in parallel: the nine TDD §8 items, one task each. Dependabot reports open alerts on `core`, `media-automation` and `request-media`; triage them under M3.
-3. **Follow-ups found this session:**
-   - **muxcorectl-cli:** has no commands yet for 33 admin-ui routes (its parity table lists them).
-   - **admin-ui:** lost two features because the published modules no longer expose them: list-sync per-source import settings, and movie trailers. Decide whether to restore them in the modules (FR rows) or keep them dropped.
-   - **admin-ui CI:** the template doesn't check that generated templ files or Tailwind CSS are fresh.
-   - **media-automation:** still ships the legacy `proto/automationv1` (same proto package as contracts-automation). Its remaining consumers (media-list-sync, media-movies, request-media) should move to contracts-automation.
+1. **Finish M3:**
+   - Installer to the household profile (enrollment tokens, CA export, identity dirs) — T-M3-02(g) installer.
+   - Phase-2 removal of profile inference after one train.
+   - Close M3 against its §5 criteria.
+2. **Follow-ups found this session:**
+   - Unguarded core-client readers (`m.mc`) in media-tvshows, media-automation and media-scanner; use an `atomic.Pointer` as media-movies does.
+   - userdata-local defaults its database to `$HOME/.muxcore`.
+   - media-music and media-transcoder state is not yet in the household manifest.
+   - media-library-maintainer should dial request-media with its mesh certificate (ADR-0020).
+   - Path inputs in admin-ui that are owned by other modules (scanner import, rename, transcode, list-sync roots) should be confined in those modules.
+   - Unify `-X main.version` ldflags left in Makefiles.
+   - muxcorectl-cli has no commands for 33 admin-ui routes.
+   - admin-ui lost list-sync import settings and movie trailers; restore them or keep them dropped.
+3. **M4** (§6): server-side parental middleware, profiles, Cast/AirPlay hiding, moving operator settings to admin-ui, `vitest-axe`, Playwright fixture e2e, user deletion fan-out.
+4. **M5** after M4.
 
 **Owner actions** (an agent can't do these):
-- B-2: GitHub Actions billing / spending limit (CI jobs are not starting at all).
-- B-1: org CI secret.
-- R-1: a GHCR `write:packages` token.
+- B-2: fix GitHub Actions billing / spending limit. **No CI job starts at all.**
+- B-1: org secret `MUXCORE_CI_TOKEN`.
+- A-5: vault access, or redeploy yourself. Before upgrading vault:
+  - Move `~/.muxcore/userdata.db` into `data/userdata/`.
+  - Set `HEALTH_MONITOR_HTTP_TOKEN`.
+  - Check `DOWNLOADER_ENGINE` (`live` or `anacrolix` for live acquisition).
+  - Note that run-host stays `dev`.
+- Workstation image: add the podman CNI `dnsname` plugin (and a docker-compose binary) so the clean-room runs survive restarts.
+- R-1: a GHCR token for module images.
 - R-6: a physical Apple TV.
 - D-1: whether to start an Android client.
-- A-5: vault redeploy or SSH access from the workstation.
