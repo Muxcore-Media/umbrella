@@ -591,7 +591,7 @@ Variables read by active modules that are not described in the sections above. M
 | `AUTH_HTTP_INTERNAL_URL` | _mvp | — | Auth http internal url. |
 | `AUTOMATION_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9460` | gRPC address the BFF dials for this module. |
 | `BACKUP_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9302` | gRPC address the BFF dials for this module. |
-| `BACKUP_RESTORE_DIR` | _mvp | — | Backup restore dir. |
+| `BACKUP_RESTORE_DIR` | backup-local, _mvp | — | Restore extract allow-list. backup-local refuses a target outside this directory. |
 | `BOOKS_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9650` | gRPC address the BFF dials for this module. |
 | `BOOKS_HTTP_URL` | _mvp | `http://127.0.0.1:9651` | HTTP base URL of the module. |
 | `COMICS_HTTP_URL` | _mvp | `http://127.0.0.1:9661` | HTTP base URL of the module. |
@@ -1150,6 +1150,7 @@ Variables read by active modules that are not described in the sections above. M
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
 | `FORMATS_TRASH_GUIDES_PATH` | media-custom-formats | — | Trash guides path. |
+| `FORMATS_TRASH_GUIDES_ROOTS` | media-custom-formats | — | Path-list (`:` on Linux) of roots a local TRaSH guides_path must resolve inside. Empty refuses local guides paths. Official sentinels are unchanged. |
 | `FORMATS_TRASH_IMPORT_PROFILES` | media-custom-formats | — | Trash import profiles. |
 | `FORMATS_TRASH_OFFICIAL` | media-custom-formats | — | Trash official. |
 | `FORMATS_TRASH_SCORE_SET` | media-custom-formats | `default` | Trash score set. |
@@ -1171,6 +1172,7 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
+| `FFPROBE_ALLOWED_ROOTS` | media-ffprobe | — | Path-list (`:` on Linux) of roots Analyze may read. Empty refuses every file_path. |
 | `FFPROBE_BIN` | media-ffprobe | — | Bin. |
 | `FFPROBE_DB_PATH` | media-ffprobe | — | SQLite database file path. |
 | `FFPROBE_GRPC_ADDR` | media-ffprobe | — | gRPC listen address. |
