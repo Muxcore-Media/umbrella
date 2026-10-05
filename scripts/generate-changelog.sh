@@ -72,7 +72,7 @@ section_for_type() {
 
 parse_commit() {
   local subject="$1"
-  local type scope rest description
+  local type rest description
 
   if [[ ! "$subject" =~ ^(feat|fix|chore|ci|docs|test|refactor|perf|build|revert|style)(\(([a-zA-Z0-9._/-]+)\))?!?:[[:space:]]+(.+)$ ]]; then
     return 1
@@ -196,7 +196,7 @@ insert_into_changelog() {
 }
 
 main() {
-  local from_ref markdown tmp_section
+  local from_ref tmp_section
 
   from_ref="$(resolve_from_ref "$TO")"
 

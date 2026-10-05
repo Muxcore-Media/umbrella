@@ -1,3 +1,5 @@
+> **Historical record** (moved to `docs/history/` on 2026-10-05). Superseded by the canonical plan in [`MASTER-ROADMAP.md`](../../MASTER-ROADMAP.md) ([ADR-0001](../adr/0001-canonical-roadmap-and-spec-set.md)). Mentions of the former self-hosted origin are historical ([ADR-0002](../adr/0002-github-sole-origin.md)). Not maintained.
+
 # Improve Loop Summary — Cycles 124–145
 
 **State:** cycle **144** complete, **145** in progress (`status: running`)  

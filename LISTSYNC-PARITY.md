@@ -1,7 +1,3 @@
-# Radarr / Sonarr Import Lists → MuxCore parity
+# List-sync parity (pointer)
 
-**Done / in progress** — canonical checklist lives in [`media-list-sync/LISTSYNC-PARITY.md`](./media-list-sync/LISTSYNC-PARITY.md).
-
-**Module:** `media-list-sync` (+ `admin-ui` `/list-sync`).
-
-**Related (not import lists):** full library migration via `admin-ui` `/migrate` (`arrmigrate` client).
+Import lists (Trakt, IMDb, Plex, Jellyfin, Radarr, Sonarr) are implemented in [`media-list-sync`](media-list-sync/README.md). Requirements and status: [`docs/specs/SRS.md`](docs/specs/SRS.md) `FR-MIG-004` (scheduled list sync) and `FR-MIG-001`…`FR-MIG-003` (one-shot migration). This file previously pointed at a checklist that no longer exists.

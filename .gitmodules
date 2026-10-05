@@ -313,18 +313,9 @@
 [submodule "media-dlna"]
 	path = media-dlna
 	url = https://github.com/Muxcore-Media/media-dlna.git
-[submodule "media-ui-tv"]
-	path = media-ui-tv
-	url = https://github.com/Muxcore-Media/media-ui-tv.git
 [submodule "metadata-musicbrainz"]
 	path = metadata-musicbrainz
 	url = https://github.com/Muxcore-Media/metadata-musicbrainz.git
-[submodule "muxcore-android"]
-	path = muxcore-android
-	url = https://github.com/Muxcore-Media/muxcore-android.git
-[submodule "playback-contract"]
-	path = playback-contract
-	url = https://github.com/Muxcore-Media/playback-contract.git
 [submodule "userdata-local"]
 	path = userdata-local
 	url = https://github.com/Muxcore-Media/userdata-local.git

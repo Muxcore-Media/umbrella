@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: umbrella-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  GOPRIVATE: github.com/Muxcore-Media/*
+  GONOSUMDB: github.com/Muxcore-Media/*
+
+jobs:
+  docs-and-scripts:
+    name: Docs and umbrella scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+      - name: Docs links and requirement IDs
+        run: node scripts/check-docs.mjs
+      - name: Retired-origin references (umbrella files)
+        run: |
+          sudo apt-get install -y ripgrep >/dev/null
+          scripts/check-retired-origin.sh
+      - name: Script tests and lint
+        working-directory: scripts
+        run: |
+          npm ci
+          node --test *.test.mjs
+          npx eslint .
+      - name: Shell script tests
+        run: |
+          for t in scripts/*_test.sh; do bash "$t"; done
+      - name: Shellcheck
+        run: shellcheck scripts/*.sh
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: |
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz | tar -xz gitleaks
+          ./gitleaks git --no-banner --redact --exit-code 1 .
+
+  workspace:
+    name: Workspace (submodules)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TOKEN: ${{ secrets.MUXCORE_CI_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require MUXCORE_CI_TOKEN
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::MUXCORE_CI_TOKEN is not set; private submodules cannot be checked out (roadmap blocker B-1)."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+      - name: Checkout submodules
+        if: env.SKIP != '1'
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/Muxcore-Media/".insteadOf "https://github.com/Muxcore-Media/"
+          git submodule update --init --jobs 8
+      - uses: actions/setup-go@v6
+        if: env.SKIP != '1'
+        with:
+          go-version: "1.26.6"
+          cache: false
+      - name: Hygiene (submodules)
+        if: env.SKIP != '1'
+        run: |
+          sudo apt-get install -y ripgrep >/dev/null
+          scripts/check-retired-origin.sh
+          scripts/check-no-replace.sh
+          scripts/sync-ci.sh --check
+      - name: Workspace build and vet
+        if: env.SKIP != '1'
+        run: |
+          scripts/gen-go-work.sh
+          go work sync >/dev/null 2>&1 || true
+          for m in $(source scripts/module-sets.sh && MUXCORE_ROOT=. muxcore_active_go_modules); do
+            echo "::group::$m"; (cd "$m" && go build ./... && go vet ./...); echo "::endgroup::"
+          done
+      - name: Integration tests
+        if: env.SKIP != '1'
+        working-directory: integration
+        run: GOWORK=off go test -tags integration -count=1 ./...
+      - name: MVP script tests
+        if: env.SKIP != '1'
+        run: bash _mvp/scripts/run-script-tests.sh

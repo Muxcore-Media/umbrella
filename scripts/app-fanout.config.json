@@ -33,10 +33,6 @@
           "path": "media-ui-app"
         },
         {
-          "id": "muxcore-android",
-          "path": "muxcore-android"
-        },
-        {
           "id": "muxcore-docs",
           "path": "muxcore-docs"
         },
@@ -72,10 +68,6 @@
           "path": "media-ui-app"
         },
         {
-          "id": "muxcore-android",
-          "path": "muxcore-android"
-        },
-        {
           "id": "muxcore-docs",
           "path": "muxcore-docs"
         },
@@ -109,10 +101,6 @@
         {
           "id": "media-ui-app",
           "path": "media-ui-app"
-        },
-        {
-          "id": "muxcore-android",
-          "path": "muxcore-android"
         },
         {
           "id": "muxcore-docs",
@@ -410,10 +398,6 @@
           "path": "media-tvshows"
         },
         {
-          "id": "media-ui-tv",
-          "path": "media-ui-tv"
-        },
-        {
           "id": "metadata-musicbrainz",
           "path": "metadata-musicbrainz"
         },
@@ -432,10 +416,6 @@
         {
           "id": "notification-default",
           "path": "notification-default"
-        },
-        {
-          "id": "playback-contract",
-          "path": "playback-contract"
         },
         {
           "id": "playback-guard",
@@ -797,10 +777,6 @@
           "path": "media-tvshows"
         },
         {
-          "id": "media-ui-tv",
-          "path": "media-ui-tv"
-        },
-        {
           "id": "metadata-musicbrainz",
           "path": "metadata-musicbrainz"
         },
@@ -819,10 +795,6 @@
         {
           "id": "notification-default",
           "path": "notification-default"
-        },
-        {
-          "id": "playback-contract",
-          "path": "playback-contract"
         },
         {
           "id": "playback-guard",

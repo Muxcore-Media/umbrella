@@ -194,8 +194,8 @@ describe('main', () => {
   });
 
   it('exports stable skip and owned path lists', () => {
-    assert.deepEqual([...SKIP_DIRS], ['core.wiki', '_wave1']);
+    assert.deepEqual([...SKIP_DIRS], []);
     assert.ok(OWNED_PATHS.includes('scripts'));
-    assert.match(COMMIT_MESSAGE, /Register Forgejo module checkouts/);
+    assert.match(COMMIT_MESSAGE, /Register module checkouts as submodules/);
   });
 });

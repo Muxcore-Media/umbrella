@@ -1,20 +1,20 @@
 ## MuxCore workspace setup
 
-MuxCore is an **umbrella repo**: the workspace root tracks gitlinks for Forgejo modules. Each module (`media-ui-app`, `core`, `admin-ui`, …) is still its own git repo with its own branch and history.
+MuxCore is an **umbrella repo**: the workspace root tracks gitlinks for every module (GitHub `Muxcore-Media/*`). Each module (`media-ui-app`, `core`, `admin-ui`, …) is still its own git repo with its own branch and history.
 
 1. Work inside **`{{MODULE_PATH}}`** (the module directory from the plan row). Run git only in that module unless the step says otherwise.
 2. Reset this module onto `{{BASE_BRANCH}}` and name the branch before edits:
    `git reset --hard {{BASE_BRANCH}}`
    `git checkout -B {{WORKTREE_BRANCH}}`
    Create the worktree under `{{MODULE_PATH}}/.worktrees/{{WORKTREE_BRANCH}}` when the orchestrator placed you there.
-3. Read workspace `AGENTS.md` — especially **Local dev tools (Nix)** and **Key hosts (vault & desk)** — then `{{MODULE_PATH}}/AGENTS.md` when it exists.
+3. Read workspace `AGENTS.md`, the roadmap task you were given in `MASTER-ROADMAP.md`, its SRS requirement rows, then `{{MODULE_PATH}}/AGENTS.md` when it exists.
 4. Do not edit `.cursor/skills/*/last-runs.json`. The parent records those files.
 5. Do not push. Never amend. Never skip hooks.
 6. On success, create one Conventional Commit scoped to this module only.
 
 ### Private Go modules (required before `go test` / `go mod tidy`)
 
-MuxCore modules import `github.com/Muxcore-Media/*` but fetch from Forgejo. **Use SSH, not HTTPS** — HTTPS triggers GUI login prompts in Cursor.
+All `github.com/Muxcore-Media/*` repositories are private and live only on GitHub.
 
 Before any Go command that may download modules, export:
 
@@ -22,19 +22,14 @@ Before any Go command that may download modules, export:
 export GOPRIVATE='github.com/Muxcore-Media/*'
 export GONOSUMDB='github.com/Muxcore-Media/*'
 export GIT_TERMINAL_PROMPT=0
+gh auth setup-git   # once per machine: HTTPS credentials for git and go
 ```
 
-Confirm the host git config (run once per machine if missing):
+Module `go.mod` files must not contain filesystem `replace` directives (ADR-0011). For cross-module changes, run `scripts/gen-go-work.sh` at the umbrella root and build inside the workspace.
 
-```bash
-git config --global url."ssh://forgejo@git.zem.systems:2222/muxcore/".insteadOf "https://github.com/Muxcore-Media/"
-```
+### Dev tools
 
-Do **not** set `insteadOf` to `https://git.zem.systems/...` on dev workstations. Umbrella checkouts already use `replace => ../…` for sibling modules — prefer those over `go mod tidy` when linting.
-
-### Dev tools (nix-shell)
-
-Dev machines have **Nix**. Do **not** assume `go`, `node`, `npm`, `golangci-lint`, or other tools are on PATH outside a shell. **Use `nix-shell` for every build, lint, format, and test command** you run.
+Use the toolchain the machine provides. On Nix workstations, do **not** assume `go`, `node`, `npm`, or `golangci-lint` are on PATH outside a shell — use `nix-shell`; on mise/system machines run them directly.
 
 Pre-warm `golangci-lint` once per machine before fan-out waves (`nix-shell -p go golangci-lint --run 'golangci-lint version'`). Parallel `nix-shell` downloads of the same package stall and time out.
 
@@ -70,7 +65,7 @@ Do not SSH to vault or desk unless the user asked for deploy, DNS, or infra work
 
 | Host | Use for |
 |------|---------|
-| **vault** (`ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95`) | MuxCore dev deployment — `muxcore-host.service`, `$MVP/bin/`, `./run-host.sh`, Forgejo CI |
+| **vault** (`ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:930d:f160:3e95`) | MuxCore dev deployment — `muxcore-host.service`, `$MVP/bin/`, `./run-host.sh` |
 | **desk** (`ssh -6 ender@fd2c:a2fd:5d9e:ab72:9d99:93b2:af65:48bb`) | DNS (`flarectl`) and Cloudflare Tunnel (`cloudflared`) for `*.zem.systems` |
 
-Full paths, deploy recipes, and `CF_API_TOKEN` setup: workspace `AGENTS.md` → **Key hosts (vault & desk)**.
+Full paths, deploy recipes, and `CF_API_TOKEN` setup: workspace `AGENTS.md` → **Owner reference deployment (vault & desk)**.

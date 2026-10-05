@@ -1,16 +1,16 @@
 # MuxCore agent skills shelf
 
-Cursor loads project skills from `.cursor/skills/`. MuxCore is an **umbrella repo**: one git root pins every Forgejo module as a **submodule** (gitlink). Clone with:
+Cursor loads project skills from `.cursor/skills/`. MuxCore is an **umbrella repo**: one git root pins every module (GitHub `Muxcore-Media/*`) as a **submodule** (gitlink). Clone with:
 
 ```bash
-git clone --recurse-submodules <umbrella-url> MuxCore
+git clone --recurse-submodules https://github.com/Muxcore-Media/umbrella.git MuxCore
 ```
 
 See [`README-UMBRELLA.md`](../../README-UMBRELLA.md) for bump/push workflow.
 
-Operational reference: workspace [`AGENTS.md`](../../AGENTS.md) — **Local dev tools (Nix)**, **Key hosts (vault & desk)** (SSH, deploy, DNS/cloudflared on desk).
+Start with workspace [`AGENTS.md`](../../AGENTS.md) and the canonical plan [`MASTER-ROADMAP.md`](../../MASTER-ROADMAP.md).
 
-Fan-out child agents read [app-fanout/templates/muxcore-agent-setup.md](app-fanout/templates/muxcore-agent-setup.md); run all build/lint/test commands inside `nix-shell`.
+Fan-out child agents read [app-fanout/templates/muxcore-agent-setup.md](app-fanout/templates/muxcore-agent-setup.md); use the toolchain the machine provides (Nix shell, mise, or system Go/Node).
 
 ## Fan-out orchestrators
 
@@ -53,7 +53,7 @@ node scripts/app-fanout.mjs plan --skill frontend-lint --app media-ui-app
 
 ## Retired on this shelf
 
-Mike Pattyn–specific skills were removed (portfolio scaffold, AWS draw.io CDK, Angular migration, S3 deploy workflows, umbrella-teach). They do not match the MuxCore Forgejo + Nix + vault deploy model.
+Mike Pattyn–specific skills were removed (portfolio scaffold, AWS draw.io CDK, Angular migration, S3 deploy workflows, umbrella-teach). They do not match the MuxCore deployment model.
 
 ## Parent orchestrator notes
 

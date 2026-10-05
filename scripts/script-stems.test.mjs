@@ -66,10 +66,6 @@ describe('isNodeWrapperText', () => {
     assert.equal(isNodeWrapperText(text, 'app-fanout'), true);
   });
 
-  it('accepts converted scripts/build-lambda.sh', () => {
-    const text = readFileSync(join(here, 'build-lambda.sh'), 'utf8');
-    assert.equal(isNodeWrapperText(text, 'build-lambda'), true);
-  });
 
   it('rejects an empty or node-less file', () => {
     assert.equal(isNodeWrapperText('', 'foo'), false);

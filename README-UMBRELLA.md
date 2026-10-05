@@ -4,7 +4,7 @@ This directory is the **umbrella repo**: one git root that pins every module as 
 
 ## Clone
 
-**GitHub (public mirror):**
+GitHub (`github.com/Muxcore-Media`) is the only origin ([ADR-0002](docs/adr/0002-github-sole-origin.md)). All repositories are private; authenticate once with `gh auth login` and `gh auth setup-git`.
 
 ```bash
 git clone --recurse-submodules https://github.com/Muxcore-Media/umbrella.git MuxCore
@@ -12,25 +12,30 @@ cd MuxCore
 git submodule update --init --recursive
 ```
 
-**Forgejo (homelab origin):**
-
-```bash
-git clone --recurse-submodules ssh://forgejo@git.zem.systems:2222/muxcore/umbrella.git MuxCore
-cd MuxCore
-git submodule update --init --recursive
-```
-
-`.gitmodules` uses `https://github.com/Muxcore-Media/*` URLs. On homelab workstations, `url.*.insteadOf` in git config (see [`AGENTS.md`](AGENTS.md)) rewrites those fetches to Forgejo over SSH.
+Start with [`AGENTS.md`](AGENTS.md) and the canonical plan [`MASTER-ROADMAP.md`](MASTER-ROADMAP.md).
 
 ## Layout
 
 | Path | Role |
 | ---- | ---- |
-| `AGENTS.md` | Homelab deploy + vault SSH reference |
+| `AGENTS.md` | Agent instructions (reading order, doc ownership, orchestration) + owner reference deployment |
+| `MASTER-ROADMAP.md` | Canonical plan: milestones, tasks, status, doc map |
+| `docs/specs/`, `docs/architecture/`, `docs/adr/` | Requirements (BRD/PRD/FRD/SRS), design (HLD/SDD/TDD/LLD), decisions |
+| `docs/history/` | Superseded plans and loop logs (read-only) |
 | `.cursor/skills/` | Agent skill shelf + fan-out orchestrators |
 | `scripts/app-fanout.mjs` | Quality planner (submodule-aware) |
 | `.gitmodules` | Module URLs (GitHub) + pinned SHAs |
 | `*/` (module dirs) | Submodule checkouts — each pushes to its own module repo |
+
+## Workspace builds (go.work)
+
+Module `go.mod` files require published tags only ([ADR-0011](docs/adr/0011-go-workspace-and-published-versions.md)). To build against local sibling checkouts, generate a workspace file (gitignored):
+
+```bash
+scripts/gen-go-work.sh
+```
+
+Hygiene checks used by CI: `scripts/check-docs.mjs`, `scripts/check-retired-origin.sh`, `scripts/check-no-replace.sh`, `scripts/check-submodules.sh`, `scripts/sync-ci.sh --check`. Module CI workflows are generated from `scripts/ci-templates/` by `scripts/sync-ci.sh`.
 
 ## Day to day
 
@@ -75,7 +80,7 @@ Planning uses the umbrella branch at root; file diffs run inside each submodule 
 node scripts/app-fanout.mjs plan --skill frontend-lint --app media-ui-app
 ```
 
-Regenerate module lists after adding Forgejo repos:
+Regenerate module lists after adding repositories:
 
 ```bash
 node scripts/generate-fanout-config.mjs

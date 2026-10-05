@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Convert the MuxCore workspace folder into an umbrella git repo with Forgejo
+ * Convert the MuxCore workspace folder into an umbrella git repo with GitHub
  * modules registered as submodules (gitlinks). Safe to re-run: skips if .git exists.
  */
 import { execFileSync } from 'node:child_process';
@@ -12,7 +12,7 @@ export const SKIP_DIRS = new Set([]);
 
 export const COMMIT_MESSAGE = `chore: initialize MuxCore umbrella workspace
 
-Register Forgejo module checkouts as submodules and track workspace
+Register module checkouts as submodules and track workspace
 tooling (.cursor/skills, scripts/app-fanout, AGENTS.md) at the root.`;
 
 export const OWNED_PATHS = [
@@ -58,7 +58,13 @@ export function discoverModules(
     if (skipDirs.has(dirent.name)) continue;
     const dir = join(root, dirent.name);
     if (!exists(join(dir, '.git'))) continue;
-    const url = gitRemote(dir);
+    let url;
+    try {
+      url = gitRemote(dir);
+    } catch {
+      continue; // not a usable git checkout (e.g. invalid gitfile)
+    }
+    if (!url) continue;
     modules.push({ path: dirent.name, url });
   }
   return modules.sort((a, b) => a.path.localeCompare(b.path));
@@ -165,7 +171,7 @@ export async function main(
   });
 
   log('Umbrella ready on branch main.');
-  log('Next: git remote add origin <forgejo-umbrella-url> && git push -u origin main');
+  log('Next: git remote add origin https://github.com/Muxcore-Media/umbrella.git && git push -u origin main');
   return 0;
 }
 

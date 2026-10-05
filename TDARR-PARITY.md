@@ -1,5 +1,7 @@
 # Tdarr → MuxCore (`media-transcoder`) parity
 
+> **Status note (2026-10-05).** Historical parity record for `media-transcoder` (SRS `FR-TRN-001`). Requirements and current status are owned by [`docs/specs/SRS.md`](docs/specs/SRS.md); this file is not updated further.
+
 **Goal:** `media-transcoder` (+ `admin-ui` `/transcode`) replaces Tdarr for library transcoding workflows.
 
 Legend: `[x]` shipped · `[~]` partial · `[ ]` missing · **Waiver** = MuxCore-native equivalent accepted

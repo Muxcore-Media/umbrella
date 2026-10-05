@@ -1,5 +1,7 @@
 # Tautulli / Tracearr → MuxCore parity
 
+> **Status note (2026-10-05).** Historical parity record for `playback-monitor`/`playback-guard` (SRS `FR-ANA-001`, `FR-ANA-002`). Requirements and current status are owned by [`docs/specs/SRS.md`](docs/specs/SRS.md); this file is not updated further.
+
 **Goal:** Replace Tautulli (Plex monitoring) and Tracearr (multi-server monitoring + sharing detection) with native MuxCore modules, bridges, and admin surfaces.
 
 Legend: `[x]` shipped · `[~]` partial · `[ ]` missing · **Waiver** = accepted MuxCore-native equivalent
