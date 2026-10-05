@@ -217,6 +217,7 @@ T-M8-01 iOS/tvOS simulator tests for auth + resume via manual macOS workflow (FR
 | ID | Item | Type | Effect | Response |
 |----|------|------|--------|----------|
 | B-1 | **Org Actions secret `MUXCORE_CI_TOKEN` missing in ~60 repos** (incl. umbrella, core, contracts-*) | Owner action | Their CI cannot fetch private sibling modules; umbrella workspace job skips | Owner creates a fine-grained PAT (read-only Contents on `Muxcore-Media/*`) and runs `gh secret set MUXCORE_CI_TOKEN --org Muxcore-Media --visibility all` (needs `admin:org`). Not done by the agent: it would mean copying the owner's broad OAuth token into many repos |
+| B-2 | **GitHub Actions minutes / billing exhausted** (2026-10-05: umbrella run 37348455715 — "job was not started because recent account payments have failed or your spending limit needs to be increased"); R-2 materialised after ~200 module releases in one day | Owner action | No GitHub CI evidence until resolved; all verification is local (§9) | Owner: fix billing or raise the Actions spending limit. Agents: keep local verification as evidence; consider path filters / tag-only release runs to cut minutes (NFR-COST-001) |
 | R-1 | GHCR needs `write:packages` | Blocker (external), partly lifted | M7 GHCR variant | Core's release workflow pushed `ghcr.io/muxcore-media/muxcored:{0.6.7,v0.6.7}` with the workflow `GITHUB_TOKEN` (2026-10-05), so GHCR publishing works from GitHub Actions; the agent's own token still lacks `read/write:packages`, and module images (built centrally by `_mvp/scripts/publish-module-images.sh`) need a workflow with `packages: write` (T-M7-02). LAN-registry path unaffected (ADR-0007) |
 | R-2 | Free-plan CI minutes | Risk | CI may stop gating | NFR-COST-001 measures; fallback in ADR-0003 |
 | R-3 | Four empty GitHub repos (content only on retired host) | Blocker resolved by decision | Lost history for `media-ui-tv`, `muxcore-android` | Removed from pins; `playback-contract` folded; `metadata-musicbrainz` rebuilt |
@@ -300,6 +301,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
    - **media-automation:** still ships the legacy `proto/automationv1` (same proto package as contracts-automation). Its remaining consumers (media-list-sync, media-movies, request-media) should move to contracts-automation.
 
 **Owner actions** (an agent can't do these):
+- B-2: GitHub Actions billing / spending limit (CI jobs are not starting at all).
 - B-1: org CI secret.
 - R-1: a GHCR `write:packages` token.
 - R-6: a physical Apple TV.
