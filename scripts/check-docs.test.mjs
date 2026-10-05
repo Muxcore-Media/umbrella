@@ -34,3 +34,14 @@ test("check reports broken links, anchors, unknown IDs and ADRs", () => {
   const errors = check(root);
   assert.equal(errors.length, 4, errors.join("\n"));
 });
+
+test("check skips links into submodules that are not checked out", () => {
+  const root = mkdtempSync(join(tmpdir(), "check-docs-sub-"));
+  mkdirSync(join(root, "docs/specs"), { recursive: true });
+  writeFileSync(join(root, "docs/specs/SRS.md"), "# SRS\n");
+  writeFileSync(join(root, ".gitmodules"), '[submodule "mod"]\n\tpath = mod\n\turl = x\n');
+  mkdirSync(join(root, "mod"));
+  writeFileSync(join(root, "README.md"), "[a](mod/README.md) [b](missing.md)\n");
+  const errors = check(root);
+  assert.deepEqual(errors, ["README.md: broken link missing.md"]);
+});
