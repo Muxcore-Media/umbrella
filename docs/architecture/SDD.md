@@ -87,7 +87,7 @@ Browser → app session (auth-local code exchange) → app forwards the auth-loc
 | Requirement group | Design elements | Remaining design work |
 |-------------------|-----------------|-----------------------|
 | FR-INS-* | Household manifest as single module list; env-first config; compose + run-host share the manifest | Remove phantom compose include; single version train ([ADR-0011](../adr/0011-go-workspace-and-published-versions.md), [ADR-0007](../adr/0007-install-paths-github-only.md)) |
-| FR-AUTH-* | Pluggable `auth`/`authorizer`/`identity` capabilities; role policy file; code-exchange sessions | Capability-aware admin-ui (FR-AUTH-009); profiles (FR-AUTH-010) as BFF + userdata feature |
+| FR-AUTH-* | Pluggable `auth`/`authorizer`/`identity` capabilities; role policy file; code-exchange sessions | Capability-aware admin-ui (FR-AUTH-009). Viewer profiles are userdata documents ([ADR-0024](../adr/0024-viewer-profiles-in-userdata.md)); profile delete is still open |
 | FR-REQ-* | `request-media` state machine + events + quotas | Library-plus request routing (FR-REQ-006) |
 | FR-ACQ-* | `media-automation` orchestrates via contracts; scorer is a separate capability; fixture guard | Quality-tier cutoff; downloader contract unification |
 | FR-LIB-* | Scanner as the single import path; rename as a service | Library-plus imports through scanner (FR-MM-004) |
