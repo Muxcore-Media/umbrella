@@ -1,0 +1,11 @@
+# Justified hits for scripts/check-default-creds.sh.
+# Format: <path-glob>:<ERE matched case-insensitively against the line>  # reason
+# Keep entries narrow (one path, one pattern). Do not allowlist shipped config.
+.cursor/skills/cloudflare/references/flagship/api.md:API_TOKEN:-\(not set\)  # display fallback in an echo, not a credential
+docs/specs/FRD.md:admin-dev-only  # describes the defect this check enforces against (FRD WF-INS first-admin text)
+docs/specs/SRS.md:admin-dev-only  # FR-INS-004 evidence column names the literal being removed
+_mvp/CHANGELOG.md:admin-dev-only  # release note documenting the removal of the default
+muxcore-installer/AGENTS.md:admin-dev-only  # agent rule that forbids defaulting to the removed literal
+muxcore-installer/internal/wizard/state.go:admin-dev-only  # rejects the removed literal if a stale .env/env supplies it
+_mvp/scripts/admin-secret_test.sh:admin-dev-only  # test asserts the generator never emits the removed literal
+MASTER-ROADMAP.md:no `admin-dev-only`/`household-monitor`/`minioadmin` defaults  # T-M3-01 status row names the removed literals
