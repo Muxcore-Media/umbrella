@@ -667,7 +667,7 @@ Variables read by active modules that are not described in the sections above. M
 | `SUBTITLES_HTTP_URL` | _mvp | `http://127.0.0.1:9521` | HTTP base URL of the module. |
 | `TAGGING_HTTP_URL` | _mvp | `http://127.0.0.1:9741` | HTTP base URL of the module. |
 | `TORZNAB_URL` | _mvp, indexer-torznab | — | Torznab url. |
-| `TRANSCODER_HTTP_URL` | _mvp | `http://127.0.0.1:9526` | HTTP base URL of the module. |
+| `TRANSCODER_HTTP_URL` | _mvp | `http://127.0.0.1:9526` | media-transcoder playback base URL. Dev and run-host stay `http://127.0.0.1:9526`. Household compose sets `https://media-transcoder:9526`; the BFF then presents its mesh client certificate. |
 | `TVSHOWS_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9440` | gRPC address the BFF dials for this module. |
 | `TVSHOWS_HTTP_URL` | _mvp | `http://127.0.0.1:9450` | HTTP base URL of the module. |
 | `WG_CONF` | _mvp, downloader-native-torrent, indexer-piratebay, indexer-torznab | — | Wg conf. |
