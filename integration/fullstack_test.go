@@ -9,13 +9,13 @@ import (
 	"testing"
 	"time"
 
-	mgmntv1 "github.com/Muxcore-Media/media-movies/proto/mgmntv1"
+	coreinteg "github.com/Muxcore-Media/core/integsupport"
 	moviesinteg "github.com/Muxcore-Media/media-movies/integsupport"
-	transcodev1 "github.com/Muxcore-Media/media-transcoder/proto/transcodev1"
+	mgmntv1 "github.com/Muxcore-Media/media-movies/proto/mgmntv1"
 	transcoderinteg "github.com/Muxcore-Media/media-transcoder/integsupport"
+	transcodev1 "github.com/Muxcore-Media/media-transcoder/proto/transcodev1"
 	monitorinteg "github.com/Muxcore-Media/playback-monitor/integsupport"
 	monitorv1 "github.com/Muxcore-Media/playback-monitor/proto/monitorv1"
-	coreinteg "github.com/Muxcore-Media/core/integsupport"
 )
 
 // FullStack wires core + movies + transcoder + monitor for cross-module tests.
@@ -34,16 +34,19 @@ func NewFullStack(t *testing.T) *FullStack {
 	t.Setenv("MUXCORE_INSECURE_DISABLE_TLS", "true")
 
 	movies := moviesinteg.NewTestModule(t, moviesinteg.Config{})
-	transcoder := transcoderinteg.NewTestModule(t, transcoderinteg.Config{})
+	transcoder := transcoderinteg.NewTestModule(t, transcoderConfig(t))
 	monitor := monitorinteg.NewTestModule(t, monitorinteg.Config{})
 
 	ctx := context.Background()
+	t.Setenv("MUXCORE_MODULE_ID", "media-movies")
 	if err := moviesinteg.Start(ctx, movies); err != nil {
 		t.Fatalf("start movies: %v", err)
 	}
+	t.Setenv("MUXCORE_MODULE_ID", "media-transcoder")
 	if err := transcoderinteg.Start(ctx, transcoder); err != nil {
 		t.Fatalf("start transcoder: %v", err)
 	}
+	t.Setenv("MUXCORE_MODULE_ID", "playback-monitor")
 	if err := monitorinteg.Start(ctx, monitor); err != nil {
 		t.Fatalf("start monitor: %v", err)
 	}
@@ -109,19 +112,7 @@ func TestFullStack_MovieTranscodePlayback(t *testing.T) {
 	}
 
 	// 4. Wait for transcoder to pick up the pipeline run.
-	var pipelineFound bool
-	deadline := time.Now().Add(5 * time.Second)
-	for time.Now().Before(deadline) {
-		runs, listErr := stack.Transcoder.ListPipelineRuns(ctx, &transcodev1.ListPipelineRunsRequest{Page: 1, PageSize: 10})
-		if listErr == nil && runs.GetTotal() > 0 {
-			pipelineFound = true
-			break
-		}
-		time.Sleep(100 * time.Millisecond)
-	}
-	if !pipelineFound {
-		t.Fatal("expected pipeline run after movie file added")
-	}
+	waitForPipelineRun(t, stack.Transcoder)
 
 	// 5. Simulate playback via monitor.
 	_, created, err := monitorinteg.IngestSession(ctx, stack.Monitor, monitorinteg.SessionEvent{

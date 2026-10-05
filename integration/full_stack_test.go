@@ -6,10 +6,10 @@ import (
 	"context"
 	"testing"
 
+	coreinteg "github.com/Muxcore-Media/core/integsupport"
 	moviesinteg "github.com/Muxcore-Media/media-movies/integsupport"
 	transcoderinteg "github.com/Muxcore-Media/media-transcoder/integsupport"
 	monitorinteg "github.com/Muxcore-Media/playback-monitor/integsupport"
-	coreinteg "github.com/Muxcore-Media/core/integsupport"
 )
 
 func TestFullStack_AllModulesInit(t *testing.T) {
@@ -37,9 +37,9 @@ func TestFullStack_ModuleIndependence(t *testing.T) {
 		t.Fatalf("movies health: %v", err)
 	}
 
-	tr := transcoderinteg.NewTestModule(t, transcoderinteg.Config{})
+	tr := transcoderinteg.NewTestModule(t, transcoderConfig(t))
 	if err := tr.Health(ctx); err != nil {
-		t.Logf("transcoder health: %v (ffmpeg may not be installed)", err)
+		t.Fatalf("transcoder health: %v", err)
 	}
 
 	mon := monitorinteg.NewTestModule(t, monitorinteg.Config{})

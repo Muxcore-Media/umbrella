@@ -6,17 +6,16 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
-	transcodev1 "github.com/Muxcore-Media/media-transcoder/proto/transcodev1"
 	transcoderinteg "github.com/Muxcore-Media/media-transcoder/integsupport"
+	transcodev1 "github.com/Muxcore-Media/media-transcoder/proto/transcodev1"
 )
 
 func TestMediaTranscoder_EnqueueListCancel(t *testing.T) {
 	ctx := context.Background()
-	m := transcoderinteg.NewTestModule(t, transcoderinteg.Config{})
+	m := transcoderinteg.NewTestModule(t, transcoderConfig(t))
 
 	dir := t.TempDir()
 	input := filepath.Join(dir, "input.mkv")
@@ -55,7 +54,7 @@ func TestMediaTranscoder_EnqueueListCancel(t *testing.T) {
 
 func TestMediaTranscoder_JobListOrdering(t *testing.T) {
 	ctx := context.Background()
-	m := transcoderinteg.NewTestModule(t, transcoderinteg.Config{})
+	m := transcoderinteg.NewTestModule(t, transcoderConfig(t))
 
 	dir := t.TempDir()
 	var ids []string
@@ -84,17 +83,29 @@ func TestMediaTranscoder_JobListOrdering(t *testing.T) {
 	if list.GetTotal() < 3 {
 		t.Fatalf("expected at least 3 jobs, got %d", list.GetTotal())
 	}
-	// ListJobs orders by created_at DESC — newest job should appear first.
-	if list.GetJobs()[0].GetId() != ids[len(ids)-1] {
-		t.Fatalf("expected newest job first, got %s want %s", list.GetJobs()[0].GetId(), ids[len(ids)-1])
+	// ListJobs orders by created_at DESC, stored with one-second (RFC3339) resolution,
+	// so jobs enqueued within the same second have no defined relative order. Assert
+	// the published contract: every enqueued job is listed and created_at never increases.
+	seen := map[string]bool{}
+	prev := ""
+	for _, j := range list.GetJobs() {
+		seen[j.GetId()] = true
+		if prev != "" && j.GetCreatedAt() > prev {
+			t.Fatalf("jobs not ordered by created_at DESC: %s after %s", j.GetCreatedAt(), prev)
+		}
+		prev = j.GetCreatedAt()
+	}
+	for _, id := range ids {
+		if !seen[id] {
+			t.Fatalf("enqueued job %s missing from list", id)
+		}
 	}
 }
 
 func TestMediaTranscoder_Health(t *testing.T) {
 	ctx := context.Background()
-	m := transcoderinteg.NewTestModule(t, transcoderinteg.Config{})
-	err := m.Health(ctx)
-	if err != nil && !strings.Contains(err.Error(), "ffmpeg") {
-		t.Fatalf("unexpected health error: %v", err)
+	m := transcoderinteg.NewTestModule(t, transcoderConfig(t))
+	if err := m.Health(ctx); err != nil {
+		t.Fatalf("health: %v", err)
 	}
 }

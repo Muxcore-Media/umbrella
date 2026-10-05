@@ -6,8 +6,8 @@ import (
 	"context"
 	"testing"
 
-	monitorv1 "github.com/Muxcore-Media/playback-monitor/proto/monitorv1"
 	monitorinteg "github.com/Muxcore-Media/playback-monitor/integsupport"
+	monitorv1 "github.com/Muxcore-Media/playback-monitor/proto/monitorv1"
 )
 
 func seedStoppedPlayback(t *testing.T, m *monitorinteg.Module, ctx context.Context, ev monitorinteg.SessionEvent) {
@@ -72,13 +72,15 @@ func TestPlaybackMonitor_SessionIngestAndHistory(t *testing.T) {
 	}
 }
 
-func TestPlaybackMonitor_AnalyticsRollupAndAnomalies(t *testing.T) {
+// TestPlaybackMonitor_LiveAnalytics targets the published contract: analytics are
+// computed live from ingested sessions (no rollup refresh or anomaly detection API).
+func TestPlaybackMonitor_LiveAnalytics(t *testing.T) {
 	ctx := context.Background()
 	m := monitorinteg.NewTestModule(t, monitorinteg.Config{})
 
 	seedStoppedPlayback(t, m, ctx, monitorinteg.SessionEvent{
 		ServerID:          "srv-integ",
-		ExternalSessionID: "rollup-1",
+		ExternalSessionID: "live-1",
 		UserID:            "alice",
 		UserName:          "Alice",
 		ItemID:            "item-a",
@@ -88,8 +90,20 @@ func TestPlaybackMonitor_AnalyticsRollupAndAnomalies(t *testing.T) {
 		PositionSeconds:   3600,
 	})
 
-	if err := monitorinteg.RefreshAnalyticsRollups(ctx, m, 1); err != nil {
-		t.Fatalf("refresh rollups: %v", err)
+	history, err := m.ListHistory(ctx, &monitorv1.ListHistoryRequest{Limit: 10})
+	if err != nil {
+		t.Fatalf("list history: %v", err)
+	}
+	if history.GetTotal() < 1 {
+		t.Fatal("expected ingested session in history")
+	}
+
+	stats, err := m.GetHomeStats(ctx, &monitorv1.GetHomeStatsRequest{Days: 7})
+	if err != nil {
+		t.Fatalf("home stats: %v", err)
+	}
+	if len(stats.GetStats()) == 0 {
+		t.Fatal("expected home stats to reflect ingested session")
 	}
 
 	analytics, err := m.GetStreamAnalytics(ctx, &monitorv1.GetStreamAnalyticsRequest{Days: 7})
@@ -98,29 +112,6 @@ func TestPlaybackMonitor_AnalyticsRollupAndAnomalies(t *testing.T) {
 	}
 	if len(analytics.GetPlatforms()) == 0 && len(analytics.GetTranscodes()) == 0 {
 		t.Fatal("expected stream analytics breakdown rows")
-	}
-
-	seedStoppedPlayback(t, m, ctx, monitorinteg.SessionEvent{
-		ServerID:          "srv-integ",
-		ExternalSessionID: "anomaly-long",
-		UserID:            "binger",
-		UserName:          "Binger",
-		ItemID:            "item-long",
-		Title:             "Long Movie",
-		PositionSeconds:   4 * 3600,
-	})
-	types, err := monitorinteg.DetectViewingAnomalies(ctx, m, 7, 10)
-	if err != nil {
-		t.Fatalf("detect anomalies: %v", err)
-	}
-	found := false
-	for _, typ := range types {
-		if typ == "long_session" {
-			found = true
-		}
-	}
-	if !found {
-		t.Fatalf("expected long_session anomaly, got %v", types)
 	}
 }
 

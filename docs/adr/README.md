@@ -27,3 +27,4 @@
 | [0009](0009-per-module-data-ownership.md) | Per-module data ownership (SQLite per module) | Accepted | Historical |
 | [0010](0010-bff-direct-module-access.md) | BFF dials modules directly instead of via `ModuleMesh` | Accepted | Historical |
 | [0011](0011-go-workspace-and-published-versions.md) | Published versions in `go.mod`, umbrella `go.work` for local dev; core v0.6.0 | Accepted | Delegated (2026-10-05) |
+| [0012](0012-reproducible-module-builds-for-spool-checksums.md) | Reproducible module builds for spool checksums | Accepted | Delegated (2026-10-05) |

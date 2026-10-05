@@ -8,11 +8,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	mgmntv1 "github.com/Muxcore-Media/media-movies/proto/mgmntv1"
 	moviesinteg "github.com/Muxcore-Media/media-movies/integsupport"
+	mgmntv1 "github.com/Muxcore-Media/media-movies/proto/mgmntv1"
 )
 
-func TestMediaMovies_CRUDAndViewState(t *testing.T) {
+// TestMediaMovies_CRUDAndFiles targets the published media-movies contract: CRUD,
+// files and history. View state is owned by userdata-local, not media-movies.
+func TestMediaMovies_CRUDAndFiles(t *testing.T) {
 	ctx := context.Background()
 	m := moviesinteg.NewTestModule(t, moviesinteg.Config{})
 
@@ -47,25 +49,6 @@ func TestMediaMovies_CRUDAndViewState(t *testing.T) {
 		t.Fatalf("update movie: %v", err)
 	}
 
-	_, err = m.SetViewState(ctx, &mgmntv1.SetViewStateRequest{
-		UserId:  "user-1",
-		MovieId: add.GetMovieId(),
-		Watched: true,
-	})
-	if err != nil {
-		t.Fatalf("set view state: %v", err)
-	}
-	vs, err := m.GetViewState(ctx, &mgmntv1.GetViewStateRequest{
-		UserId:  "user-1",
-		MovieId: add.GetMovieId(),
-	})
-	if err != nil {
-		t.Fatalf("get view state: %v", err)
-	}
-	if !vs.GetState().GetWatched() {
-		t.Fatal("expected watched=true")
-	}
-
 	dir := t.TempDir()
 	mediaFile := filepath.Join(dir, "fight-club.mkv")
 	if err := os.WriteFile(mediaFile, []byte("fake-mkv"), 0o600); err != nil {
@@ -97,15 +80,14 @@ func TestMediaMovies_CRUDAndViewState(t *testing.T) {
 	}
 }
 
-func TestMediaMovies_BatchRefreshValidation(t *testing.T) {
+// TestMediaMovies_RefreshMetadataValidation targets the published contract: there is
+// no batch refresh RPC, so assert RefreshMetadata rejects a request without a movie id.
+func TestMediaMovies_RefreshMetadataValidation(t *testing.T) {
 	ctx := context.Background()
 	m := moviesinteg.NewTestModule(t, moviesinteg.Config{})
 
-	_, err := m.BatchRefreshMetadata(ctx, &mgmntv1.BatchRefreshMetadataRequest{
-		MovieIds: make([]string, 101),
-	})
-	if err == nil {
-		t.Fatal("expected batch size validation error")
+	if _, err := m.RefreshMetadata(ctx, &mgmntv1.RefreshMetadataRequest{}); err == nil {
+		t.Fatal("expected validation error for empty movie id")
 	}
 }
 
