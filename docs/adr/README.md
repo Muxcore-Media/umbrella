@@ -31,3 +31,7 @@
 | [0013](0013-backup-coverage-model.md) | Backup coverage model for the household install | Accepted | Delegated (2026-10-05) |
 | [0014](0014-end-to-end-gate-placement.md) | Placement of the end-to-end release gate | Accepted | Delegated (2026-10-05) |
 | [0015](0015-upgrade-compatibility-window.md) | Upgrade compatibility window and schema fixtures | Accepted | Delegated (2026-10-05) |
+| [0016](0016-security-profiles.md) | Security profiles (`dev` / `household`) | Accepted | Delegated (2026-10-05) |
+| [0017](0017-mesh-module-identity.md) | Mesh module identity and enrollment | Accepted | Delegated (2026-10-05) |
+| [0018](0018-authenticated-registration.md) | Authenticated registration and exclusive security capabilities | Accepted | Delegated (2026-10-05) |
+| [0019](0019-end-user-identity-propagation.md) | End-user identity propagation | Accepted | Delegated (2026-10-05) |

@@ -5,3 +5,4 @@ FIXTURE_MEDIA_SEED  # test-fixture media seed for fixture-only downloaders (ADR-
 QBIT_FIXTURE_MEDIA_SEED  # legacy alias of FIXTURE_MEDIA_SEED, test fixtures only
 SMOKE_CMD_ROOT  # internal path override used by _mvp/scripts/lib/smoke-cmd.sh in the script test harness
 MUXCORE_LAB_BIN  # developer-lab binary directory for muxcore-installer smoke fixtures (smoke-fixture.sh)
+XDG_STATE_HOME  # standard XDG base-directory variable (OS-provided), not MuxCore configuration
