@@ -141,7 +141,7 @@
 | FR-BAK-001 | Scheduled archives with checksum and retention shall be created of configured state. | M | Impl — `backup-local` | E: backup-local tests | — |
 | FR-BAK-002 | Every stateful module in the household manifest shall be covered by backup (via `ExportState` or a declared data directory). | M | Impl — manifest `state:` model + `check-state-coverage.sh` in mvp CI (ADR-0013); drill restores 18 modules | P: manifest-driven coverage check | M2 |
 | FR-BAK-003 | Restore shall only target an allow-listed restore directory from every UI/API (RULE-VAL-1). | M | Impl — admin-ui v0.1.15 (`handler/restore_path_test.go`) | P: admin-ui handler test | M3 |
-| FR-BAK-004 | A restore drill (backup → fresh install → restore → smoke) shall be documented and automated on fixtures. | M | Impl (host mode) — `_mvp/scripts/restore-drill.sh` + `docs/RESTORE.md`; drill passed 2026-10-05; compose mode and CI (T-M2-10) pending B-1 | P: drill script in CI | M2 |
+| FR-BAK-004 | A restore drill (backup → fresh install → restore → smoke) shall be documented and automated on fixtures. | M | Impl — `_mvp/scripts/restore-drill.sh` + `docs/RESTORE.md`; host mode passed 2026-10-05; compose mode passed 2026-10-05 in `scripts/clean-room.sh --restore-drill` (16 modules restored); CI run (T-M2-10) pending B-1 | P: drill script in CI | M2 |
 
 ### 1.11 Extensibility — CAP-12
 
@@ -207,7 +207,7 @@ No performance requirement has been approved by the owner. The following are **[
 |----|--------|-----|--------|--------|----|
 | NFR-PERF-001 | BFF library list APIs respond in < 500 ms p95 at 20 k items on the reference host. | C | Unmeasured | P: benchmark with fixture library | D |
 | NFR-PERF-002 | Core mesh call overhead < 5 ms p95 on loopback. | C | Unmeasured — benchmarks exist (`#17`) | E: core benchmark suite | D |
-| NFR-PERF-003 | A full stack (household manifest) runs within 2 GiB RAM idle. | C | Unmeasured | P: smoke measures RSS | M2 |
+| NFR-PERF-003 | A full stack (household manifest) runs within 2 GiB RAM idle. | C | Part — measured 2026-10-05 by `scripts/clean-room.sh`: 469.9 MiB summed process RSS over 27 containers (required + recommended set, fixture acquisition peers, backup-local), idle 20 s after smoke; report-only by default (`--enforce-rss`) | P: clean-room RSS step (`--enforce-rss` in `.github/workflows/clean-room.yml`) | M2 |
 
 ### 2.4 Operability and observability — NFR-OPS
 
