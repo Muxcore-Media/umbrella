@@ -1,9 +1,13 @@
-# MuxCore public household install.
+# MuxCore household install (registry compose, ADR-0007).
 # Run from repository root:
 #   docker compose up -d
 #
+# Images come from ${MUXCORE_REGISTRY} (default LAN registry localhost:5000/muxcore,
+# see _mvp/local-registry.sh; ghcr.io/muxcore-media once images are published there)
+# at ${MUXCORE_IMAGE_TAG}. Step-by-step: _mvp/docs/PUBLIC-INSTALL.md.
+#
 # Equivalent:
-#   docker compose -f _mvp/docker-compose.public.yml up -d
+#   docker compose -f _mvp/docker-compose.registry.yml up -d
 
 include:
-  - path: _mvp/docker-compose.public.yml
+  - path: _mvp/docker-compose.registry.yml

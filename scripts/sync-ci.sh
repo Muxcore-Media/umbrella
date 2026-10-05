@@ -11,7 +11,7 @@ export MUXCORE_ROOT="$ROOT"
 # shellcheck source=module-sets.sh
 source "$ROOT/scripts/module-sets.sh"
 TPL="$ROOT/scripts/ci-templates"
-SKIP=(core media-tvos-app muxcore-ios muxcore-docs muxcore-module-starter core.wiki spool branding)
+SKIP=(core media-tvos-app muxcore-ios muxcore-docs muxcore-module-starter core.wiki spool)
 
 check=0
 if [[ "${1:-}" == "--check" ]]; then check=1; shift; fi
