@@ -112,7 +112,7 @@
 | FR-ADM-007 | admin-ui shall manage module settings generically via the `settings` capability. | M | Impl — `/settings` | E: tests; `docs/SETTINGS-COVERAGE.md` | — |
 | FR-ADM-008 | admin-ui shall provide a transcoder queue and profile management page (issue #121). | S | Part — `/transcode` profiles/review; pool profile RPCs `Unimplemented` | P: handler tests; pool RPC tests | M5 |
 | FR-ADM-009 | admin-ui authorisation shall be per page/action by permission so `manager` can use request and library pages. | S | Plan | P: handler table test per role | M5 |
-| FR-ADM-010 | Operator-only settings shall live in admin-ui; the consumer Settings page shall contain only personal settings. | S | Part — backups, users, invites, API keys, libraries, Arr import, tags, naming, and lists removed from consumer Settings; quality, delay, maintainer, and guard still render for admins | E: `Settings.test.tsx` absence checks | M4 |
+| FR-ADM-010 | Operator-only settings shall live in admin-ui; the consumer Settings page shall contain only personal settings. | S | Part — backups, users, invites, API keys, libraries, Arr import, tags, naming, lists, and quality removed from consumer Settings; delay, maintainer, and guard still render for admins | E: `Settings.test.tsx` absence checks | M4 |
 | FR-ADM-011 | admin-ui shall show logs from module log files and the event ring. | S | Part — file tail viewer | E: tests | — |
 
 ### 1.8 Multi-media — CAP-08
