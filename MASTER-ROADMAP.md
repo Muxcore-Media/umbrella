@@ -285,6 +285,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | `_mvp/scripts/run-script-tests.sh` (incl. new `check-compose-grpc-binds_test.sh`, `check-smoke-protoset_test.sh`), `~/.muxcore-orch/verify.sh _mvp`, shellcheck of the new scripts | Green |
 | 2026-10-05 | `_mvp/scripts/check-confine-env_test.sh`; `bash -n run-host.sh`; `yq` parse of `docker-compose.registry.yml` | OK. `check-compose-security_test.sh` did not run here: this host's `yq`/`jq` reject `-o=json` |
 | 2026-10-05 | `_mvp` `66a1118`: `go test ./cmd/mediauiprox/` (Go 1.26.6) and `scripts/check-confine-env_test.sh` | Pass. BFF transcoder HTTPS uses the mesh client cert; `playbackSourceURL` accepts only `/stream/movies/` and `/stream/tv/`; arr migrate uses netguard Integration; list-sync, indexer writes, arr migrate, and root creation are admin-only. Clean-room drill not run (no podman; B-1/B-2 still block CI) |
+| 2026-10-05 | admin-ui `e80fd24`: `go test ./arrmigrate/ ./handler/` (Go 1.26.6) | Pass. Arr migrate uses the same netguard Integration policy as the BFF |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -311,7 +312,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
    - List-sync, indexer create/update/delete, arr migrate, and root creation require `admin`. Manager stays allowed on the other privileged routes, including root browse.
    - **Blocked here:** `scripts/clean-room.sh --restore-drill` (household and `--dev`) needs rootless podman plus docker-compose, and GitHub CI still needs B-1 and B-2. Do not cut train 2026.10.4 until that drill passes.
 2. **Remaining audit rows:**
-   - SSRF: jellyfin, plex, emby, metadata-tmdb, ai-runtime, auth-oidc, media-library-maintainer, indexer-torznab, indexer-piratebay, downloader-native-usenet, admin-ui arr migrate, core spool fetcher.
+   - SSRF: jellyfin, plex, emby, metadata-tmdb, ai-runtime, auth-oidc, media-library-maintainer, indexer-torznab, indexer-piratebay, downloader-native-usenet, core spool fetcher. admin-ui arr migrate is guarded (`e80fd24`, same Integration policy as the BFF).
    - Paths: backup-local, media-books, media-comics, media-audiobooks, media-music, media-ffprobe, media-custom-formats, library-maintainer move path.
    - Then close M3 (SM-4 = 100 % of Must NFR-SEC rows).
 3. **Follow-ups:**
