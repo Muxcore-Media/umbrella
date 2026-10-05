@@ -1,6 +1,6 @@
 # Umbrella safe-pin freeze
 
-Freeze recorded **2026-10-05** (`2026-10-05T06:39:43Z` UTC). Every **active** submodule
+Freeze recorded **2026-10-05** (`2026-10-05T07:01:35Z` UTC). Every **active** submodule
 gitlink points at the default-branch tip at freeze time. Rename twins
 (`media-ui`, `media-jellyfin`, `muxcorectl`), the archived dumps (`cache-memory`,
 `custom-scripts`) and the historical `_wave1` are intentionally not bumped (listed as
@@ -37,7 +37,7 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 | `contracts-playback` | Muxcore-Media/contracts-playback | `af33cd4c9b9505aeb808c68fd0bd328e2160fab3` | `main` |
 | `contracts-reconciler` | Muxcore-Media/contracts-reconciler | `d53d4bfaef08b69fea96f5433fb0959c2d5731af` | `main` |
 | `contracts-scanner` | Muxcore-Media/contracts-scanner | `b92e5f7321026d0ff7515259c2f2bbc1c161d083` | `main` |
-| `core` | Muxcore-Media/core | `609f4133309a2c33c9ee1042e9c96b5426dfa71e` | `master` |
+| `core` | Muxcore-Media/core | `8a19e1d3a8cd33c4c7ec4b7a77eee33983acbdf5` | `master` |
 | `core.wiki` | Muxcore-Media/core.wiki | `4a9e703e8b00805368ae692303383bb2bb2040c3` | *(unchanged — empty or missing branch)* |
 | `custom-scripts` | Muxcore-Media/custom-scripts | `7b8e65c71f3401d35a9d93a17202a2e37f21af0f` | *(frozen twin — not bumped)* |
 | `database-postgres` | Muxcore-Media/database-postgres | `f8d35af82c41dde248ea3e589f6342442785da79` | `main` |
@@ -90,11 +90,11 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 | `muxcorectl` | Muxcore-Media/muxcorectl-cli | `6f73e87ea108a69ad2c8cbfcb916828d0e7030a7` | *(frozen twin — not bumped)* |
 | `muxcorectl-cli` | Muxcore-Media/muxcorectl-cli | `e2ef66f7284984cbcd0258f486238301a0e017fd` | `main` |
 | `muxcore-docs` | Muxcore-Media/muxcore-docs | `f40a935b17936db434422564a57e991b7d7f6b2d` | `main` |
-| `muxcore-installer` | Muxcore-Media/muxcore-installer | `fa153a88035130fb3fa11f67ba3c9a60d56b16ac` | `main` |
+| `muxcore-installer` | Muxcore-Media/muxcore-installer | `1d1ece51d04620cd00c27aafff2b48e790098076` | `main` |
 | `muxcore-ios` | Muxcore-Media/muxcore-ios | `830d14d4c373341a10c22fbe143b457dbb8ea35e` | `main` |
-| `muxcore-module-starter` | Muxcore-Media/muxcore-module-starter | `5d702c142384abe27c28a6310ba3f004e0c98cc1` | `main` |
-| `muxcore-operator` | Muxcore-Media/muxcore-operator | `2ab0768e38ad0de3c330cdc3c532eed102363303` | `main` |
-| `_mvp` | Muxcore-Media/mvp | `900977ce767230a3bb9ec7c447b98dd847c08a12` | `main` |
+| `muxcore-module-starter` | Muxcore-Media/muxcore-module-starter | `0c1821a0de0264e83bd064ade3de887a2ebcab17` | `main` |
+| `muxcore-operator` | Muxcore-Media/muxcore-operator | `68324eb504e4b6b24e1dd537609e1cc28e025d63` | `main` |
+| `_mvp` | Muxcore-Media/mvp | `409afe542bd6c299254176f01ff525aca69efb9f` | `main` |
 | `notification-apprise` | Muxcore-Media/notification-apprise | `7e5c0e894b361d5e7737341302f2dc52b72441cd` | `main` |
 | `notification-default` | Muxcore-Media/notification-default | `e9e75a605ec01a3e283bf1d2418921b41536177a` | `master` |
 | `playback-guard` | Muxcore-Media/playback-guard | `b0970f7214a0022f5f83595d8d426ab4100c0e63` | `main` |
@@ -120,7 +120,7 @@ gitlink points at the default-branch tip at freeze time. Rename twins
 
 ## Summary
 
-- Bumped: 6
-- Unchanged (already at tip): 96
+- Bumped: 5
+- Unchanged (already at tip): 97
 - Skipped (rename twins): 6
 - Failed / kept prior pin: 1
