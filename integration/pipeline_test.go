@@ -8,12 +8,11 @@ import (
 	"path/filepath"
 	"sync"
 	"testing"
-	"time"
 
 	mgmntv1 "github.com/Muxcore-Media/media-movies/proto/mgmntv1"
+	transcodev1 "github.com/Muxcore-Media/media-transcoder/proto/transcodev1"
 	monitorinteg "github.com/Muxcore-Media/playback-monitor/integsupport"
 	monitorv1 "github.com/Muxcore-Media/playback-monitor/proto/monitorv1"
-	transcodev1 "github.com/Muxcore-Media/media-transcoder/proto/transcodev1"
 )
 
 func TestPipeline_MovieFileTranscodePlayback(t *testing.T) {
@@ -60,19 +59,7 @@ func TestPipeline_MovieFileTranscodePlayback(t *testing.T) {
 		t.Fatalf("add file: %v", err)
 	}
 
-	var pipelineFound bool
-	deadline := time.Now().Add(5 * time.Second)
-	for time.Now().Before(deadline) {
-		runs, listErr := stack.Transcoder.ListPipelineRuns(ctx, &transcodev1.ListPipelineRunsRequest{Page: 1, PageSize: 10})
-		if listErr == nil && runs.GetTotal() > 0 {
-			pipelineFound = true
-			break
-		}
-		time.Sleep(100 * time.Millisecond)
-	}
-	if !pipelineFound {
-		t.Fatal("expected pipeline run after movie file added event")
-	}
+	waitForPipelineRun(t, stack.Transcoder)
 
 	jobs, err := stack.Transcoder.ListJobs(ctx, &transcodev1.ListJobsRequest{Page: 1, PageSize: 10})
 	if err != nil {

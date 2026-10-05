@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	backupv1 "github.com/Muxcore-Media/backup-local/muxcore/backup/v1"
 	backupinteg "github.com/Muxcore-Media/backup-local/integsupport"
+	backupv1 "github.com/Muxcore-Media/backup-local/muxcore/backup/v1"
 	moviesinteg "github.com/Muxcore-Media/media-movies/integsupport"
 	mgmntv1 "github.com/Muxcore-Media/media-movies/proto/mgmntv1"
 )
