@@ -28,3 +28,6 @@
 | [0010](0010-bff-direct-module-access.md) | BFF dials modules directly instead of via `ModuleMesh` | Accepted | Historical |
 | [0011](0011-go-workspace-and-published-versions.md) | Published versions in `go.mod`, umbrella `go.work` for local dev; core v0.6.0 | Accepted | Delegated (2026-10-05) |
 | [0012](0012-reproducible-module-builds-for-spool-checksums.md) | Reproducible module builds for spool checksums | Accepted | Delegated (2026-10-05) |
+| [0013](0013-backup-coverage-model.md) | Backup coverage model for the household install | Accepted | Delegated (2026-10-05) |
+| [0014](0014-end-to-end-gate-placement.md) | Placement of the end-to-end release gate | Accepted | Delegated (2026-10-05) |
+| [0015](0015-upgrade-compatibility-window.md) | Upgrade compatibility window and schema fixtures | Accepted | Delegated (2026-10-05) |
