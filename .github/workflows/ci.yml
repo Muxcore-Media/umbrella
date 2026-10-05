@@ -94,6 +94,7 @@ jobs:
           scripts/sync-ci.sh --check
           scripts/check-pins.sh
           node scripts/check-env-docs.mjs
+          docker compose -f docker-compose.yml config -q
       - name: Workspace build and vet
         if: env.SKIP != '1'
         run: |
