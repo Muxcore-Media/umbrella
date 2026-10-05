@@ -18,7 +18,7 @@
 | Module | Store / main tables | Personal data | Retention |
 |--------|---------------------|---------------|-----------|
 | `auth-local` | `users`, `sessions`, `api_tokens`, `totp`, `webauthn_*`, `invites` | **Yes** (usernames, credentials) | Sessions expire 24 h (rows pruned); users until deleted |
-| `userdata-local` | `user_blobs` (progress, favorites, prefs, playlists, queue). Extra viewer profiles are further blobs keyed `accountUserID~p~profileID`; the directory is `prefs.profiles` on the account blob ([ADR-0024](../../adr/0024-viewer-profiles-in-userdata.md)) | **Yes** (viewing behaviour) | Until user deleted (profile blobs included when NFR-DATA-003 lands) |
+| `userdata-local` | `user_blobs` (progress, favorites, prefs, playlists, queue). Extra viewer profiles are further blobs keyed `accountUserID~p~profileID`; the directory is `prefs.profiles` on the account blob ([ADR-0024](../../adr/0024-viewer-profiles-in-userdata.md)) | **Yes** (viewing behaviour) | Account blob and `accountID~p~*` siblings are deleted when `identity.user.deleted` is consumed |
 | `request-media` | `requests`, `request_ready_notified` | **Yes** (who requested what) | Until deleted |
 | `playback-monitor` | `sessions`, `library_items`, `user_identities`, storage-daily, notification rules | **Yes** (viewing history, IPs/devices) | **[Proposed]** configurable history retention (default 365 days) — not implemented |
 | `playback-guard` | `guard_rules`, `violations`, `trust_scores`, `user_aliases`, `module_settings` | **Yes** | Until deleted |
@@ -34,4 +34,4 @@
 
 ## 3. User deletion (NFR-DATA-003, Planned)
 
-Deleting a user in auth-local publishes `identity.user.deleted {user_id}` (new event in `contracts-media/events` → move to a `contracts-identity` package if more identity events follow). Subscribers: `userdata-local` (delete blob), `request-media` (anonymise `requested_by` → `deleted-user`), `playback-monitor` / `playback-guard` (delete or anonymise per-user rows), BFF/admin-ui (drop sessions). Verification: cross-module fixture test in `integration/`.
+Deleting a user in auth-local publishes `identity.user.deleted {user_id}` (`contracts-media/events`; move to a `contracts-identity` package if more identity events follow). `userdata-local` consumes it and deletes the account blob plus profile siblings. Still open: `request-media` (anonymise `requested_by` → `deleted-user`), `playback-monitor` / `playback-guard` (delete or anonymise per-user rows), BFF/admin-ui (drop sessions). The event is at-most-once: a subscriber that is not connected when auth-local publishes misses that delete. Verification so far is unit tests; the cross-module fixture in `integration/` is still open.

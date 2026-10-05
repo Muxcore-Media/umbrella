@@ -27,4 +27,4 @@ A new auth-local table would make a viewer profile a second kind of principal an
 
 ## Consequences
 
-Deleting an account (NFR-DATA-003) must also delete blobs whose user id starts with `accountUserID + "~p~"`. That fan-out is still T-M4-07. Jellyfin userdata push follows the blob's user id, so a non-primary profile does not overwrite the account's Jellyfin user data. Profile delete and a profile picker outside Settings are follow-ups. The owner can supersede this ADR if profiles should be real login accounts.
+Deleting an account (NFR-DATA-003) must also delete blobs whose user id starts with `accountUserID + "~p~"`. userdata-local does that when it consumes `identity.user.deleted`. Request anonymisation, playback rows, and BFF/admin sessions remain open under T-M4-07. Jellyfin userdata push follows the blob's user id, so a non-primary profile does not overwrite the account's Jellyfin user data. Profile delete and a profile picker outside Settings are follow-ups. The owner can supersede this ADR if profiles should be real login accounts.
