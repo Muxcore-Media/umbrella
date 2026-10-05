@@ -1,0 +1,7 @@
+# Variables read by code that are intentionally NOT in docs/config-reference.md.
+# Format: NAME  # reason. Only internal / test-only variables belong here; user-facing
+# configuration must be documented (run `node scripts/check-env-docs.mjs --write`).
+FIXTURE_MEDIA_SEED  # test-fixture media seed for fixture-only downloaders (ADR-0008); not operator config
+QBIT_FIXTURE_MEDIA_SEED  # legacy alias of FIXTURE_MEDIA_SEED, test fixtures only
+SMOKE_CMD_ROOT  # internal path override used by _mvp/scripts/lib/smoke-cmd.sh in the script test harness
+MUXCORE_LAB_BIN  # developer-lab binary directory for muxcore-installer smoke fixtures (smoke-fixture.sh)

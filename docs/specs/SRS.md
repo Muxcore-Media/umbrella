@@ -27,7 +27,7 @@
 | FR-INS-003 | Every install path shall default to fixture acquisition (`DOWNLOADER_ENGINE=fixture`, `INDEXER_FIXTURE=1`) and require explicit operator action to enable live acquisition. | M | Part — defaults in compose/run-host; native torrent engine defaults to live when unset | P: compose lint asserts fixture env; unit test that engine defaults to fixture when env unset in household profile | M3 |
 | FR-INS-004 | No install path shall ship a fixed default credential; first-admin bootstrap shall use an operator-supplied or randomly generated one-time secret. | M | Plan — `admin-dev-only` in `.env.example`, `bootstrap-auth.sh`, `setup.sh`, registry compose | P: `check-compose-*` test greps for known defaults; installer test | M3 |
 | FR-INS-005 | Upgrading shall be a single version-pin change (`MUXCORE_IMAGE_TAG` or installer pin) with a documented rollback to the previous pin. | M | Part — `scripts/deploy-atomic.sh` rollback for binaries; no container data-migration/downgrade doc | E: `_mvp/scripts/deploy-atomic_test.sh`; P: upgrade/rollback drill script | M2 |
-| FR-INS-006 | All install paths shall pin a single, consistent core version per release train. | M | Part — stack v0.5.7, installer v0.5.0, operator v0.5.4, starter v0.5.8 | P: `check-pins` script compares pins across `_mvp`, installer, operator, starter | M2 |
+| FR-INS-006 | All install paths shall pin a single, consistent core version per release train. | M | Impl — `release-train.env` (train-2026.10.1: core and images v0.6.7, spool catalog 2.5.0) consumed by `_mvp` compose/Helm/kustomize/manifest, installer v0.3.6, operator v0.1.2, starter v0.1.2; `scripts/check-pins.sh` ok (2026-10-05) and in umbrella CI | P: `check-pins` script compares pins across `_mvp`, installer, operator, starter | M2 |
 | FR-INS-007 | The dev host path (`_mvp/run-host.sh`) shall support start, stop-one, restart, status for every module. | S | Impl — `run-host.sh` subcommands | E: `_mvp/scripts/run-script-tests.sh` (partial) | — |
 
 ### 1.2 Identity and access — CAP-02
@@ -217,7 +217,7 @@ No performance requirement has been approved by the owner. The following are **[
 | NFR-OPS-002 | Logs shall be structured (slog JSON) with configurable level and redaction. | S | Impl — shared slog contract (#15), `logging-file` | E: tests | — |
 | NFR-OPS-003 | Metrics (Prometheus) and traces (OTLP) shall be available when enabled; a starter Grafana dashboard ships in-repo. | C | Part — no dashboards | P: dashboard JSON lint | D |
 | NFR-OPS-004 | Core audit log shall be tamper-evident (hash chain; HMAC when a key is configured). | S | Part — chain yes; HMAC never wired | P: core test | M3 |
-| NFR-OPS-005 | Configuration shall be documented in one reference generated or checked against code. | S | Part — `docs/config-reference.md` (433 vars, some phantom e.g. `BACKUP_EXCLUDE`) | P: env-var drift check script | M2 |
+| NFR-OPS-005 | Configuration shall be documented in one reference generated or checked against code. | S | Impl — `scripts/check-env-docs.mjs` (Go getenv-style reads in active modules + `_mvp` `MVP_*`/`SMOKE_*`) ok: 898 documented / 902 read, 4 allowlisted; 44 phantoms removed incl. `BACKUP_EXCLUDE`; generated rows need a human description pass | P: env-var drift check script | M2 |
 
 ### 2.5 Accessibility and UX — NFR-A11Y
 

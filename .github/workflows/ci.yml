@@ -92,6 +92,8 @@ jobs:
           scripts/check-retired-origin.sh
           scripts/check-no-replace.sh
           scripts/sync-ci.sh --check
+          scripts/check-pins.sh
+          node scripts/check-env-docs.mjs
       - name: Workspace build and vet
         if: env.SKIP != '1'
         run: |

@@ -13,11 +13,12 @@ br=$(gh repo view "Muxcore-Media/$m" --json defaultBranchRef -q .defaultBranchRe
 git fetch -q --tags origin
 last=$(git tag -l 'v*' | { grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; } | sort -V | tail -1); last=${last:-v0.0.0}
 IFS=. read -r a b c <<<"${last#v}"; next="$a.$b.$((c+1))"
-mj=""; [[ -f muxcore.json ]] && mj=$(jq -r '.version // empty' muxcore.json)
+mj=""; [[ -f muxcore.json ]] && mj=$(jq -r '.version // empty' muxcore.json 2>/dev/null || true)
 if [[ -n "${5:-}" ]]; then ver=$5
 elif [[ -n "$mj" ]] && [[ "$(printf '%s\n%s\n' "$mj" "$next" | sort -V | tail -1)" == "$mj" ]] && ! git rev-parse -q --verify "refs/tags/v$mj" >/dev/null; then ver=$mj
 else ver=$next; fi
-if [[ -f muxcore.json ]]; then jq --arg v "$ver" '.version=$v' muxcore.json > muxcore.json.tmp && mv muxcore.json.tmp muxcore.json; fi
+# Only module manifests carry a version (core config files share the name).
+if [[ -f muxcore.json ]] && jq -e 'has("version") or has("capabilities")' muxcore.json >/dev/null; then jq --arg v "$ver" '.version=$v' muxcore.json > muxcore.json.tmp && mv muxcore.json.tmp muxcore.json; fi
 entry="## [$ver] - $(date +%F)"$'\n\n'"${4:+$4
 }"
 if [[ -f CHANGELOG.md ]]; then
