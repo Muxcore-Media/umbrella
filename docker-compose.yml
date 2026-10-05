@@ -9,5 +9,10 @@
 # Equivalent:
 #   docker compose -f _mvp/docker-compose.registry.yml up -d
 
+# Fixed project name (same as the included file's `name:`) so volumes, the
+# network and _mvp/scripts/smoke-registry.sh agree whatever the checkout
+# directory is called.
+name: muxcore-mvp-registry
+
 include:
   - path: _mvp/docker-compose.registry.yml
