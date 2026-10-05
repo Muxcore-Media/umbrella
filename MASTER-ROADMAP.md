@@ -301,6 +301,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | T-M4-04 backups: media-ui-app `8c72277` `npx vitest run src/pages/Settings.test.tsx` | Pass (62). Consumer Settings does not render the backups pane for an admin. admin-ui `/backups` remains. Other operator sections are still in the consumer page. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 | 2026-10-05 | T-M4-04 users: media-ui-app `714b0c6` `npx tsc --noEmit` and `npx vitest run src/pages/Settings.test.tsx src/components/HouseholdProfiles.test.tsx` | Pass (61 vitest; tsc clean). Consumer Settings does not render user management for an admin. admin-ui `/users` remains. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 | 2026-10-05 | T-M4-04 invites and keys: media-ui-app `06be761` `npx tsc --noEmit` and `npx vitest run src/pages/Settings.test.tsx` | Pass (58 vitest; tsc clean). Consumer Settings does not render invites or API keys for an admin. admin-ui `/invites` and `/keys` remain. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
+| 2026-10-05 | T-M4-04 libraries, import, tags: media-ui-app `fd975f5` `npx tsc --noEmit` and `npx vitest run src/pages/Settings.test.tsx` | Pass (47 vitest; tsc clean). Consumer Settings does not render libraries, Arr import, or tags for an admin. admin-ui `/libraries`, `/migrate`, and `/tagging` remain. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
