@@ -35,3 +35,4 @@
 | [0017](0017-mesh-module-identity.md) | Mesh module identity and enrollment | Accepted | Delegated (2026-10-05) |
 | [0018](0018-authenticated-registration.md) | Authenticated registration and exclusive security capabilities | Accepted | Delegated (2026-10-05) |
 | [0019](0019-end-user-identity-propagation.md) | End-user identity propagation | Accepted | Delegated (2026-10-05) |
+| [0020](0020-module-principal-allowlists.md) | Module-to-module calls without a user | Accepted | Delegated (2026-10-05) |

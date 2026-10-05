@@ -597,23 +597,28 @@ Variables read by active modules that are not described in the sections above. M
 | `GRAPH_HTTP_TOKEN` | _mvp | — | Credential (secret). |
 | `GRAPH_HTTP_URL` | _mvp | `http://127.0.0.1:9731` | HTTP base URL of the module. |
 | `GRAPH_MODULE_TOKEN` | _mvp, media-graph | — | Mesh module token. |
+| `HEALTH_MONITOR_HTTP_TOKEN` | health-monitor | — | Bearer token for `/status`; required when `HEALTH_MONITOR_HTTP_ADDR` is not loopback (NFR-SEC-011). |
 | `INDEXER_PIRATEBAY_HTTP_URL` | _mvp | `http://127.0.0.1:9487` | HTTP base URL of the module. |
 | `INDEXER_TORZNAB_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9486` | gRPC address the BFF dials for this module. |
 | `INTRO_OUTRO_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9710` | gRPC address the BFF dials for this module. |
 | `JELLYFIN_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9475` | gRPC address the BFF dials for this module. |
 | `LISTSYNC_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9530` | gRPC address the BFF dials for this module. |
 | `MAINTAINER_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9545` | gRPC address the BFF dials for this module. |
+| `MEDIA_UI_ALLOWED_ORIGINS` | _mvp (mediauiprox) | — | Extra browser origins (comma-separated) accepted by the BFF CSRF check besides `MEDIA_UI_PUBLIC_URL`. |
+| `MEDIA_UI_CSP` | _mvp (mediauiprox) | built-in SPA policy | Overrides the BFF Content-Security-Policy header. |
 | `MEDIA_UI_DIST` | _mvp | — | Media ui dist. |
 | `MEDIA_UI_LIBRARY_PATHS_FILE` | _mvp | — | Media ui library paths file. |
 | `MEDIA_UI_LISTEN` | _mvp | `:5173` | Media ui listen. |
 | `MEDIA_UI_LIVETV_FILE` | _mvp | — | Media ui livetv file. |
 | `MEDIA_UI_PASSWORD_RESET_FILE` | _mvp | — | Media ui password reset file. |
 | `MEDIA_UI_REQUIRE_AUTH` | _mvp | `1` | Media ui require auth. |
+| `MEDIA_UI_SESSION_KEY` | _mvp (mediauiprox) | generated 0600 `session.key` | 32-byte key (base64 or hex) encrypting the auth-local token in the BFF `sessions.json`. |
 | `METADATA_TMDB_GRPC_ADDR` | _mvp | `127.0.0.1:9411` | gRPC listen address. |
 | `MOVIES_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9420` | gRPC address the BFF dials for this module. |
 | `MOVIES_HTTP_URL` | _mvp | `http://127.0.0.1:9430` | HTTP base URL of the module. |
 | `MUSIC_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9640` | gRPC address the BFF dials for this module. |
 | `MUSIC_HTTP_URL` | _mvp | `http://127.0.0.1:9641` | HTTP base URL of the module. |
+| `MVP_ADMIN_PASSWORD_FILE` | _mvp | `data/auth/admin.password` | File holding the generated first-admin password (0600); `MVP_ADMIN_PASSWORD` overrides. |
 | `MVP_BIN` | _mvp | — | Bin. |
 | `MVP_CADDYFILE` | _mvp | — | Caddyfile. |
 | `MVP_CADDY_BIN` | _mvp | — | Caddy bin. |
@@ -661,10 +666,13 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
+| `ADMIN_UI_HEALTH_MONITOR_TOKEN` | admin-ui | — | Bearer token admin-ui sends to health-monitor `/status` (falls back to `HEALTH_MONITOR_HTTP_TOKEN`). |
 | `ADMIN_UI_REQUEST_MEDIA_URL` | admin-ui | — | Request media url. |
 | `ADMIN_UI_RESTORE_ROOT` | admin-ui | backup-local restore area | Only directory restores may target (FR-BAK-003, RULE-VAL-1). |
+| `ADMIN_UI_SCHEDULER_TOKEN` | admin-ui | — | Bearer token admin-ui sends to scheduler-cron (falls back to `SCHEDULER_HTTP_TOKEN`). |
 | `ADMIN_UI_SESSION_KEY` | admin-ui | generated, persisted 0600 under `ADMIN_UI_DATA_DIR` | Key protecting session tokens at rest (NFR-SEC-005). |
 | `MVP_RUN` | admin-ui, muxcorectl-cli | — | Mvp run. |
+| `SCHEDULER_HTTP_TOKEN` | scheduler-cron | — | Bearer token for every HTTP path except `/health`; required when `SCHEDULER_HTTP_ADDR` is not loopback (NFR-SEC-011). |
 
 ### ai-filter
 
@@ -815,8 +823,12 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `MUXCORE_AUDIT_HMAC_KEY` | core | — | HMAC-SHA256 key for audit-log entry signatures (NFR-OPS-004). Prefer `MUXCORE_AUDIT_HMAC_KEY_FILE`. |
 | `MUXCORE_AUDIT_HMAC_KEY_FILE` | core | — | File holding the audit HMAC key (mode 0600); wins over `MUXCORE_AUDIT_HMAC_KEY`. Missing or empty file aborts startup. |
+| `MUXCORE_CA_EXPORT_DIR` | core | — | Directory core writes the public mesh `ca.crt` to (household profile); never the CA key (ADR-0016). |
+| `MUXCORE_DATA_DIR` | core | `./data` (`/app/data` in images) | Core data directory; the automatic CA lives in `<data>/ca` (ADR-0016). |
 | `MUXCORE_METRICS_ADDR` | core | `127.0.0.1:9464` | Dedicated metrics listener (`/metrics`); a non-loopback address requires `MUXCORE_METRICS_TOKEN` (NFR-SEC-011). |
 | `MUXCORE_METRICS_TOKEN` | core | — | Bearer token for the metrics listener (or `MUXCORE_METRICS_TOKEN_FILE`). |
+| `MUXCORE_PROFILE` | core, run-host | inferred (ADR-0016) | Security profile: `dev` (insecure allowed, warning) or `household` (TLS + automatic CA, insecure flag fatal); `staging` = household. Unset: `dev` if the insecure flag is set, else `household`. |
+| `MUXCORE_TLS_SERVER_SANS` | core | — | Extra names/IPs (comma-separated) for core's automatic server certificate, e.g. the compose service name modules dial. |
 
 ### data-redaction-pattern
 
@@ -998,7 +1010,6 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `HEALTH_MONITOR_GRPC_ADDR` | health-monitor | — | gRPC listen address. |
 | `HEALTH_MONITOR_HTTP_ADDR` | health-monitor | — | HTTP listen address. |
-| `HEALTH_MONITOR_HTTP_TOKEN` | health-monitor | — | Bearer token for `/status`; required when `HEALTH_MONITOR_HTTP_ADDR` is not loopback (NFR-SEC-011). |
 | `HEALTH_MONITOR_INTERVAL` | health-monitor | — | Interval. |
 | `HEALTH_MONITOR_TLS_CA` | health-monitor | `MUXCORE_TLS_CA` | CA bundle for mesh TLS verification. |
 | `HEALTH_MONITOR_TLS_CERT` | health-monitor | `MUXCORE_TLS_CERT` | TLS certificate file for the module's mesh client/server. |
@@ -1277,7 +1288,6 @@ Variables read by active modules that are not described in the sections above. M
 | `MUXCORE_METADATA_LANGUAGE` | muxcore-installer | — | Metadata language. |
 | `MUXCORE_NONINTERACTIVE` | muxcore-installer | — | Noninteractive. |
 | `MUXCORE_PLAYBACK` | muxcore-installer | — | Playback. |
-| `MUXCORE_PROFILE` | muxcore-installer | — | Profile. |
 | `MUXCORE_REGISTRY` | muxcore-installer | — | Registry. |
 | `MVP_IMPORT_DIR` | muxcore-installer | — | Mvp import dir. |
 
@@ -1372,12 +1382,14 @@ Variables read by active modules that are not described in the sections above. M
 | `REQUEST_HTTP_ADDR` | request-media | — | HTTP listen address. |
 | `REQUEST_MAX_PENDING_PER_USER` | request-media | — | Max pending per user. |
 | `REQUEST_MAX_PER_WEEK` | request-media | — | Max per week. |
+| `REQUEST_MODULE_PRINCIPALS` | request-media | `media-library-maintainer` | Module IDs (verified mesh certificate CN) allowed to list/deny requests without a user token (ADR-0020). |
 | `REQUEST_PREFER_WORKFLOW` | request-media | — | Prefer workflow. |
 | `REQUEST_REQUIRE_APPROVAL` | request-media | — | Require approval. |
 | `REQUEST_TLS_CA` | request-media | — | CA bundle for mesh TLS verification. |
 | `REQUEST_TLS_CERT` | request-media | — | TLS certificate file for the module's mesh client/server. |
 | `REQUEST_TLS_DIR` | request-media | — | Directory holding `tls.crt`/`tls.key`/`ca.crt`. |
 | `REQUEST_TLS_KEY` | request-media | — | TLS private key file. |
+| `REQUEST_TRUST_CALLER_HEADER` | request-media | — | Dev only: with `MUXCORE_INSECURE_DISABLE_TLS=true`, `1` trusts `X-Caller-Id` without a bearer token (ADR-0019). |
 
 ### scheduler-cron
 
@@ -1385,7 +1397,6 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `SCHEDULER_CATCH_UP` | scheduler-cron | — | Catch up. |
 | `SCHEDULER_HTTP_ADDR` | scheduler-cron | — | HTTP listen address. |
-| `SCHEDULER_HTTP_TOKEN` | scheduler-cron | — | Bearer token for every HTTP path except `/health`; required when `SCHEDULER_HTTP_ADDR` is not loopback (NFR-SEC-011). |
 | `SCHEDULER_STORE_PATH` | scheduler-cron | — | Store path. |
 | `SCHEDULER_TZ` | scheduler-cron | — | Tz. |
 
