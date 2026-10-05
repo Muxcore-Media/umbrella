@@ -291,6 +291,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-05 | metadata-tmdb `5d9c0a1`, ai-runtime `8feb268`, auth-oidc `8d26400`: `go test ./...` (Go 1.26.6) | Pass. TMDB, OpenAI-compatible completions, and OIDC discovery/token/end-session use netguard Integration. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 | 2026-10-05 | media-library-maintainer `ee64f12`: `go test ./...` (Go 1.26.6) | Pass. Shared outbound HTTP uses netguard Integration. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 | 2026-10-05 | indexer-torznab `5e365b6`, indexer-piratebay `e6c6cb8`, downloader-native-usenet `7f232c9`: `go test ./...` (Go 1.26.6) | Pass. Indexer requests use netguard Integration (VPN transports are checked before dial). NZB `allowPrivate` no longer skips metadata and link-local. Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
+| 2026-10-05 | core `c94f972`: `go test ./internal/spool/ ./internal/grpcmesh/ -run Spool` (Go 1.26.6) | Pass. Spool tag fetches use netguard (HTTPS; strict unless an allow-list names a LAN spool; metadata stays refused). Clean-room and train 2026.10.4 still skipped (B-1/B-2) |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -317,7 +318,7 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
    - List-sync, indexer create/update/delete, arr migrate, and root creation require `admin`. Manager stays allowed on the other privileged routes, including root browse.
    - **Blocked here:** `scripts/clean-room.sh --restore-drill` (household and `--dev`) needs rootless podman plus docker-compose, and GitHub CI still needs B-1 and B-2. Do not cut train 2026.10.4 until that drill passes.
 2. **Remaining audit rows:**
-   - SSRF: core spool fetcher. admin-ui arr migrate (`e80fd24`), jellyfin (`d0030b1`), plex (`13251c1`), emby (`a3ee7e4`), metadata-tmdb (`5d9c0a1`), ai-runtime (`8feb268`), auth-oidc (`8d26400`), media-library-maintainer (`ee64f12`), indexer-torznab (`5e365b6`), indexer-piratebay (`e6c6cb8`), and downloader-native-usenet (`7f232c9`) use netguard.
+   - SSRF audit rows are guarded, including the core spool fetcher (`c94f972`). NFR-SEC-009 is Impl on that evidence. M3 stays open until the path rows below are done.
    - Paths: backup-local, media-books, media-comics, media-audiobooks, media-music, media-ffprobe, media-custom-formats, library-maintainer move path.
    - Then close M3 (SM-4 = 100 % of Must NFR-SEC rows).
 3. **Follow-ups:**
