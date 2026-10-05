@@ -391,7 +391,6 @@ Playback session analytics and history.
 | `PLAYBACK_MONITOR_GEOIP_DB` | playback-monitor | — | MaxMind GeoIP2 `.mmdb` database path. |
 | `PLAYBACK_MONITOR_APPRISE_URL` | playback-monitor | — | Default Apprise notification URL (alias: `APPRISE_URL`). |
 | `PLAYBACK_MONITOR_APPRISE_TOKEN` | playback-monitor | — | Apprise auth token (alias: `APPRISE_TOKEN`). |
-| `PLAYBACK_MONITOR_ALLOW_LOCAL_WEBHOOKS` | playback-monitor | `false` | `true`: allow webhook URLs to private IPs. |
 
 ---
 
@@ -739,6 +738,8 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `AUTH_BOOTSTRAP_PASSWORD` | auth-local | — | Credential (secret). |
 | `AUTH_BOOTSTRAP_USER` | auth-local | — | Bootstrap user. |
+| `AUTH_SECRET_KEY` | auth-local | generated key file | 32-byte key (hex or base64) encrypting TOTP secrets at rest; wins over `AUTH_SECRET_KEY_FILE`. Back it up with the auth database. |
+| `AUTH_SECRET_KEY_FILE` | auth-local | `<db dir>/auth-secret.key` (0600) | File holding the TOTP encryption key; generated once when neither variable is set. |
 | `AUTH_TLS_CA` | auth-local | — | CA bundle for mesh TLS verification. |
 | `AUTH_TLS_CERT` | auth-local | — | TLS certificate file for the module's mesh client/server. |
 | `AUTH_TLS_DIR` | auth-local | — | Directory holding `tls.crt`/`tls.key`/`ca.crt`. |
@@ -923,6 +924,7 @@ Variables read by active modules that are not described in the sections above. M
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
 | `DOWNLOADER_GRPC_ADDR` | downloader-native-torrent | — | gRPC listen address. |
+| `DOWNLOADER_INDEXER_HOSTS` | downloader-native-torrent, downloader-sabnzbd | — | Indexer hosts (host[:port], comma-separated) whose private/LAN addresses may serve torrent/NZB files; other URLs use the strict user-URL SSRF profile. |
 | `DOWNLOADER_PUBLIC_METAINFO_CACHE` | downloader-native-torrent | — | Public metainfo cache. |
 | `DOWNLOAD_DIR` | downloader-native-torrent, downloader-native-usenet | — | Download dir. |
 | `DOWNLOAD_STORAGE` | downloader-native-torrent | — | Download storage. |
@@ -966,6 +968,7 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
+| `QBIT_DOWNLOAD_ROOTS` | downloader-qbittorrent | download dir | Allowed roots for `save_path` passed to qBittorrent (RULE-VAL-1). |
 | `QBIT_FIXTURE` | downloader-qbittorrent, media-automation | — | Qbit fixture. |
 | `QBIT_GRPC_ADDR` | downloader-qbittorrent | `MUXCORE_GRPC_ADDR_OVERRIDE` | gRPC listen address. |
 | `QBIT_HTTP_ADDR` | downloader-qbittorrent | `MUXCORE_HTTP_ADDR` | HTTP listen address. |
@@ -1214,21 +1217,29 @@ Variables read by active modules that are not described in the sections above. M
 | `TRANSMISSION_USERNAME` | media-library-maintainer | — | Transmission username. |
 | `USERDATA_LOCAL_DATA_DIR` | media-library-maintainer | — | Module data directory. |
 
-### media-movies
-
-| Env Var | Module | Default | Description |
-|---------|--------|---------|-------------|
-
 ### media-music
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
 | `MUSIC_IMAGE_DIR` | media-music | — | Image dir. |
 
+### media-rename
+
+| Env Var | Module | Default | Description |
+|---------|--------|---------|-------------|
+| `RENAME_ALLOWED_ROOTS` | media-rename | — (refuse all) | Roots (`:`-separated) that rename sources, destinations and batch directories must resolve inside (RULE-VAL-1). |
+
+### media-root-folders
+
+| Env Var | Module | Default | Description |
+|---------|--------|---------|-------------|
+| `ROOTS_ALLOWED_PREFIXES` | media-root-folders | — (refuse create) | Prefixes (`:`-separated) a root folder may be created/probed under; set to the library mounts (RULE-VAL-1). |
+
 ### media-scanner
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
+| `SCANNER_ALLOWED_ROOTS` | media-scanner | — | Extra allowed roots (`:`-separated) for watch dirs and libraries besides `SCANNER_*_ROOT` and registered roots. |
 | `SCANNER_DB_PATH` | media-scanner | — | SQLite database file path. |
 | `SCANNER_DEFAULT_WATCH_DIR` | media-scanner | — | Default watch dir. |
 | `SCANNER_GRPC_ADDR` | media-scanner | — | gRPC listen address. |
@@ -1241,6 +1252,12 @@ Variables read by active modules that are not described in the sections above. M
 | `SCANNER_TV_LIBRARY_ROOT` | media-scanner | — | Tv library root. |
 | `SCANNER_USE_MESH_STORAGE` | media-scanner | — | Use mesh storage. |
 
+### media-subtitles
+
+| Env Var | Module | Default | Description |
+|---------|--------|---------|-------------|
+| `SUBS_MEDIA_ROOTS` | media-subtitles | — (refuse) | Library roots (`:`-separated) that `RegisterSidecar` / `DetectEmbedded` paths must resolve inside. |
+
 ### media-tagging
 
 | Env Var | Module | Default | Description |
@@ -1249,6 +1266,17 @@ Variables read by active modules that are not described in the sections above. M
 | `TAGGING_DEFAULT_CATEGORY` | media-tagging | — | Default category. |
 | `TAGGING_EVENTS_ENABLED` | media-tagging | — | Events enabled. |
 | `TAGGING_GRPC_ADDR` | media-tagging | — | gRPC listen address. |
+
+### media-transcoder
+
+| Env Var | Module | Default | Description |
+|---------|--------|---------|-------------|
+| `TRANSCODER_ALLOW_URL_SOURCES` | media-transcoder | off | `1` allows http(s) `src` for playback transcodes (restricted by `TRANSCODER_URL_SOURCE_HOSTS`). |
+| `TRANSCODER_HTTP_ALLOWED_CALLERS` | media-transcoder | `media-ui` | Mesh certificate CNs allowed to call the playback HTTP API in household mode. |
+| `TRANSCODER_HTTP_TOKEN` | media-transcoder | — | Dev only: bearer token required when the playback HTTP API binds a non-loopback address. |
+| `TRANSCODER_MEDIA_ROOTS` | media-transcoder | — (refuse all) | Library roots (`:`-separated) for playback `src` and job inputs (RULE-VAL-1). |
+| `TRANSCODER_OUTPUT_DIR` | media-transcoder | `<db dir>/output` | Allowed location for `Enqueue` outputs. |
+| `TRANSCODER_URL_SOURCE_HOSTS` | media-transcoder | — | host:port allow-list for URL `src` (e.g. `media-movies:9430,media-tvshows:9450`). |
 
 ### media-transcoder-pool
 
