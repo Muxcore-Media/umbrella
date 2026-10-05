@@ -1,0 +1,9 @@
+# gitleaks configuration (umbrella CI secret scan, SRS NFR-SEC-012).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Vendored third-party documentation with placeholder credentials"
+paths = [
+  '''^\.cursor/skills/cloudflare/references/''',
+]

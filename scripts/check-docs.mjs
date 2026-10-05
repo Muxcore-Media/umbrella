@@ -76,8 +76,25 @@ export function citedRequirementIds(text) {
   return [...text.matchAll(/\b((?:N?FR)-[A-Z0-9]+-\d{3})\b/g)].map((m) => m[1]);
 }
 
+// Submodule paths from .gitmodules; links into a submodule that is not checked
+// out (e.g. CI without --recurse-submodules) cannot be verified and are skipped.
+export function submodulePaths(root = ROOT) {
+  const f = join(root, ".gitmodules");
+  if (!existsSync(f)) return [];
+  return [...readFileSync(f, "utf8").matchAll(/^\s*path\s*=\s*(.+)$/gm)].map((m) => m[1].trim());
+}
+
+function uncheckedSubmodule(root, dest, subs) {
+  const rel = relative(root, dest);
+  const sub = subs.find((s) => rel === s || rel.startsWith(`${s}/`));
+  if (!sub) return false;
+  const dir = join(root, sub);
+  return !existsSync(dir) || readdirSync(dir).filter((n) => n !== ".git").length === 0;
+}
+
 export function check(root = ROOT) {
   const errors = [];
+  const subs = submodulePaths(root);
   const srsPath = join(root, "docs/specs/SRS.md");
   const defined = existsSync(srsPath) ? definedRequirementIds(readFileSync(srsPath, "utf8")) : new Set();
   const adrDir = join(root, "docs/adr");
@@ -97,6 +114,7 @@ export function check(root = ROOT) {
       const [target, anchor] = link.split("#");
       const dest = target ? resolve(dirname(file), decodeURIComponent(target)) : file;
       if (!existsSync(dest)) {
+        if (uncheckedSubmodule(root, dest, subs)) continue;
         errors.push(`${rel}: broken link ${link}`);
         continue;
       }
