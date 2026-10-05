@@ -637,6 +637,7 @@ Variables read by active modules that are not described in the sections above. M
 | `MVP_ENABLE_AI_TICKETS` | _mvp | — | Enable ai tickets. |
 | `MVP_ORIGIN_RECORD` | _mvp | — | Origin record. |
 | `MVP_SKIP_PREFLIGHT` | _mvp | — | Skip preflight. |
+| `MVP_STOP_TIMEOUT_SEC` | _mvp (run-host) | `15` | Seconds `run-host.sh stop` waits for processes to exit before force-killing them. |
 | `NOTIFY_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9441` | gRPC address the BFF dials for this module. |
 | `PLAYBACK_GUARD_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9561` | gRPC address the BFF dials for this module. |
 | `PLAYBACK_MONITOR_HTTP_URL` | _mvp | `http://127.0.0.1:8560` | HTTP base URL of the module. |
@@ -825,10 +826,14 @@ Variables read by active modules that are not described in the sections above. M
 | `MUXCORE_AUDIT_HMAC_KEY_FILE` | core | — | File holding the audit HMAC key (mode 0600); wins over `MUXCORE_AUDIT_HMAC_KEY`. Missing or empty file aborts startup. |
 | `MUXCORE_CA_EXPORT_DIR` | core | — | Directory core writes the public mesh `ca.crt` to (household profile); never the CA key (ADR-0016). |
 | `MUXCORE_DATA_DIR` | core | `./data` (`/app/data` in images) | Core data directory; the automatic CA lives in `<data>/ca` (ADR-0016). |
+| `MUXCORE_ENROLL_DNS_NAMES` | core | — | Muxcore enroll dns names. |
 | `MUXCORE_METRICS_ADDR` | core | `127.0.0.1:9464` | Dedicated metrics listener (`/metrics`); a non-loopback address requires `MUXCORE_METRICS_TOKEN` (NFR-SEC-011). |
 | `MUXCORE_METRICS_TOKEN` | core | — | Bearer token for the metrics listener (or `MUXCORE_METRICS_TOKEN_FILE`). |
 | `MUXCORE_PROFILE` | core, run-host | inferred (ADR-0016) | Security profile: `dev` (insecure allowed, warning) or `household` (TLS + automatic CA, insecure flag fatal); `staging` = household. Unset: `dev` if the insecure flag is set, else `household`. |
+| `MUXCORE_REQUIRE_MODULE_CERTS` | core | `false` | Household stage 2 (ADR-0018): reject module registrations without a verified mesh certificate for every capability. |
+| `MUXCORE_TLS_SERVER_NAME` | core | — | TLS server name override for mesh dial. |
 | `MUXCORE_TLS_SERVER_SANS` | core | — | Extra names/IPs (comma-separated) for core's automatic server certificate, e.g. the compose service name modules dial. |
+| `TENANT_TRUST_HEADERS` | core (`pkg/tenant`) | — | `1` lets the tenant middleware honour `X-Tenant-ID`/`X-Auth-Claims-Tenant` headers; otherwise only an authenticated tenant is used (ADR-0019). |
 
 ### data-redaction-pattern
 
@@ -1277,6 +1282,7 @@ Variables read by active modules that are not described in the sections above. M
 | `GITHUB_TOKEN` | muxcore-installer | — | Credential (secret). |
 | `INSTALL_RUNTIME` | muxcore-installer | — | Install runtime. |
 | `MUXCORE_BIND_ALL` | muxcore-installer | — | Bind all. |
+| `MUXCORE_DB_BACKEND` | muxcore-installer | `sqlite` | Installer database backend (`sqlite`|`postgres`); replaces the legacy `MUXCORE_PROFILE=sqlite|postgres`. |
 | `MUXCORE_DRY_RUN` | muxcore-installer | — | Dry run. |
 | `MUXCORE_GITHUB_ORG` | muxcore-installer | — | Github org. |
 | `MUXCORE_GITHUB_TOKEN` | muxcore-installer | — | Credential (secret). |
