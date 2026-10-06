@@ -95,7 +95,7 @@
 | FR-PLAY-006 | Parental controls (max rating, blocked/allowed tags, PIN, unrated handling) shall be configurable per account/profile. | M | Impl (settings) — `lib/parental.ts` | E: vitest | — |
 | FR-PLAY-007 | Parental restrictions shall be enforced **server-side** on every list, search, detail, and playback API for the restricted principal. | M | Part — only `/api/playback/resolve` (`playback.go`) | P: BFF table test across all library/search routes | M4 |
 | FR-PLAY-008 | Near-term, the UI shall offer Jellyfin playback handoff when the bridge is enabled ([ADR-0005](../adr/0005-consumer-ui-replaces-jellyfin-web.md)). | S | Impl — `/api/jellyfin/play` | E: BFF tests; smoke soft check | — |
-| FR-PLAY-009 | Cast/AirPlay controls shall either work (Remote Playback API / Cast SDK) or not be shown. | S | Part — buttons shown; only browser Remote Playback API | P: vitest asserting control hidden when unsupported | M4 |
+| FR-PLAY-009 | Cast/AirPlay controls shall either work (Remote Playback API / Cast SDK) or not be shown. | S | Part — controls now hidden when unsupported (was: disabled stub shown); still browser Remote Playback API only, no Cast SDK | E: media-ui-app v0.1.x, PR #37 — vitest asserts absence via `queryByRole`/`queryByLabelText`/`queryByTitle` in both unsupported states, presence + `remote.prompt()`/`webkitShowPlaybackTargetPicker` invocation in both supported states (4 tests) | M4 |
 | FR-PLAY-010 | Music, book (PDF/EPUB), comic, and audiobook items shall be consumable in-app. | S | Part — `AudioPlayerBar`, inline readers, `audiobookPlayback.ts` | E: vitest | M6 |
 | FR-PLAY-011 | The consumer UI shall support localisation (string catalogue, locale switch); English is the only required locale. | C | Plan — no i18n | P: lint for hard-coded strings in new code | D |
 
@@ -223,7 +223,7 @@ No performance requirement has been approved by the owner. The following are **[
 
 | ID | Requirement | Pri | Status | Verify | MS |
 |----|-------------|-----|--------|--------|----|
-| NFR-A11Y-001 | `media-ui-app` and `admin-ui` shall meet WCAG 2.1 AA **[Proposed]** for core journeys (keyboard, focus, contrast, labels, reduced motion). | S | Part — focus-visible, reduced motion, aria in ~109 files; no automated checks | P: axe checks in vitest (`vitest-axe`) and admin-ui `templ/a11y_test.go` | M4 |
+| NFR-A11Y-001 | `media-ui-app` and `admin-ui` shall meet WCAG 2.1 AA **[Proposed]** for core journeys (keyboard, focus, contrast, labels, reduced motion). | S | Part — automated axe checks now run in `media-ui-app` (focus-visible, reduced motion, aria in ~109 files); `admin-ui` half still has no automated checks | E: media-ui-app PR #38 — `vitest-axe@^0.1.0`, 16 tests over real pages/nav/modal/primitives/cards, plus a harness control test asserting axe detects `image-alt`/`button-name` so a vacuous pass cannot pass; `color-contrast` and `region` disabled (not evaluable in jsdom: no layout/paint engine), documented not silently dropped. Suite 1127 tests green, typecheck+build exit 0. Local + CI green. Outstanding: `admin-ui` `templ/a11y_test.go` | M4 |
 | NFR-A11Y-002 | Layouts shall work from 375 px to 1920 px widths. | S | Part — jsdom breakpoint test only | E: `breakpoints.test.tsx`; P: Playwright viewport snapshots | M4 |
 
 ### 2.6 Maintainability, build, and delivery — NFR-MNT
