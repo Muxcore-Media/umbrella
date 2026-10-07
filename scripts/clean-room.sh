@@ -160,6 +160,7 @@ MUXCORE_IMAGE_TAG=$MUXCORE_IMAGE_TAG
 MVP_ADMIN_USER=admin
 MVP_ADMIN_PASSWORD=$(gen 16)
 HEALTH_MONITOR_HTTP_TOKEN=$(gen 32)
+TRANSCODER_HTTP_TOKEN=$(gen 32)
 SECRETS_MASTER_KEY=$(gen 32)
 DOWNLOADER_ENGINE=fixture
 INDEXER_FIXTURE=1
@@ -176,7 +177,7 @@ source "$ENV_FILE"
 set +a
 if [[ "${GITHUB_ACTIONS:-}" == true ]]; then
   # Keep generated secrets out of uploaded logs / the job transcript.
-  for v in "$MVP_ADMIN_PASSWORD" "$HEALTH_MONITOR_HTTP_TOKEN" "$SECRETS_MASTER_KEY" "$MUXCORE_ENROLL_SECRET"; do echo "::add-mask::$v"; done
+  for v in "$MVP_ADMIN_PASSWORD" "$HEALTH_MONITOR_HTTP_TOKEN" "$TRANSCODER_HTTP_TOKEN" "$SECRETS_MASTER_KEY" "$MUXCORE_ENROLL_SECRET"; do echo "::add-mask::$v"; done
   while IFS='=' read -r _ v; do echo "::add-mask::$v"; done < <(grep '^MUXCORE_ENROLL_TOKEN_' "$ENV_FILE")
 fi
 

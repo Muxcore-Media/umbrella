@@ -98,7 +98,7 @@ macOS (iOS/tvOS) builds and container smoke run via `workflow_dispatch` only (BC
 
 - **Binaries:** each module tags `vX.Y.Z`; GitHub Releases carry linux/darwin amd64/arm64 builds and checksums for `core` (`muxcored`), `muxcorectl-cli`, and the installer.
 - **Images:** built by `_mvp/scripts/publish-module-images.sh` from the household manifest. Targets: a LAN registry (`_mvp/local-registry.sh`, `MUXCORE_REGISTRY=<host>:5000/muxcore`) — available now; GHCR (`ghcr.io/muxcore-media/*`) — **Blocked** until a token with `write:packages` exists ([ADR-0007](../adr/0007-install-paths-github-only.md)). Every module listed in any compose profile must be in the publish set (fixes the gap where optional modules were omitted).
-- **Release train:** one `MUXCORE_IMAGE_TAG` per umbrella release; installer, operator, starter, Helm, and compose read the same pin (FR-INS-006). The umbrella release is tagged `train-YYYY.MM.N` **[Proposed]** pointing at the pinned SHAs.
+- **Release train:** one `MUXCORE_IMAGE_TAG` per umbrella release; installer, operator, starter, Helm, and compose read the same pin (FR-INS-006). The umbrella release is tagged `train-YYYY.MM.N`, matching committed `release-train.env` and pointing at the pinned SHAs ([ADR-0024](../adr/0024-umbrella-release-trains.md)). `scripts/prepare-release-train.sh` prepares deterministic Conventional Commit notes and a gitlink inventory without changing refs; GitHub Actions publishes the notes without writing back to `main`. Train releases are prereleases during the pre-1.0 beta; readiness remains subject to the ADR-0014 smoke gate and T-M7-03 checklist.
 
 ## 6. Data and migration strategy
 
