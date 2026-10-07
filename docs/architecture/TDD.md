@@ -137,7 +137,7 @@ Ordered by risk; each item maps to an SRS requirement and is delivered in milest
 | Workspace build | `go.work` build/vet of all active modules | Umbrella CI |
 | Integration (in-process) | `core/internal/integration` (`-tags integration`), root `integration/` | Umbrella CI |
 | Stack smoke (fixture) | `_mvp/smoke.sh` (+ new fixture acquisition assertions, FR-INS-003/SM-1) | Release candidate (manual dispatch) |
-| Consumer browser fixtures | Playwright Chromium against the built SPA and strict local HTTP fixtures; selected navigation/settings/invite views at 375/768/1280/1920 px (ADR-0025) | Separate `media-ui-app/.github/workflows/browser.yml`; local evidence does not imply a successful GitHub run |
+| Consumer browser fixtures | Playwright Chromium against the built SPA and strict local HTTP fixtures; selected navigation/settings/invite views, keyboard focus and reduced-motion behavior at 375/768/1280/1920 px (ADR-0025) | Separate `media-ui-app/.github/workflows/browser.yml`; local evidence does not imply a successful GitHub run or full WCAG acceptance |
 | Full E2E journeys | **Pending:** Playwright against a real fixture stack for J-02, J-03, J-08; browser HTTP fixtures do not prove auth, acquisition, playback or parental enforcement | Release candidate |
 | Accessibility | `vitest-axe` in SPA; Go-rendered admin DOM fixtures + axe + jsdom keyboard tests; retain `templ/a11y_test.go` (ADR-0025) | SPA unit CI plus separate admin `accessibility.yml`; contrast and other browser/manual WCAG checks remain pending |
 | Docs | Link/ID checker `scripts/check-docs.mjs` (relative links resolve; every `FR/NFR` ID cited exists in SRS) | Umbrella CI |

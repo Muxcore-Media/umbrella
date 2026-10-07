@@ -110,9 +110,11 @@ handled as failures rather than success redirects.
 ## 7. Administrative session contract (T-M5-11)
 
 [ADR-0026](../../adr/0026-administrative-session-contract.md) adds
-`AuthService.ListSessions` and `RevokeSession` in core's auth proto. This is a
-producer contract checkpoint: current provider and app implementations do not
-yet provide the all-sessions UI.
+`AuthService.ListSessions` and `RevokeSession` in core's auth proto, published in
+core v0.6.16. An isolated consumer verifies the tagged module without a workspace
+or replace directive, and the published auth proto/generated Go match the
+reviewed source byte-for-byte. This is a producer contract checkpoint: current
+provider and app implementations do not yet provide the all-sessions UI.
 
 The provider must require a current full admin end-user session in `x-auth-token`;
 a module certificate alone is insufficient. Management IDs and continuation
@@ -130,7 +132,7 @@ provider bearer. Bearer revalidation therefore cannot list or revoke that path
 through this contract by itself. T-M5-11 also needs a provider device-grant
 integration before claiming all-device coverage.
 
-## 8. BFF operator and playback HTTP boundaries
+## 8. Operator and playback HTTP boundaries
 
 The direct BFF applies the per-route role rules in FRD RULE-AUTH-3 before module
 calls. A hidden Settings link is not the authorization boundary. Arr migration
@@ -144,3 +146,12 @@ Browser identity headers are stripped; dev container calls use the shared operat
 token. Only relative movie/TV stream sources enter the playback proxy or direct
 fallback. Root/host allow-lists remain enforced by the source and transcoder
 modules as well as the BFF input checks.
+
+The admin-ui Arr migration client also uses the published SDK v0.6.6 Integration
+profile. Private and loopback destinations remain allowed for explicitly
+configured operator services, while the SDK checks resolved IPs before dialing
+and denies metadata/link-local and its blocked special-use ranges. Its existing
+30-second timeout, direct HTTP/HTTPS and reverse-proxy base paths remain; TLS
+certificate verification is retained. `MaxRedirects=-1` refuses even same-origin
+redirects, and the guarded transport does not use implicit environment HTTP
+proxies. The API key therefore stays on requests to the configured origin.

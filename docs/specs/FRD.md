@@ -135,13 +135,13 @@ History status values: `sent` → `completed` | `failed` | `stalled` | `import_f
 ### WF-07 Playback (J-03, J-10)
 
 1. Client calls BFF `/api/playback/resolve` with item ID.
-2. BFF applies **server-side parental check** (`playback.go`), probes the file, and returns `direct` or `transcode` (HLS via `media-transcoder`) plus subtitle/audio tracks, segments (intro/outro), chapters. Transcoder requests use the BFF's mesh certificate in household mode; browser source inputs are restricted to relative movie/TV stream routes ([ADR-0027](../adr/0027-transcoder-http-mesh-boundary.md)).
+2. BFF runs an existing parental check using request-supplied metadata and userdata preferences (`playback.go`); this does not establish authoritative enforcement (gap below). It probes the file and returns `direct` or `transcode` (HLS via `media-transcoder`) plus subtitle/audio tracks, segments (intro/outro), chapters. Transcoder requests use the BFF's mesh certificate in household mode; browser source inputs are restricted to relative movie/TV stream routes ([ADR-0027](../adr/0027-transcoder-http-mesh-boundary.md)).
 3. Player streams `/stream/*` or `/stream/hls`; progress is written to userdata (`/api/userdata`) and mirrored to `userdata-local`.
 4. **Near-term alternate:** play via Jellyfin deep link (`/api/jellyfin/play`) when the bridge is enabled ([ADR-0005](../adr/0005-consumer-ui-replaces-jellyfin-web.md)).
 
 - **RULE-PLAY-1** — Resume offers the last position when progress is between the configured thresholds; "watched" is set at the completion threshold. *(Current, `lib/userdata.ts`.)*
 - **Failure:** transcoder unavailable → resolve returns direct-only; incompatible codec shows an error with a Jellyfin handoff option when available.
-- **Gap / Target:** parental filtering on **list, search, and detail** APIs is client-side only → `FR-PLAY-007`. Unsupported Cast/AirPlay controls are hidden; Remote Playback API support does not provide a Cast SDK implementation → `FR-PLAY-009`.
+- **Gap / Target:** list/search/detail restrictions lack server enforcement. Playback resolve trusts caller-supplied tags/rating/unrated; `parental.go` ignores rating and allowed tags, self-service userdata updates can change preferences, and a failed provider read falls back to possibly empty local data. Protected policy authority, trusted media metadata and failure behavior need a verified design before any route is accepted as enforcing the restriction → `FR-PLAY-007`. Unsupported Cast/AirPlay controls are hidden; Remote Playback API support does not provide a Cast SDK implementation → `FR-PLAY-009`.
 
 ### WF-08 Operator triage (J-04, J-09)
 
@@ -167,6 +167,14 @@ admin-ui `/queue`, `/activity`, `/failed-downloads`, `/wanted`, `/calendar`, `/d
 ### WF-11 Migration from Arr (J-05)
 
 admin-ui `/migrate` connects to Radarr/Sonarr/Lidarr APIs (`arrmigrate/client.go`) and imports library catalogues and quality-profile names. **Target:** also root folders, indexers, download clients, custom formats/scores, and tags; dry-run preview; idempotent re-run → `FR-MIG-001..004`.
+
+The operator-configured source may use HTTP/HTTPS, loopback, LAN or a reverse-proxy
+base path. The published SDK Integration guard checks resolved destinations at
+dial time, denies metadata/link-local and other blocked special-use addresses,
+and refuses every redirect before another request can carry `X-Api-Key`. A
+destination or redirect rejected during the source fetch stops that migration
+attempt before any catalogue import or library scan.
+Existing `admin.access` and CSRF checks still apply → `NFR-SEC-009`.
 
 ## 3. Cross-cutting validation rules
 

@@ -30,7 +30,7 @@
 ## 2. Initial audit baseline vs target (2026-10-05)
 
 This table preserves the initial audit, not the current implementation status.
-Current task evidence is in §§5–6 and §9; the latest checkpoint is in §12.
+Current task evidence is in §§5–6 and §9; the latest checkpoint is in §13.
 
 | Area | Initial audit evidence | Target (v1.0 "household-ready", [PRD §5](docs/specs/PRD.md#5-product-level-acceptance-v10-household-ready)) |
 |------|--------------------|------|
@@ -100,6 +100,7 @@ Current task evidence is in §§5–6 and §9; the latest checkpoint is in §12.
 | C-25 | The OIDC LLD proposed a new capabilities probe and SRS marked provider-aware pages wholly planned; consumer Acquisition remained viewer-visible after the first gate batch | Use actual typed AuthService responses without a new capability RPC; record the verified provider-aware and Acquisition/Requests-policy UI slices. Keep FR-AUTH-009 and FR-ADM-010 partial for their explicit remaining acceptance | admin-ui `c06ae6c`, media-ui-app `99b5ca3`, local verification below; no backend-authorization or live-provider inference |
 | C-26 | FRD invite workflow said admin-ui's generated link opened the SPA and went directly Home, and its exhaustion rule omitted unlimited invites | Document the actual admin-ui redemption link and HTTP redemption-to-login handoff, retaining the separate SPA path. Apply exhaustion only to a positive finite limit | admin-ui `handler/invites.go`, `household_redeem.go`, caller/URL fixtures and auth-local `internal/store/invites.go`; no full-stack J-02 acceptance inferred |
 | C-27 | NFR-MNT-005 literally required push-to-`main` although core's default branch is `master` | Target each repository's actual default branch; ADR-0003 defines hosted CI, not a mandatory branch name. Record present failures/successes by run rather than extending the old credential-count snapshot | GitHub core PR #97/#98 target and workflow evidence; no branch rename or CI-host change |
+| C-28 | FR-PLAY-007/FRD described playback as the server-enforced exception, but its inputs and policy are not authoritative | Keep the requirement partial and describe the observed trust gaps before designing the provider/policy boundary; list/search/detail middleware alone would not close it | Read-only BFF review: `playback.go` request metadata, ignored rating/allowed tags in `parental.go`, self-service userdata mutation and provider-failure local fallback; implementation/design acceptance pending |
 
 **Assumptions (labelled, revisit if wrong):** A-1 `MUXCORE_CI_TOKEN` exists in every repo (verified on `admin-ui` only). A-2 Content of the four empty GitHub repos is not recoverable from GitHub. A-3 Free-plan Actions minutes suffice once self-hosted jobs stop queueing. A-4 The owner's vault/homelab deployment remains in use as a reference deployment but is not a product requirement. A-5 Agents on `claude-workstation` cannot reach vault (no ZeroTier, no SSH key); module releases since 2026-10-05 are not redeployed there until the owner pulls them or grants access.
 
@@ -208,12 +209,12 @@ Nine items from [TDD §8](docs/architecture/TDD.md#8-security-hardening-approach
 
 | ID | Objective / refs | Status and remaining acceptance |
 |----|------------------|---------------------------------|
-| T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | Todo — list/search/detail enforcement remains; playback-only checks do not close the requirement |
+| T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | Todo — protected policy authority, trusted media metadata and provider-failure behavior must be established before list/search/detail/playback enforcement. Existing playback checks trust request metadata and self-editable userdata; read-only discovery is not enforcement acceptance |
 | T-M4-02 | Profiles incl. kids/PIN (FR-AUTH-010) | Todo |
 | T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
 | T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — `media-ui-app` `99b5ca3` adds admin/manager plus capability gates for Acquisition and Requests-policy links/direct routes after the earlier Quality/Delay slice; denied routes make no policy fetch. Settings 148 tests and 28 browser fixtures pass locally. Member readiness/quota reads and approver actions remain; migration to admin-ui, its destination and manager page access are outstanding |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
-| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — earlier 20-case gate has hosted success; `99b5ca3` extends it to 28/28 local Chromium HTTP-fixture cases across 375/768/1280/1920 px, including viewer/approver policy-route denial. These prove selected UI navigation/settings/invite behavior, not real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
+| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — earlier 28-case gate has hosted success; `b1950e6` extends selected Chromium HTTP-fixture coverage to 44/44 local cases across 375/768/1280/1920 px, including keyboard/focus and reduced-motion behavior. These prove selected UI behavior, not real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
 | T-M4-07 | User deletion fan-out (NFR-DATA-003) | Todo |
 
 ### M5 — Operator & acquisition completeness
@@ -224,7 +225,7 @@ T-M5-01 indexer & downloader admin pages (FR-ADM-006) · T-M5-02 unified wanted 
 
 **T-M5-07 explicit secrets-provider selection — Part:** `_mvp` `3ba1ec4` adds the last-applied compose overlay and host-runner selection in [ADR-0029](docs/adr/0029-secrets-provider-deployment-selection.md). Twenty-seven actual compose renders and host launcher/preflight/process fixtures pass locally, preserving default file behavior and unrelated reused PIDs. Operators explicitly stop the old provider and migrate secrets; external-provider connectivity and manual migration have not run. Requires `!reset` support; Docker Compose 2.40.3 verified, earlier versions and Podman Compose unverified.
 
-**T-M5-11 all-sessions device list (FR-AUTH-007) — Part:** core `e19d0ff` adds the administrative ListSessions/RevokeSession contract and compatibility fixtures ([ADR-0026](docs/adr/0026-administrative-session-contract.md)), with full core race/proto verification and PR #97 merged after its CI follow-up. Provider implementation, published dependency tag, admin-ui consumer and app bearer revalidation remain; auth-local testing is currently blocked by B-3. BFF Quick Connect creates local-only sessions without a provider bearer, requiring a provider device-grant follow-up for all-device coverage. A contract-only checkpoint does not enable all-session revocation.
+**T-M5-11 all-sessions device list (FR-AUTH-007) — Part:** core `e19d0ff` adds the administrative ListSessions/RevokeSession contract and compatibility fixtures ([ADR-0026](docs/adr/0026-administrative-session-contract.md)), with full core race/proto verification and PR #97 merged after its CI follow-up. Independent core v0.6.16 publication and isolated dependency consumption are verified (§13). Provider implementation, admin-ui consumer and app bearer revalidation remain; local auth-local testing is currently blocked by B-3. BFF Quick Connect creates local-only sessions without a provider bearer, requiring a provider device-grant follow-up for all-device coverage. A contract-only checkpoint does not enable all-session revocation.
 
 ### M6 — Multi-media maturity
 
@@ -358,10 +359,17 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-07 | `_mvp` `3ba1ec4`, [Script tests run 37574564697](https://github.com/Muxcore-Media/mvp/actions/runs/37574564697) and [Go CI run 37574564678](https://github.com/Muxcore-Media/mvp/actions/runs/37574564678) | Script tests SUCCESS. Go CI fails during private fetch with empty `TOKEN` and `could not read Username` (job 112640455628): B-1 remains, so this run provides no source build/test result |
 | 2026-10-07 | admin-ui `9df6691`, [CI run 37574497259](https://github.com/Muxcore-Media/admin-ui/actions/runs/37574497259) and [Accessibility run 37574496907](https://github.com/Muxcore-Media/admin-ui/actions/runs/37574496907) | Both hosted workflows SUCCESS; lock-only PR #62 merged as `9c75564c43b36de11b36aff83dce68b3e2d8338a` |
 | 2026-10-07 | Umbrella `2bbc9ccd68cdcc0e47ff214318cc4f9baae4b566` integration | Committed and pushed exact approved gitlinks: core `1eec416`, admin-ui `9df6691`, media-ui-app `99b5ca3`, `_mvp` `3ba1ec4`. Source and local/hosted verification limits are recorded in §12; this pin commit does not cut a release tag or establish full-stack acceptance |
+| 2026-10-07 | Umbrella `78d0ddc`, [CI run 37574985038](https://github.com/Muxcore-Media/umbrella/actions/runs/37574985038) and [Commit lint run 37574985080](https://github.com/Muxcore-Media/umbrella/actions/runs/37574985080) | Both hosted workflows SUCCESS |
+| 2026-10-07 | Core v0.6.16 producer and isolated Go consumer | Remote annotated tag `6139f0ff632ffabad841bd094fd52eb3209318c9` resolves to merged `8e04fc2d95d218f1cf74aa28a29bfad13ad6141a`. A clean `GOWORK=off` consumer downloads the tag without replace directives, compiles/runs ListSessions/RevokeSession interface/descriptor and old-provider `Unimplemented` compatibility checks, and passes `go mod verify`. Release workflow artifacts remain separate evidence |
+| 2026-10-07 | media-ui-app `b1950e6`: keyboard/focus slice local verification | Typecheck and production build pass (2049 modules, 5.49 s); full Vitest 495 suites / 1234 tests (84.17 s), scoped three files 23/23, Chromium 44/44 (52.5 s) and final semantic menu-focus checks 4/4 at all widths pass. Isolated previous `99b5ca3` reproduces seven expected failures with one phone-shelf pass; an additional desktop check proves the pre-existing Downloads item lacks required focus, avoiding dependence on a newly added accessible label. More-menu, shelf endpoints/reduced-motion and invite status/error/focus paths covered; no full WCAG or real-backend acceptance |
+| 2026-10-07 | Core v0.6.16 [release run 37575201268](https://github.com/Muxcore-Media/core/actions/runs/37575201268), draft release 405403125 | Workflow SUCCESS; draft metadata lists 18 nonempty assets with GitHub SHA-256 metadata: four platform archives, four SPDX files, one checksum file and nine signatures. Job 112642426089 records nine successful cosign signing/uploads and four GHCR pushes (`muxcored`/`core`, `0.6.16`/`v0.6.16`) at digest `sha256:c2abc2da2f9bbb6e4647ef8e138dbb592345c2532a00453e1761bc596ab0cd47`. Published auth proto/generated Go are byte-identical to the reviewed tree. Asset download returned 404 and registry readback Unauthorized, so independent cryptographic/artifact readback verification remains unavailable; no new household train or runtime deployment |
+| 2026-10-07 | media-ui-app `b1950e6`, [CI run 37575626349](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37575626349) and [Browser fixtures run 37575626354](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37575626354) | Both hosted workflows SUCCESS; keyboard/focus PR #42 merged as `26be1ead2a1325d3ca11ad31088d7f53d7619b75`. No full WCAG or backend-journey claim |
+| 2026-10-07 | admin-ui `b87ca35` Arr outbound guard: full `make ci`, focused/SDK race fixtures and prior-client regression proof | Full CI passes: Go build/race (handler 104.725 s), CSS build and golangci-lint 2.12.2 zero issues. Focused tests pass 11 top-level + 37 subtests; published SDK v0.6.6 guard tests pass 8 + 82. Coverage includes three Arr services/base paths, nine unsafe destinations, 20 redirect combinations, TLS certificate denial and blocked-handler no-import/no-scan behavior. Prior `9df6691` client overlay produces 24 expected failure events (two top-level + 22 subtests). Fixtures make no requests outside local test services; hosted review pending |
+| 2026-10-07 | admin-ui `b87ca35` independent/hosted verification: [CI run 37576027430](https://github.com/Muxcore-Media/admin-ui/actions/runs/37576027430) and [Accessibility run 37576027490](https://github.com/Muxcore-Media/admin-ui/actions/runs/37576027490) | Independent focused race passes (arrmigrate 1.150 s, handler 1.036 s); both hosted workflows SUCCESS. PR #63 merged as `ad9ed1e8a17e50c2085964d8c93880247ffa1eb6` |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
-Historical checkpoint, preserved for context. The current checkpoint is §12.
+Historical checkpoint, preserved for context. The current checkpoint is §13.
 
 **State.**
 - **Release train:** `train-2026.10.3` (`release-train.env`): core and images v0.6.15, spool 2.7.0. `check-pins` is ok.
@@ -462,7 +470,11 @@ check; repository-wide claims retain their dated historical evidence.
 The full v1.0 completion criteria, GHCR module-image workflow and native/hardware
 items remain open; this checkpoint closes only the verified task slices above.
 
-## 12. Current follow-up checkpoint (2026-10-07)
+## 12. Second delivery checkpoint (2026-10-07)
+
+This records the second batch at `78d0ddc`, before the independent core producer
+tag. Subsequent publication and current work are recorded in §13; no-tag and
+pending-dependency statements below describe this earlier checkpoint.
 
 The following second-batch source checkpoints have passed the recorded local
 verification; final review state is recorded per repository. They are not new
@@ -497,3 +509,30 @@ checkpoint. Core release-tag assessment remains read-only; no new tag was create
    when B-5 clears; verify Helm when B-4 clears. External secrets connectivity,
    manual migration and provider switching need their own runtime acceptance.
    No new train or deployment is accepted by the local fixture results.
+
+## 13. Current producer and verification checkpoint (2026-10-07)
+
+Core's independent module tag `v0.6.16` was pushed at merged source
+`8e04fc2d95d218f1cf74aa28a29bfad13ad6141a`, whose tree matches reviewed source
+`1eec416`. Module semver publication follows TDD §3 and CONTRIBUTING; it does
+not advance the household release train. `release-train.env` remains
+`train-2026.10.3`, core/images v0.6.15 and spool 2.7.0, and umbrella `2bbc9cc`
+remains the reviewed integration pin checkpoint.
+
+| Scope | Current evidence and outstanding verification |
+|-------|-----------------------------------------------|
+| Core producer | Annotated tag, isolated no-replace Go consumption/compatibility, `go mod verify` and proto/generated-file identity are verified. [Release run 37575201268](https://github.com/Muxcore-Media/core/actions/runs/37575201268) succeeds; draft metadata reports 18 assets, with signing/upload and four GHCR-push logs. Independent signature verification and artifact/registry readback remain unavailable; the draft is not a household release |
+| T-M5-11 provider/consumer | Auth-local's historical hosted CI run 37354893703 was rerun while local SQLite dependency retrieval remains blocked by B-3: lint passes and race is still running. Provider and admin Devices consumer implementation are active, with no verified provider/consumer or all-device acceptance yet |
+| NFR-A11Y-001 consumer | `b1950e6`, [PR #42](https://github.com/Muxcore-Media/media-ui-app/pull/42), merged as `26be1ead` after both hosted workflows pass. More-menu, shelf and invite keyboard/focus fixes have local typecheck/build, 1234 unit tests, 44 browser cases and prior-source regression proof. Full WCAG and backend-journey acceptance remain partial |
+| NFR-SEC-009 admin | `b87ca35`, [PR #63](https://github.com/Muxcore-Media/admin-ui/pull/63), merged as `ad9ed1e8` after both hosted workflows pass. Published SDK v0.6.6 Integration retains direct HTTP/HTTPS local/LAN/base-path access and TLS verification while refusing redirects and implicit proxies. Full local `make ci`, focused/SDK race, old-client regression proof and independent review pass. Other outbound-client audit rows remain open |
+
+**New discovery, separate from completed code:** T-M4-01 found that the existing
+playback check does not establish a protected parental-policy boundary (C-28).
+FR-PLAY-007 remains partial; policy authority, trusted media metadata and failure
+behavior still need a design and verification. No parental enforcement fix is
+included in the source checkpoints above. Further consumer indexer-action work
+and admin Devices work likewise await their own verified checkpoints.
+
+The household/dev smoke, restore, external secrets backend and all-device
+acceptance limits from §12 remain. No new household train or runtime deployment
+is established by independent producer publication.
