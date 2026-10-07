@@ -225,7 +225,7 @@ T-M5-01 indexer & downloader admin pages (FR-ADM-006) · T-M5-02 unified wanted 
 
 **T-M5-07 explicit secrets-provider selection — Part:** `_mvp` `3ba1ec4` adds the last-applied compose overlay and host-runner selection in [ADR-0029](docs/adr/0029-secrets-provider-deployment-selection.md). Twenty-seven actual compose renders and host launcher/preflight/process fixtures pass locally, preserving default file behavior and unrelated reused PIDs. Operators explicitly stop the old provider and migrate secrets; external-provider connectivity and manual migration have not run. Requires `!reset` support; Docker Compose 2.40.3 verified, earlier versions and Podman Compose unverified.
 
-**T-M5-11 all-sessions device list (FR-AUTH-007) — Part:** core v0.6.16 publishes the verified contract ([ADR-0026](docs/adr/0026-administrative-session-contract.md)). Auth-local `f57d194` and admin-ui `b84ecc7` provider/Devices slices pass hosted checks and have merged; local provider execution remains blocked by B-3. Live consumer integration and app/BFF bearer revalidation remain. Quick Connect has local-only sessions without a provider bearer and needs a provider device grant. Current checkpoints do not establish cross-app revocation.
+**T-M5-11 all-sessions device list (FR-AUTH-007) — Part:** core v0.6.16 publishes the verified contract ([ADR-0026](docs/adr/0026-administrative-session-contract.md)). Auth-local `f57d194` and admin-ui `b84ecc7` provider/Devices slices pass hosted checks and have merged; local provider execution remains blocked by B-3. Admin request-time revalidation in [admin-ui PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) (`a57e02e`) signs out invalid or mismatched bearers, returns 503 without clearing the cookie on provider outage, and gives handlers a deep copy of current claims. Local `./handler` and `./session` tests pass; hosted CI is still open. A revoke or bearer replacement during validation does not recreate the session or apply stale claims. Local-only sessions skip `Validate`. BFF revalidation, live integration and Quick Connect device grants remain. Outage retention depends on auth-local returning storage and cancellation failures as gRPC errors rather than `Valid: false`. That provider distinction is merged as `55e9747` ([PR #43](https://github.com/Muxcore-Media/auth-local/pull/43), reviewed source `714ed07`).
 
 ### M6 — Multi-media maturity
 
@@ -265,11 +265,12 @@ renewed gate and GitHub clean-room evidence. Both compose and installer already
 default to household. M3 still needs remaining SSRF/path audit rows and ADR-0016
 phase-2 migration one train after the household switch; the current train has not
 advanced. **M4 is active:** continue server-side parental enforcement, profiles,
-operator-settings migration and true fixture-stack journeys. M5's session
-contract can proceed to provider/consumer work using hosted verification while
-the local B-3 dependency block remains; release tooling
-is ready for a reviewed train only after acceptance. See §14 for the current
-checkpoint and verification limits.
+operator-settings migration and true fixture-stack journeys. M5 admin
+request-time bearer revalidation has local race evidence, and the auth-local
+invalid-versus-outage provider fix is merged. Next, finish BFF revalidation,
+live revoke propagation, the fresh Settings hydration fix, and the parental
+policy producer. Release tooling is ready for a reviewed train only after
+acceptance. See §14 for the current checkpoint and verification limits.
 
 ## 9. Validation log
 
@@ -379,6 +380,8 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-07 | userdata-local candidate `b199a59` under ADR-0030 | Pure parental-policy/auth/public-file-store race tests and corresponding vet pass, including independent review checks. Full Go test, SQLite HTTP/store race and full vet are blocked before compilation by the existing SQLite dependency fetch. Source is pushed for draft review; no full compile/runtime, provider acceptance, consumer enforcement or gitlink advancement |
 | 2026-10-07 | Umbrella `92ae3aa03167cb0fb56716f4820cd199fdc267a9` integration | Committed and pushed approved source pins auth-local `f57d194`, admin-ui `b84ecc7` and media-ui-app `357461d`; `_mvp` `76c8a40` and core `1eec416` unchanged. Userdata candidate and active revalidation/hydration follow-ups remain outside these pins |
 | 2026-10-07 | userdata-local `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), [run 37578220627](https://github.com/Muxcore-Media/userdata-local/actions/runs/37578220627) | Generated-code check job 112651789574 PASS. Build 112651789381 and lint 112651789499 fail on private dependencies with empty `TOKEN` / missing `MUXCORE_CI_TOKEN` and Git terminal prompts disabled; build never reaches compilation, vet/full race are skipped, and lint cannot resolve private imports. This is a credential blocker, not a demonstrated source defect or successful runtime validation; draft remains unpinned |
+| 2026-10-07 | Auth-local [PR #43](https://github.com/Muxcore-Media/auth-local/pull/43) merged as `55e9747` | Hosted build/vet/full race and lint were already SUCCESS on reviewed source `714ed07`. Merge records that provider distinction on `master`. Local SQLite execution remains blocked by B-3. Umbrella pin moves to `714ed07` |
+| 2026-10-07 | admin-ui request-time bearer revalidation `a57e02e`, [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65), Go 1.26.6 | `gofmt` and `go vet ./session ./handler` pass. `go test -race -count=1` passes for `./session` and the focused handler revalidation tests (current claims, invalid/empty/mismatched/`Unauthenticated` logout, Internal/Unavailable/DeadlineExceeded/PermissionDenied and discovery/missing-core 503 with cookie retained, revoke-during-RPC, bearer replacement during RPC, local-only skip, HTMX login versus 503). Full `./handler` (103.119 s) and `./session` pass after the Devices route fixture supplies a current `Validate` response. Hosted admin CI and live provider integration remain separate |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -574,14 +577,18 @@ not notify Settings to re-evaluate. Establishing a real session before testing
 indexer actions verifies those actions but does not fix or accept fresh direct
 entry. FR-ADM-010 remains partial, including migration to admin-ui.
 
-**Active prerequisites outside this verified checkpoint:** auth-local currently
-collapses identity-store failures into an invalid-token response; typed,
-context-aware error distinction is a separate follow-up. Admin request-time
-bearer revalidation is also in progress: identity binding and current claims,
-invalid-session logout versus outage 503 with the cookie retained, deep session
-snapshots, and a revoke-during-RPC guard require their own tests. No global
-revocation, outage-handling or fresh-Settings fix is accepted by the merged
-provider/Devices/indexer slices above.
+**Active prerequisites outside this verified checkpoint:** auth-local
+[PR #43](https://github.com/Muxcore-Media/auth-local/pull/43) distinguishes
+definitive invalid sessions from storage and cancellation failures. Hosted
+build, vet, race and lint passed and it merged as `55e9747` (reviewed source
+`714ed07`). Local execution remains blocked by B-3. Admin request-time revalidation is in
+[admin-ui PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) (`a57e02e`),
+verified locally with race tests and a full handler/session package run:
+identity binding and current claims, invalid-session logout versus outage 503
+with the cookie retained, deep session snapshots, and a revoke-or-rebind-during-RPC
+guard. Hosted admin CI, BFF revalidation, live integration and the fresh
+direct-Settings hydration fix remain unaccepted. No global revocation or
+fresh-Settings fix is accepted by the merged provider/Devices/indexer slices above.
 
 Runtime blockers and the full household/dev smoke, restore, parental/all-device
 and WCAG acceptance limits remain. Baseline CI success, published contracts and

@@ -158,8 +158,32 @@ The separate `POST /devices/provider/revoke` sends the exact body
 to the first filtered page and audits actor, target user and opaque management
 ID. It neither revokes API keys nor promises immediate cross-app cookie/session
 invalidation; its effect is observable at the next provider validation. Local
-handler/race/accessibility fixtures are separate from live provider acceptance
-and the remaining global bearer-revalidation work.
+handler/race/accessibility fixtures are separate from live provider acceptance.
+
+### 7.2 Admin request-time bearer revalidation
+
+Admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) (`a57e02e`)
+adds this behavior. Local session and handler tests pass; hosted CI and live
+provider integration are still open.
+
+`requireAuth` revalidates a non-empty provider bearer before authorization and
+before the page handler. The token sent to `AuthService.Validate` is the bearer
+stored with the local session, not a browser `Authorization` or `X-Auth-Token`
+header. `Valid: false`, an empty validated user, a different user ID, and gRPC
+`Unauthenticated` revoke the local session, clear the cookie and send the
+operator to login. Discovery, dial, `Internal`, `Unavailable`,
+`DeadlineExceeded`, `PermissionDenied` and other non-invalid statuses return
+503 and leave the cookie and local session in place. A successful validation
+replaces username, roles and tenant with the current public claims. It does
+not change the bound user ID, permissions or provider bearer.
+
+The handler context receives a deep copy. A local revoke during the validation
+RPC does not recreate the session. A provider bearer replaced during that RPC
+does not receive the old call's claims. Sessions with no provider bearer,
+including local-only admin sessions, skip `Validate`. This does not revalidate
+BFF cookies or Quick Connect's local-only sessions, and it depends on the
+provider returning storage and cancellation failures as gRPC errors rather than
+`Valid: false`.
 
 ## 8. Operator and playback HTTP boundaries
 
