@@ -39,3 +39,10 @@
 | [0021](0021-module-version-single-source.md) | A module's version has one source — its `muxcore.json` | Accepted | Delegated (2026-10-05) |
 | [0022](0022-registration-rules-dev-restarts.md) | Registration rules, with dev-mode restarts | Accepted | Delegated (2026-10-05) |
 | [0023](0023-mesh-identity-outside-backups.md) | Mesh CA and module identities are not backed up | Accepted | Delegated (2026-10-05) |
+| [0024](0024-umbrella-release-trains.md) | Umbrella release-train tags and deterministic notes | Accepted | Delegated (2026-10-07) |
+| [0025](0025-ui-verification-gates.md) | Rendered accessibility and consumer browser fixture gates | Accepted | Delegated (2026-10-07) |
+| [0026](0026-administrative-session-contract.md) | Administrative session management belongs to the auth provider | Accepted | Delegated (2026-10-07) |
+| [0027](0027-transcoder-http-mesh-boundary.md) | Transcoder HTTP uses the BFF's verified mesh identity | Accepted | Delegated (2026-10-07) |
+| [0028](0028-spool-dial-time-destination-policy.md) | Spool HTTP destinations are checked at connection time | Accepted | Delegated (2026-10-07) |
+| [0029](0029-secrets-provider-deployment-selection.md) | Select the secrets provider explicitly in deployment configuration | Accepted | Delegated (2026-10-07) |
+| [0030](0030-authoritative-parental-policy-resource.md) | Parental policy has a separate authenticated provider resource | Accepted | Delegated (2026-10-07) |

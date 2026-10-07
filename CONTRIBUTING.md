@@ -55,7 +55,10 @@ CI runs the same check in `.github/workflows/commitlint.yml`.
 
 [`CHANGELOG.md`](CHANGELOG.md) follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The `[Unreleased]` section
-tracks work in progress. Release sections are generated from conventional commits.
+tracks work in progress. Release notes are generated from conventional commits.
+The release workflow publishes those notes without committing back to `main`;
+changelog edits follow the normal review process
+([ADR-0024](docs/adr/0024-umbrella-release-trains.md)).
 
 Preview what the next release notes would look like:
 
@@ -79,40 +82,71 @@ Commit types map to changelog sections:
 
 ## Release process
 
-Releases are tagged on the umbrella repo with `v*` semver tags (for example `v0.3.0`).
+Coordinated umbrella releases use `train-YYYY.MM.N` tags (for example
+`train-2026.10.3`), matching `MUXCORE_TRAIN` in the committed
+[`release-train.env`](release-train.env). Individual modules keep their own
+`vX.Y.Z` semver releases. Historical umbrella `v*` tags remain supported by the
+release workflow.
 
 ### 1. Prepare
 
-1. Ensure `main` is green in GitHub Actions (`.github/workflows/ci.yml`).
-2. Confirm submodule gitlinks on `main` reflect the intended module SHAs.
-3. Review `./scripts/generate-changelog.sh --version vX.Y.Z` output locally.
+1. Confirm the intended module SHAs and update `release-train.env` and all install
+   pins together. Use a new train identifier; published tags are immutable.
+2. Run `scripts/check-pins.sh` from a complete checkout. A warning about a missing
+   submodule means that path was not checked and is not release evidence.
+3. Verify the normal CI checks and the compose fixture smoke described in
+   [ADR-0014](docs/adr/0014-end-to-end-gate-placement.md). Record actual results and
+   outstanding CI blockers in the roadmap; generated notes do not establish
+   release readiness or satisfy the v1.0 RC checklist.
+4. Commit the train metadata and gitlinks, then prepare the exact commit to tag:
+
+```bash
+release_commit=$(git rev-parse main)
+bash scripts/prepare-release-train.sh --ref "$release_commit" --output /tmp/muxcore-release-notes.md
+```
+
+Review the notes, train pins, and full module commit table. The helper reads only
+committed data and needs full umbrella Git history, but no submodule checkouts or
+network. Local uncommitted changes are not included. It creates no tag or release.
+The manifest accepts only the four documented unquoted assignments; it is parsed
+as data and never executed by this helper.
 
 ### 2. Tag and push
 
 ```bash
-git checkout main
-git pull
-git tag -a vX.Y.Z -m "vX.Y.Z"
-git push origin vX.Y.Z
+train=$(git show "$release_commit:release-train.env" | sed -n 's/^MUXCORE_TRAIN=//p')
+bash scripts/prepare-release-train.sh --ref "$release_commit" --tag "$train" --output /tmp/muxcore-release-notes.md
+git tag -a "$train" "$release_commit" -m "$train"
+git push origin "refs/tags/$train"
 ```
 
 Pushed tags trigger `.github/workflows/release.yml`, which:
 
-1. Generates release notes from conventional commits since the previous tag.
-2. Inserts a new section into `CHANGELOG.md` (before `[Unreleased]`).
-3. Creates a GitHub Release on `Muxcore-Media/umbrella` with the generated notes.
+1. Runs the offline release-tooling fixtures and checks that the tag matches the
+   committed `MUXCORE_TRAIN`. Local preparation refuses a conflicting existing
+   tag; publish new tags without force, preserving their immutability.
+2. Generates notes since the previous train on the first-parent history, ignoring
+   unrelated semver tags and tags on merged feature branches. The first train
+   includes the initial commit. The notes also record the committed version pins
+   and submodule SHAs.
+3. Creates a GitHub prerelease on `Muxcore-Media/umbrella`. Train releases stay
+   marked as prereleases during the pre-1.0 beta; they do not declare v1.0 readiness.
 
-The workflow uses `GITHUB_TOKEN` with `contents: write`.
+The workflow uses `GITHUB_TOKEN` with `contents: write` and never changes `main`.
+Its notes do not require private submodule access, package permissions, or GHCR.
+Historical umbrella `v*` releases generate notes between `v*` tags; a semver tag
+containing a prerelease suffix is also marked as a GitHub prerelease.
 
 ### 3. Verify
 
 After the workflow completes:
 
 ```bash
-gh release view vX.Y.Z --repo Muxcore-Media/umbrella
+gh release view "$train" --repo Muxcore-Media/umbrella
 ```
 
-Confirm release notes match `./scripts/generate-changelog.sh --from <prev> --to vX.Y.Z --version vX.Y.Z`.
+Confirm the published notes match
+`bash scripts/prepare-release-train.sh --ref "$train" --tag "$train"`.
 
 ### Submodule-only changes
 
@@ -135,10 +169,12 @@ Offline tests for release automation scripts:
 
 ```bash
 bash scripts/generate-changelog_test.sh
+bash scripts/prepare-release-train_test.sh
 bash scripts/lint-commits_test.sh
 ```
 
-These are also run from `_mvp/scripts/run-script-tests.sh`.
+Umbrella CI runs all `scripts/*_test.sh` fixtures; the release workflow also runs
+the changelog and release-train fixtures before publishing.
 
 ## Pull requests
 

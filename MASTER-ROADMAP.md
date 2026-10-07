@@ -27,9 +27,12 @@
 
 **Constraints.** BC-1 no paid accounts · BC-2 fixture-only acquisition · **BC-3 GitHub is the only origin** · BC-4 GitHub Free plan, private repos, no `write:packages` · BC-5 no hosted service/telemetry · BC-6 pre-1.0 beta. See [BRD §5](docs/specs/BRD.md#5-business-constraints).
 
-## 2. Current state vs target (2026-10-05)
+## 2. Initial audit baseline vs target (2026-10-05)
 
-| Area | Current (evidence) | Target (v1.0 "household-ready", [PRD §5](docs/specs/PRD.md#5-product-level-acceptance-v10-household-ready)) |
+This table preserves the initial audit, not the current implementation status.
+Current task evidence is in §§5–6 and §9; the latest checkpoint is in §14.
+
+| Area | Initial audit evidence | Target (v1.0 "household-ready", [PRD §5](docs/specs/PRD.md#5-product-level-acceptance-v10-household-ready)) |
 |------|--------------------|------|
 | Breadth | ~100 modules; movies/TV request→acquire→import→play implemented and fixture-proven; rich SPA (~1,100 tests) and admin-ui (~350 tests) | Same breadth; every Must capability Implemented |
 | **Build health** | **46 of 97 Go modules fail to build at umbrella pins**; SPA typecheck fails; 3 script tests fail; integration suite cannot compile; 4 GitHub repos empty ([§9](#9-validation-log)) | All active repos green on GitHub CI (SM-8) |
@@ -55,7 +58,7 @@
 | [`docs/architecture/SDD.md`](docs/architecture/SDD.md) | Software design | Current | Patterns, collaboration, interface responsibilities, requirement satisfaction |
 | [`docs/architecture/TDD.md`](docs/architecture/TDD.md) | Technical design | Current | Build/deps, CI, packaging, testing, security approach, migration |
 | [`docs/architecture/lld/`](docs/architecture/lld/README.md) | Low-level design | Current | Acquisition, auth/sessions, core mesh, data ownership |
-| [`docs/adr/`](docs/adr/README.md) | Decision records | Current | Architectural decisions (0001–0011) |
+| [`docs/adr/`](docs/adr/README.md) | Decision records | Current | Architectural decisions (0001–0027) |
 | [`docs/config-reference.md`](docs/config-reference.md) | Env var reference | Current, drift known (NFR-OPS-005) | Configuration names/defaults |
 | [`README-UMBRELLA.md`](README-UMBRELLA.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CHANGELOG.md`](CHANGELOG.md) | Clone/bump workflow, commit/release process, changes | Current (after T-M0-03) | Process |
 | `_mvp/README.md`, `_mvp/PORTS.md`, `_mvp/BFF-API.md`, `_mvp/docs/{PUBLIC-INSTALL,ACQUISITION,INFRA-BACKENDS,DUAL-LIBRARY-API,RELEASE-BUILD}.md` | Stack runbooks and API refs | Current with known gaps (BFF-API incomplete) | Stack operation |
@@ -88,6 +91,16 @@
 | C-16 | Rebuilt `metadata-musicbrainz` briefly advertised the generic `metadata` capability, which media-movies/media-tvshows/media-list-sync use to discover the TMDB-style `MetadataProvider` | Advertise only `metadata.music` + `metadata.musicbrainz` | Consumer code (`FindByCapability(ctx, "metadata")`) |
 | C-18 | Registry compose runs the dev profile (plaintext mesh) with one container per module vs core ≥ v0.6.10 dialing security sidecars (authorizer/identity/auth, call policy, publish policy) in plaintext **only on loopback** (`internal/bootstrap.DialSidecar`) | Until the household switch (T-M3-02g, mesh TLS), `auth-local`, `call-policy-default`, `publish-policy-default` share core's network namespace (`network_mode: service:core`, names kept as network aliases on `core`); no core change — **resolved 2026-10-05**: in the household compose (`_mvp` cd23b18) core dials the sidecars over CN-checked TLS in their own containers (clean-room household run); the shared-network layout survives only in `docker-compose.dev.yml` | ADR-0016 (dev profile is loopback-only); implementation evidence (clean-room run) |
 | C-17 | ADR-0011 "no filesystem `replace`" vs core's nested modules (`sdk/go/{client,module,mock}`, root → `./pkg/contracts`) replacing their own parent paths | Allowed: replaces that stay inside one repository are ignored by consumers and never leave the repo; ADR-0011 targets cross-repository replaces. `check-no-replace.sh` scans only module roots, and the CI template allows `./` | Go module semantics; implementation evidence |
+| C-19 | Initial-audit summaries, FRD/LLD session sketches and several SRS/task rows still described defects already fixed in the 2026-10-05 validation log (including installer household, fixture defaults, restore/upgrade tests, CSRF and durable sessions) | Preserve the audit table and historical logs as dated evidence; update current statuses and design text from verified implementation. BFF sessions use encrypted JSON, not the earlier SQLite sketch. New branch checkpoints remain distinct from merged/deployed evidence | Existing §9 results, `session_store.go`, admin-ui `session/file_store.go`, T-M3-02/04/05; reconciled 2026-10-07 |
+| C-20 | T-M7-01/TDD require train tags, but CONTRIBUTING and release CI used only umbrella `v*` tags | `train-YYYY.MM.N` must match committed metadata; retain historical `v*` support with separate note ranges and no post-tag write to main | [ADR-0024](docs/adr/0024-umbrella-release-trains.md); offline fixtures |
+| C-21 | T-M4-05 said admin-ui `templ/a11y_test.go` was absent, but the pinned checkout already had static assertions; passing mocked UI checks could be mistaken for full WCAG/journey acceptance | Retain existing tests and add rendered DOM/axe/keyboard checks plus consumer Chromium fixtures. Automated-gate task evidence is separate from partial NFR-A11Y-001/002 and unproven full-stack journeys | [ADR-0025](docs/adr/0025-ui-verification-gates.md), local tests 2026-10-07 |
+| C-22 | M7's blanket `write:packages` token blocker and B-2's blanket no-CI claim outlived later evidence | Core already published with workflow `GITHUB_TOKEN`; module-image GHCR still needs its workflow/private checkout setup. On 2026-10-07 UI CI/browser jobs started, so billing availability must be checked per run rather than assumed blocked everywhere | R-1, current GitHub PR/run observation; no claim that every repo's billing/credential blocker is resolved |
+| C-23 | Core spool's textual host allow-list and config-reference default `all` did not express a connection-time address boundary | Retain exact host/port matching and explicitly listed LAN destinations; empty lists permit public destinations only, all DNS answers must pass before checked-IP dialing, and metadata/link-local destinations stay denied | [ADR-0028](docs/adr/0028-spool-dial-time-destination-policy.md), core `1eec416` and local race/lint evidence |
+| C-24 | T-M5-07's raw `secrets-vault` compose profile and optional host flag could select both secrets providers although discovery expects a deliberate provider choice | Support a last-applied overlay and exclusive host selection; retain file defaults and volumes, require explicit stop/configure/migrate/start, and document the raw additive profile as unsupported for selection. Core's exclusive-capability list is unchanged | [ADR-0029](docs/adr/0029-secrets-provider-deployment-selection.md), narrow FR-INS-008 trace to existing T-M5-07; runtime acceptance remains separate |
+| C-25 | The OIDC LLD proposed a new capabilities probe and SRS marked provider-aware pages wholly planned; consumer Acquisition remained viewer-visible after the first gate batch | Use actual typed AuthService responses without a new capability RPC; record the verified provider-aware and Acquisition/Requests-policy UI slices. Keep FR-AUTH-009 and FR-ADM-010 partial for their explicit remaining acceptance | admin-ui `c06ae6c`, media-ui-app `99b5ca3`, local verification below; no backend-authorization or live-provider inference |
+| C-26 | FRD invite workflow said admin-ui's generated link opened the SPA and went directly Home, and its exhaustion rule omitted unlimited invites | Document the actual admin-ui redemption link and HTTP redemption-to-login handoff, retaining the separate SPA path. Apply exhaustion only to a positive finite limit | admin-ui `handler/invites.go`, `household_redeem.go`, caller/URL fixtures and auth-local `internal/store/invites.go`; no full-stack J-02 acceptance inferred |
+| C-27 | NFR-MNT-005 literally required push-to-`main` although core's default branch is `master` | Target each repository's actual default branch; ADR-0003 defines hosted CI, not a mandatory branch name. Record present failures/successes by run rather than extending the old credential-count snapshot | GitHub core PR #97/#98 target and workflow evidence; no branch rename or CI-host change |
+| C-28 | FR-PLAY-007/FRD described playback as the server-enforced exception, but its inputs and policy are not authoritative | Keep the requirement partial and describe the observed trust gaps before designing the provider/policy boundary; list/search/detail middleware alone would not close it | Read-only BFF review: `playback.go` request metadata, ignored rating/allowed tags in `parental.go`, self-service userdata mutation and provider-failure local fallback; implementation/design acceptance pending |
 
 **Assumptions (labelled, revisit if wrong):** A-1 `MUXCORE_CI_TOKEN` exists in every repo (verified on `admin-ui` only). A-2 Content of the four empty GitHub repos is not recoverable from GitHub. A-3 Free-plan Actions minutes suffice once self-hosted jobs stop queueing. A-4 The owner's vault/homelab deployment remains in use as a reference deployment but is not a product requirement. A-5 Agents on `claude-workstation` cannot reach vault (no ZeroTier, no SSH key); module releases since 2026-10-05 are not redeployed there until the owner pulls them or grants access.
 
@@ -116,12 +129,12 @@ v1.0 = M0–M5 + M7 complete. M6 and M8 are Should-level and may ship after v1.0
 |-----------|------|---------------------|--------|----------------------------------|
 | **M0** | GitHub is the only origin; CI runs on GitHub-hosted runners; docs reconciled | NFR-MNT-005, NFR-MNT-006, NFR-MNT-009, NFR-SEC-012, NFR-COST-001, FR-SUB-002 | **Done** (2026-10-05) — criteria 1–5 verified locally (§9); the submodule-level hygiene step in umbrella CI skips until B-1 | (1) `scripts/check-retired-origin.sh` reports 0 matches over active content (excludes `docs/history/`, `docs/adr/`); (2) every active repo has `.github/workflows/ci.yml` with `runs-on: ubuntu-latest` and no `self-hosted`/`checkout-mirror`; (3) no retired-origin workflow directories in active repos; (4) `scripts/check-submodules.sh` passes (every pinned SHA fetchable from GitHub); (5) superseded docs bannered |
 | **M1** | Every active module builds, vets, and tests green standalone and in the workspace | NFR-MNT-001…004, NFR-MNT-007, NFR-SEC-013, FR-BRG-001, FR-MM-001 (restore) | **Done locally** (2026-10-05) — criteria 1, 3–6 verified (§9); criterion 2 (per-repo CI green) and CI observation of 1/5 blocked by B-1 | (1) umbrella workspace job: `go build ./... && go vet ./...` green for all active modules; (2) each active repo's GitHub CI green on `main` at the umbrella-pinned SHA; (3) `media-ui-app` typecheck/test/build green; (4) `node --test scripts/*.test.mjs` and `_mvp/scripts/run-script-tests.sh` green; (5) `integration` compiles and runs; (6) no filesystem `replace` in any active `go.mod` |
-| **M2** | A fresh install reaches a passing fixture smoke that covers request → grab → import → play | FR-INS-001/003(partial)/005/006, FR-AUTH-004 (e2e), FR-BAK-002/004, NFR-DATA-002, NFR-REL-001, NFR-OPS-005, NFR-PERF-003 | Todo | (1) `docker compose up` from root succeeds in a clean container host and `_mvp/smoke.sh` passes; (2) smoke asserts fixture search→dispatch→import→library item; (3) one version pin across compose/installer/operator/starter (check script green); (4) restore drill script green; (5) upgrade test from previous tag green for household modules |
-| **M3** | Secure defaults | NFR-SEC-001…011, FR-INS-003/004, FR-EXT-003, FR-BAK-003, NFR-REL-003, NFR-OPS-004 | Todo | Secure-defaults checklist (TDD §8) all items have passing tests; SM-4 = 100 % |
-| **M4** | Household consumer completeness | FR-PLAY-007/009, FR-AUTH-010, FR-ADM-010, NFR-A11Y-001/002, NFR-DATA-003 | Todo | Playwright fixture e2e J-02, J-03, J-08 green; axe checks green on core pages; server-side parental table test green |
-| **M5** | Operator & acquisition completeness | FR-ADM-002/006/008/009, FR-AUTH-007/009, FR-MIG-002/003, FR-ACQ-005(corpus)/006/011, FR-SUB-001, FR-TRN-001, NFR-REL-004 | Todo | SM-3, SM-5, SM-6 met; issues #121 and #151 closed |
+| **M2** | A fresh install reaches a passing fixture smoke that covers request → grab → import → play | FR-INS-001/003(partial)/005/006, FR-AUTH-004 (e2e), FR-BAK-002/004, NFR-DATA-002, NFR-REL-001, NFR-OPS-005, NFR-PERF-003 | In progress — original local household/dev smoke and restore evidence passed 2026-10-05; GitHub clean-room evidence and a renewed run after current wiring are pending | (1) `docker compose up` from root succeeds in a clean container host and `_mvp/smoke.sh` passes; (2) smoke asserts fixture search→dispatch→import→library item; (3) one version pin across compose/installer/operator/starter (check script green); (4) restore drill script green; (5) upgrade test from previous tag green for household modules |
+| **M3** | Secure defaults | NFR-SEC-001…011, FR-INS-003/004, FR-EXT-003, FR-BAK-003, NFR-REL-003, NFR-OPS-004 | In progress — core profile/enrollment and initial defaults shipped; remaining path/SSRF audit rows, phase-2 profile migration and renewed stack verification remain | Secure-defaults checklist (TDD §8) all items have passing tests; SM-4 = 100 % |
+| **M4** | Household consumer completeness | FR-PLAY-007/009, FR-AUTH-010, FR-ADM-010, NFR-A11Y-001/002, NFR-DATA-003 | In progress — Settings role gates and both UI automated gates verified locally; profiles, parental enforcement, deletion, migration and full-stack journeys remain | Playwright fixture e2e J-02, J-03, J-08 green; axe checks green on core pages; server-side parental table test green |
+| **M5** | Operator & acquisition completeness | FR-ADM-002/006/008/009, FR-AUTH-007/009, FR-MIG-002/003, FR-ACQ-005(corpus)/006/011, FR-SUB-001, FR-TRN-001, NFR-REL-004 | In progress — T-M5-11 published contract, provider and Devices consumer slices verified; live integration/revoke propagation and remaining operator/acquisition work pending | SM-3, SM-5, SM-6 met; issues #121 and #151 closed |
 | **M6** | Multi-media maturity | FR-MM-002…005, FR-REQ-006, FR-PLAY-010 | Todo | Fixture acquire→import→consume test per media type green |
-| **M7** | Distribution & v1.0 release candidate | FR-INS-001 (GHCR variant), release train | Blocked (GHCR needs `write:packages`); LAN-registry path not blocked | Release `train-*` tag; release notes from Conventional Commits; SM-1/2/4/8 met; GHCR push when unblocked |
+| **M7** | Distribution & v1.0 release candidate | FR-INS-001 (GHCR variant), release train | In progress — release preparation/notes verified locally; new train publication, central GHCR workflow and RC acceptance remain pending | Release `train-*` tag; release notes from Conventional Commits; SM-1/2/4/8 met; GHCR push when unblocked |
 | **M8** | Native clients | FR-NAT-001…003 | Partly Blocked (device, Android source) | iOS/tvOS simulator tests for auth+resume green via manual workflow; hardware checklist completed when a device is available |
 | **D** | Deferred | FR-AI-001, FR-PLAY-011, NFR-PERF-001/002, NFR-OPS-003, multi-tenant isolation (NG-1), k8s operator GA, `contracts-playback` service (NG-6), HA cluster | Deferred | Re-enters only via a new SRS priority + ADR where architectural |
 
@@ -129,7 +142,7 @@ v1.0 = M0–M5 + M7 complete. M6 and M8 are Should-level and may ship after v1.0
 
 Status legend: `Todo`, `In progress`, `Done (evidence)`, `Blocked (reason)`.
 
-### M0 — GitHub-only origin & CI (next actionable milestone)
+### M0 — GitHub-only origin & CI
 
 Prerequisites: none beyond `gh` access with `repo`+`workflow` scopes (available).
 
@@ -166,9 +179,9 @@ Prerequisites: M0 T-M0-01/02 (so results are visible in CI).
 |----|-----------|------|------------------|
 | T-M2-01 | Root `docker-compose.yml` includes `_mvp/docker-compose.registry.yml`; retire `docker-compose.ghcr.yml` (registry is a variable) | ADR-0007 | `docker compose config` valid in CI — **Done** (2026-10-05): root compose includes the registry file, ghcr variant retired; `docker compose config -q` green in `mvp` Script tests CI and in the umbrella workspace job |
 | T-M2-02 | Publish set covers every module referenced by any compose profile | TDD §5 | compose-vs-publish check script — **Done** (2026-10-05): `_mvp/scripts/check-publish-set.sh` (+test); 19 modules added, 44/44 compose images covered |
-| T-M2-03 | Smoke asserts fixture search → dispatch → import → library item (+ BFF play URL) | FR-INS-003, SM-1, ADR-0008, ADR-0014 | smoke step green on fixture stack — In progress: blockers found by the M2 design review fixed (indexer-piratebay v0.1.6 fixture marker for the dispatch guard; downloader-native-torrent v0.3.10 payload above the scanner minimum; media-movies v0.1.16 subscribes without a 15 s gap; registry compose BFF wiring `_mvp` 059479d); `cmd/acquirefixture` + smoke step landed (`_mvp` 0027b38); host-mode smoke passes end to end only with an auth-local identity workaround (fixed properly by T-M3-03a); fixes from the run: BFF stream proxy 502 (`_mvp`), media-scanner v0.1.29 import paths, downloader-native-torrent v0.3.12 mesh fixture storage, auth-local login rate limit (in progress) |
+| T-M2-03 | Smoke asserts fixture search → dispatch → import → library item (+ BFF play URL) | FR-INS-003, SM-1, ADR-0008, ADR-0014 | **Done locally (2026-10-05)** — later clean-room runs in §9 supersede the initial blockers: fixture indexer → torrent fixture engine → scanner import → media-movies → BFF stream 206 and playback resolve passed. This is historical train evidence; the 2026-10-07 wiring requires a renewed run before deployment/release claims |
 | T-M2-04 | Single version train pin consumed by compose, installer, operator, starter, Helm | FR-INS-006 | `scripts/check-pins.sh` green — **Done** (2026-10-05): `release-train.env` (now train-2026.10.2: core/images v0.6.13, spool 2.6.0), check in umbrella CI; core release workflow fixed (v0.6.6/v0.6.7: Go version, syft) |
-| T-M2-05 | Manifest `state_dirs` + `ExportState` coverage for household modules; restore drill script | FR-BAK-002/004, ADR-0013 | drill script green — **Done** (2026-10-05): `_mvp/scripts/restore-drill.sh` host mode passes end to end (18 modules restored, snapshot equal, original admin password survives; `docs/RESTORE.md`; compose mode written, needs a compose host). Earlier: manifest `state:` model + `_mvp/scripts/check-state-coverage.sh` (28 state entries) green in mvp CI; registry compose stores all module state on named volumes (it wrote into image filesystems before); backup-local v0.1.5 re-indexes archives on a fresh install; drill script next |
+| T-M2-05 | Manifest `state_dirs` + `ExportState` coverage for household modules; restore drill script | FR-BAK-002/004, ADR-0013 | **Done locally (2026-10-05)** — host drill restored 18 modules; the later compose drill restored 16 with identical snapshot and original-password authentication (decoy refused). Manifest/volume coverage and `backup-local` archive re-indexing fixed earlier gaps; see §9 and `_mvp/docs/RESTORE.md`. New deployment changes still require renewed smoke/restore evidence |
 | T-M2-06 | Upgrade-from-previous-tag tests for household modules | NFR-DATA-002, FR-INS-005, ADR-0015 | tests green — **Done** for the household set (2026-10-05): `core/sdk/go/module/moduletest` (sdk v0.6.1) + `scripts/upgrade-fixtures/snapshot.sh`; snapshot upgrade tests in request-media v0.3.3 (v0.2.7, v0.3.0, v0.3.2), auth-local v0.1.15 (v0.1.5), userdata-local v0.1.1, media-tvshows v0.1.14, media-movies v0.1.17 (v0.1.9, v0.1.15), media-automation v0.1.47, media-scanner v0.1.28. Found and fixed: media-movies `Init` hung on every v0.1.9 database; a follow-up sweep fixed the same cursor-held-across-write deadlock in media-library-maintainer v0.1.13 and media-transcoder-pool v0.2.2 and a hazard in media-tvshows v0.1.15. Image-level upgrade drill follows T-M2-10 |
 | T-M2-07 | Env-var drift check vs `docs/config-reference.md` (remove phantom vars like `BACKUP_EXCLUDE`) | NFR-OPS-005 | check script green — **Done** (2026-10-05): `scripts/check-env-docs.mjs` + test, in umbrella CI |
 | T-M2-08 | Remove or mark dev-only `media-ui-app/Dockerfile` + `nginx.conf`; complete `_mvp/BFF-API.md` route inventory with a test | SDD §5, TDD §7 | route-inventory test green — **Done** (2026-10-05): `routes_inventory_test.go` vs `BFF-API.md` (351 routes); found and fixed two ServeMux conflicts that made `mediauiprox` panic at startup; `media-ui-app` Dockerfile/nginx already marked dev-only |
@@ -194,11 +207,25 @@ Nine items from [TDD §8](docs/architecture/TDD.md#8-security-hardening-approach
 
 ### M4 — Household completeness
 
-T-M4-01 server-side parental middleware in BFF (FR-PLAY-007) · T-M4-02 profiles incl. kids/PIN (FR-AUTH-010) · **T-M4-03 hide unsupported Cast/AirPlay (FR-PLAY-009) — Done (`media-ui-app` PR #37; SRS row still Part: Remote Playback API only, no Cast SDK)** · **T-M4-04 operator settings gating (FR-ADM-010) — Part: automated evidence merged (`media-ui-app` PR #39, Settings.test.tsx 62→113); `QualityPane`/`DelayPane` still feature-gated only, `admin-ui` not migrated** · **T-M4-05 `vitest-axe` + admin-ui a11y tests (NFR-A11Y-001) — Part: `media-ui-app` automated axe checks Done (PR #38); `admin-ui` `templ/a11y_test.go` outstanding** · T-M4-06 Playwright fixture e2e J-02/J-03/J-08 (+ viewport checks, NFR-A11Y-002) · T-M4-07 user deletion fan-out (NFR-DATA-003).
+| ID | Objective / refs | Status and remaining acceptance |
+|----|------------------|---------------------------------|
+| T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | In progress — prerequisite typed userdata-local authority foundation accepted in ADR-0030; source work starts as an unused producer with admin-bearer CAS writes and tenant-bound self/admin reads. Current playback still trusts request metadata/self-editable userdata. Trusted migration, media classification, failure handling and consumer route enforcement remain; no implementation acceptance yet |
+| T-M4-02 | Profiles incl. kids/PIN (FR-AUTH-010) | Todo |
+| T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
+| T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — `357461d` aligns indexer mutation controls with admin-only BFF writes; admin/manager Acquisition access and earlier role/capability gates remain. Local scoped 197, full 1246 and browser 52 tests pass, with established-session action coverage. Fresh direct-Settings role hydration remains a separate verified gap; settings migration/admin destination/manager page access remain open |
+| T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
+| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — `357461d` has 52 Chromium HTTP-fixture cases across 375/768/1280/1920 px with local/hosted success, including prior keyboard/focus/reduced-motion and new established-session indexer actions. Fresh direct-Settings hydration remains open. These prove selected UI behavior, not real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
+| T-M4-07 | User deletion fan-out (NFR-DATA-003) | Todo |
 
 ### M5 — Operator & acquisition completeness
 
-T-M5-01 indexer & downloader admin pages (FR-ADM-006) · T-M5-02 unified wanted across media (FR-ADM-002) · T-M5-03 per-page RBAC + OIDC-aware pages (FR-ADM-009, FR-AUTH-009) · T-M5-04 transcoder queue/pool profiles — issue #121 (FR-ADM-008, FR-TRN-001) · T-M5-05 migration depth + dry-run (FR-MIG-002/003) · T-M5-06 decision corpus + quality-tier cutoff (FR-ACQ-005/006, SM-3) · T-M5-07 secrets-vault registry-compose profile — issue #151 · T-M5-08 downloader contract unification (FR-ACQ-011) · T-M5-09 subtitle providers beyond OpenSubtitles (FR-SUB-001) · T-M5-10 event-redelivery idempotency tests (NFR-REL-004) · T-M5-11 all-sessions device list (FR-AUTH-007).
+T-M5-01 indexer & downloader admin pages (FR-ADM-006) · T-M5-02 unified wanted across media (FR-ADM-002) · T-M5-03 per-page RBAC + OIDC-aware pages (FR-ADM-009, FR-AUTH-009) · T-M5-04 transcoder queue/pool profiles — issue #121 (FR-ADM-008, FR-TRN-001) · T-M5-05 migration depth + dry-run (FR-MIG-002/003) · T-M5-06 decision corpus + quality-tier cutoff (FR-ACQ-005/006, SM-3) · T-M5-07 explicit secrets-provider selection — issue #151 (FR-INS-008) · T-M5-08 downloader contract unification (FR-ACQ-011) · T-M5-09 subtitle providers beyond OpenSubtitles (FR-SUB-001) · T-M5-10 event-redelivery idempotency tests (NFR-REL-004).
+
+**T-M5-03 per-page RBAC + OIDC-aware pages — Part:** admin-ui `c06ae6c` handles actual AuthService `Unimplemented` on user, TOTP, token and invite operations with explanatory control-free states; genuine failures remain errors, and invites use existing RPCs with the caller context. Local focused/full race, rendered accessibility and keyboard checks pass. Direct passkey endpoints, live OIDC acceptance and per-page RBAC remain; the global `admin.access` guard is unchanged.
+
+**T-M5-07 explicit secrets-provider selection — Part:** `_mvp` `3ba1ec4` adds the last-applied compose overlay and host-runner selection in [ADR-0029](docs/adr/0029-secrets-provider-deployment-selection.md). Twenty-seven actual compose renders and host launcher/preflight/process fixtures pass locally, preserving default file behavior and unrelated reused PIDs. Operators explicitly stop the old provider and migrate secrets; external-provider connectivity and manual migration have not run. Requires `!reset` support; Docker Compose 2.40.3 verified, earlier versions and Podman Compose unverified.
+
+**T-M5-11 all-sessions device list (FR-AUTH-007) — Part:** core v0.6.16 publishes the verified contract ([ADR-0026](docs/adr/0026-administrative-session-contract.md)). Auth-local `f57d194` and admin-ui `b84ecc7` provider/Devices slices pass hosted checks and have merged; local provider execution remains blocked by B-3. Live consumer integration and app/BFF bearer revalidation remain. Quick Connect has local-only sessions without a provider bearer and needs a provider device grant. Current checkpoints do not establish cross-app revocation.
 
 ### M6 — Multi-media maturity
 
@@ -206,7 +233,7 @@ T-M6-01 library-plus request routing (FR-REQ-006, FR-MM-002) · T-M6-02 media-ty
 
 ### M7 — Distribution & v1.0 RC
 
-T-M7-01 release-train tagging + notes generation · T-M7-02 GHCR publish workflow (**Blocked**: needs a token with `write:packages`) · T-M7-03 v1.0 RC checklist run (SM-1, SM-2, SM-4, SM-8).
+**T-M7-01 release-train tagging + notes generation — In progress:** tooling verified locally in umbrella `f82014b` ([ADR-0024](docs/adr/0024-umbrella-release-trains.md)); immutable committed pins/gitlinks, train-specific Conventional Commit ranges, historical `v*` support and tag-manifest validation are covered by offline fixtures. No real train tag or release has been cut for this checkpoint; publication follows stack acceptance. **T-M7-02 central module-image GHCR publish workflow — Todo:** workflow `GITHUB_TOKEN` can publish with `packages: write` (R-1); private checkout and actual module-image publication remain unverified. **T-M7-03 v1.0 RC checklist — Todo:** SM-1/2/4/8 are not yet satisfied for the current changes.
 
 ### M8 — Native clients
 
@@ -217,7 +244,10 @@ T-M8-01 iOS/tvOS simulator tests for auth + resume via manual macOS workflow (FR
 | ID | Item | Type | Effect | Response |
 |----|------|------|--------|----------|
 | B-1 | **Org Actions secret `MUXCORE_CI_TOKEN` missing in ~60 repos** (incl. umbrella, core, contracts-*) | Owner action | Their CI cannot fetch private sibling modules; umbrella workspace job skips | Owner creates a fine-grained PAT (read-only Contents on `Muxcore-Media/*`) and runs `gh secret set MUXCORE_CI_TOKEN --org Muxcore-Media --visibility all` (needs `admin:org`). Not done by the agent: it would mean copying the owner's broad OAuth token into many repos |
-| B-2 | **GitHub Actions minutes / billing exhausted** (2026-10-05: umbrella run 37348455715 — "job was not started because recent account payments have failed or your spending limit needs to be increased"); R-2 materialised after ~200 module releases in one day | Owner action | No GitHub CI evidence until resolved; all verification is local (§9) | Owner: fix billing or raise the Actions spending limit. Agents: keep local verification as evidence; consider path filters / tag-only release runs to cut minutes (NFR-COST-001) |
+| B-2 | **Historical GitHub Actions billing/minutes failure** (2026-10-05 umbrella run 37348455715); current availability varies by run | External/per-run | On 2026-10-07 media-ui-app PR #40 CI/browser jobs started; this does not prove all repositories' billing or credential blockers resolved | Inspect actual run results; keep local evidence distinct. Path filters/cancellation remain appropriate (NFR-COST-001); do not assume every new job is blocked |
+| B-3 | auth-local test dependency `modernc.org/sqlite@v1.55.0` redirects to excluded `storage.googleapis.com` in the current workspace network policy | Local environment blocker (2026-10-07) | Local provider execution is blocked; hosted baseline run 37354893703 passes on historical `7d2a6e7`, establishing a separate CI path | Auth-local feature `f57d194` now passes hosted CI separately from the historical baseline. Continue hosted checks for follow-ups; local execution and live integration remain distinct limits |
+| B-4 | Helm tool download hosts (`get.helm.sh`, `storage.googleapis.com`) are blocked in the current workspace | Environment blocker (2026-10-07) | Current Helm wiring lacks a Helm render/lint run; compose and Kustomize checks are separate evidence | Run Helm verification when the tool is available; no claim that compose/Kustomize renders cover Helm |
+| B-5 | Clean-room prerequisite image build cannot fetch Alpine APK indexes from excluded `dl-cdn.alpinelinux.org` | Environment blocker (2026-10-07) | Docker image pulls work, but the required `apk add --no-cache ca-certificates curl` fails before a new stack can be built | Resume from immutable approved snapshots when package retrieval is possible; no household/dev smoke, restore or new train acceptance claimed |
 | R-1 | GHCR needs `write:packages` | Blocker (external), partly lifted | M7 GHCR variant | Core's release workflow pushed `ghcr.io/muxcore-media/muxcored:{0.6.7,v0.6.7}` with the workflow `GITHUB_TOKEN` (2026-10-05), so GHCR publishing works from GitHub Actions; the agent's own token still lacks `read/write:packages`, and module images (built centrally by `_mvp/scripts/publish-module-images.sh`) need a workflow with `packages: write` (T-M7-02). LAN-registry path unaffected (ADR-0007) |
 | R-2 | Free-plan CI minutes | Risk | CI may stop gating | NFR-COST-001 measures; fallback in ADR-0003 |
 | R-3 | Four empty GitHub repos (content only on retired host) | Blocker resolved by decision | Lost history for `media-ui-tv`, `muxcore-android` | Removed from pins; `playback-contract` folded; `metadata-musicbrainz` rebuilt |
@@ -229,11 +259,24 @@ T-M8-01 iOS/tvOS simulator tests for auth + resume via manual macOS workflow (FR
 
 ## 8. Next actionable milestone
 
-M0 is done; M1 is done locally (its CI criteria wait on B-1 and B-2). Of M2, every task except T-M2-10's GitHub run is done (the clean-room job passes locally; CI needs B-1 and B-2). M3 is nearly done: the household profile is the compose default and has been verified end to end. What remains of M3: switching the installer to household and the phase-2 removal of profile inference (ADR-0016). Next comes **M4 — Household completeness** (T-M4-01…07), together with the follow-ups in §10.
+M0 and the original M1 local baseline are complete. M2 has historical local
+household/dev smoke and restore evidence, but current deployment wiring needs a
+renewed gate and GitHub clean-room evidence. Both compose and installer already
+default to household. M3 still needs remaining SSRF/path audit rows and ADR-0016
+phase-2 migration one train after the household switch; the current train has not
+advanced. **M4 is active:** continue server-side parental enforcement, profiles,
+operator-settings migration and true fixture-stack journeys. M5's session
+contract can proceed to provider/consumer work using hosted verification while
+the local B-3 dependency block remains; release tooling
+is ready for a reviewed train only after acceptance. See §14 for the current
+checkpoint and verification limits.
 
 ## 9. Validation log
 
-Checks **actually run** (not proposed). Environment: `claude-workstation` container, Go 1.27.1, Node 24.21.0, umbrella `d7cd743` with submodules at pinned SHAs (4 empty repos not checked out).
+Checks **actually run** (not proposed). Initial baseline environment:
+`claude-workstation`, Go 1.27.1, Node 24.21.0, umbrella `d7cd743` with submodules
+at pinned SHAs (4 empty repos not checked out). Later rows identify their own
+environment/checkpoint; a previous pass is not a new deployment verification.
 
 | Date | Check | Result |
 |------|-------|--------|
@@ -287,7 +330,59 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
 | 2026-10-06 | `media-ui-app` T-M4-03 (FR-PLAY-009, PR #37) + offset-toast timer cleanup on `804e7f2` | `npm run build` exit 0; targeted Cast/AirPlay block 4 passed; full suite 478 suites / **1111 tests** 0 failed, `success: true`, exit 0. Regression test proven genuine: removing the `useEffect` teardown makes it fail (`expected "clearTimeout" to be called with arguments: [Timeout { msecs: 800 }]`, exit 1). Fixed the intermittent exit-1 (`ReferenceError: window is not defined` at `VideoPlayer.tsx:467`) that made CI red while all tests passed. CI `Typecheck, test, build` SUCCESS |
 | 2026-10-06 | `media-ui-app` T-M4-04 (FR-ADM-010, PR #39) on `7b644bc`/`3558056` | `npm run typecheck` exit 0; `npm test` 491 suites / **1179 tests** 0 failed, `success: true`; `npm run build` exit 0 (2049 modules). New FR-ADM-010 suite covers viewer/admin/manager/approver/no-role across nav-link and direct-route absence, plus guards that personal panes stay reachable for a viewer. Regression proof: removing `canManageUsers()` from the `/users` route makes the viewer test fail exit 1 (`settings-users` rendered); restoring passes 113/113. CI `Typecheck, test, build` SUCCESS. Not fixed: `QualityPane`/`DelayPane` are feature-gated only — the attempted `canManageQuality()` gate broke 3 pre-existing tests, so it was reverted pending an owner decision |
 
+**2026-10-07 branch checkpoints** (Go 1.26.6, Node 24.19.0 unless stated):
+
+| Date | Check | Result |
+|------|-------|--------|
+| 2026-10-07 | Umbrella `f82014b`: `node --test scripts/*.test.mjs`; changelog/train shell fixtures; ShellCheck 0.11.0 on changed shell files; docs, default-credential, no-replace and diff checks | Node 69/69; both release fixture suites pass (also rerun by orchestrator); changed-shell lint and checks pass. Read-only current-train preparation succeeded; no real tag/release created |
+| 2026-10-07 | `_mvp` `7dfd7c0`: `go test ./...`; `go test -race -count=1 ./cmd/mediauiprox`; `go vet ./cmd/mediauiprox`; script suite; shellcheck/diff; compose/Kustomize renders | Pass: full module tests (BFF 3.138 s), focused race (4.961 s), six new security test functions with subcases, guard/mount script. Script state coverage 36 entries / 5 stateless / 0 warnings; backup-local proto assertion skipped because sibling uninitialized. Household/dev/source compose renders with nine URL/default/empty assertions and three Kustomize overlays pass; Helm not run (B-4). No current clean-room/restore run |
+| 2026-10-07 | `media-ui-app` `2073a0b`, Node 24.19.0/npm 11.9.0: typecheck, full Vitest, production build, Settings mutation check, Chromium browser fixtures | Local pass: 493 suites / 1196 tests (97.05 s), Settings 130/130; removing Quality route role gate fails four deny-role cases. Build 2049 modules; 20/20 browser cases (34.2 s) at four widths using Chromium 151.0.7922.173. Browser fixtures cover selected UI only, not full BFF journeys |
+| 2026-10-07 | `admin-ui` `a567ab1`: `npm ci`; `npm test`; `npm run test:a11y`; `go test ./templ`; `make ci TEMPL=/tmp/admin-ui-tools/templ TAILWIND_BIN=./node_modules/.bin/tailwindcss` | Pass: six keyboard tests; 15 axe suite/control tests over 13 rendered documents; full race suite and CSS/binary builds. Original 60 s local handler-test timeout was insufficient; aligned with canonical CI's 15 min, final handler race run 104.176 s. Lint uses the documented go-vet fallback (golangci unavailable). Old Settings overlay fails duplicate-ID/checkbox-label checks; old nav script fails all six keyboard tests |
+| 2026-10-07 | Core session-contract `e19d0ff`: `make test`, `make lint`, `scripts/check-proto-drift.sh`, generated-proto comparison, diff check | Pass: full race suite, go-vet lint, old/rebuilt-provider compatibility tests; protoc 29.3 with protoc-gen-go 1.36.12 / protoc-gen-go-grpc 1.6.2 reproduces generated files. Provider implementation is not included; auth-local dependency download blocked (B-3) |
+| 2026-10-07 | GitHub media-ui-app PR #40 [Browser fixtures run 37571801123](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37571801123) | Ran and failed 2/20: a transition briefly rendered duplicate title locators; browser fixture fix in progress. Confirms jobs can start, not that B-1/B-2 are resolved globally; local success is not substituted for remote success |
+| 2026-10-07 | `media-ui-app` `6bc26ec`: exact detail-page h1 assertion after the GitHub transition failure | Local 20/20 browser fixtures (14.3 s) and 40/40 repeated navigation cases (47.5 s, no retries) pass; remote rerun tracked separately |
+| 2026-10-07 | GitHub first-checkpoint workflows | Umbrella `f82014b` CI and Commit lint SUCCESS; admin-ui PR #60 Accessibility SUCCESS. `_mvp` PR #97 Go CI fails private fetch with empty `MUXCORE_CI_TOKEN` (B-1); script tests pass but its compose-config step lacks the fixture enrollment token for media-ffprobe, with a follow-up fix pending |
+| 2026-10-07 | `node scripts/check-env-docs.mjs` in the sparse workspace | Fails with 576 documented variables whose owning modules are absent; no undocumented reads reported. Complete drift verification is unavailable from this checkout; valid configuration rows were preserved |
+| 2026-10-07 | Latest first-batch hosted results | media-ui-app `6bc26ec` [Browser fixtures run 37572331426](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37572331426) SUCCESS; its unit/build rerun still running at this checkpoint. Admin-ui PR #60 hosted Build/vet/race, Lint and Accessibility all SUCCESS; merged as `520668658a771b3f6355d1d5e77a4057208d3b18` |
+| 2026-10-07 | `_mvp` `ae4a8c4` CI compose fixture follow-up | Exact workflow compose check and full `run-script-tests.sh` pass locally. CI fixture now generates a temporary 0600 env with 51 enrollment tokens, supplies the dev transcoder token, validates household and dev compose, and removes the file via trap. Hosted rerun and full clean-room remain separate pending evidence |
+| 2026-10-07 | Clean-room prerequisite container-build probe (Docker 28.4) | `registry:2` and Alpine 3.21 pulls succeed. Required `apk add --no-cache ca-certificates curl` fails with APKINDEX `Permission denied` (apk exit 2 / Docker exit 1) at `dl-cdn.alpinelinux.org` (B-5); inherited proxy and TLS verification retained. No household/dev stack smoke or restore ran, and no active module branches were changed for the probe |
+| 2026-10-07 | First-batch terminal hosted results and umbrella integration | media-ui-app PR #40 both hosted gates SUCCESS; merged as `f9963d80415ffd6c032447e1fa21929b84ab75ec`. `_mvp` `ae4a8c4` Script tests [run 37572573165](https://github.com/Muxcore-Media/mvp/actions/runs/37572573165) SUCCESS; Go CI still fails on B-1. Umbrella `395c0e2` pins approved source SHAs `6bc26ec` (UI), `a567ab1` (admin), `e19d0ff` (core) and `ae4a8c4` (`_mvp`); core and stack reviews remain open |
+| 2026-10-07 | `media-ui-app` `99b5ca3`: typecheck, full Vitest, production build, scoped role/capability/approval tests and Chromium fixtures | Pass: 495 suites / 1233 tests (77.76 s); Settings 148 tests, scoped four files 185/185; build 2049 modules; 28/28 browser cases (31.5 s). Viewer/approver direct Acquisition/Requests-policy routes make no policy API calls at all four widths with capabilities enabled. Existing member readiness/quota and admin/manager/approver approval actions remain covered; backend authorization unchanged |
+| 2026-10-07 | `admin-ui` `c06ae6c`: full `make ci`, targeted race matrix, rendered axe and keyboard tests | Pass: full race suite (handler 105.018 s), explicit template/CSS/binary builds, go-vet lint fallback; targeted 9 tests + 112 subtests, final race 1.345 s and independent orchestrator run 1.515 s. Keyboard 6/6, axe 17/17 over 15 actual rendered documents plus suite/control; four baseline regression cases fail as expected. Final copy-only invite text regeneration passed focused handler/template checks. No live OIDC or direct-passkey acceptance |
+| 2026-10-07 | Core spool `1eec416` atop architecture-lint follow-up `aacd822`: full/focused race, URL fuzz, golangci and architecture lint | Full `make test` race suite passed before nonsemantic lint edits (spool 1.843 s, grpcmesh 22.009 s); final focused race 1.576 s, independent orchestrator focused race 1.592 s, golangci-lint 2.12.2 zero issues and go-arch-lint pass. URL parser fuzz passed 81,465 executions in 5 s. Regression fixtures cover DNS/redirect/address/policy boundaries, stalled-IPv6 fallback, cancellation and late losing socket closure. Architecture follow-up adds the pre-existing `integsupport` component; no contract or published tag change |
+| 2026-10-07 | Umbrella `1c5d38e`, [CI run 37573087944](https://github.com/Muxcore-Media/umbrella/actions/runs/37573087944) | CI and Commit lint SUCCESS. New UI #41, admin #61 and core #97/#98 hosted runs remain separate pending evidence at this checkpoint |
+| 2026-10-07 | media-ui-app `99b5ca3`, [CI run 37573893681](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37573893681) and [Browser fixtures run 37573893622](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37573893622) | Both hosted workflows SUCCESS; PR #41 merged as `d6a9fca8ea19c3e283687589f0ca38d4d68eadbd`. Exact source `99b5ca3` approved for the next integration pin |
+| 2026-10-07 | `_mvp` `3ba1ec4`: full script suite, real compose provider matrix, host launcher/process fixtures, Go and shell checks | Pass: 38 top-level script checks including 27 real Docker Compose 2.40.3 renders (no render-error skips); unit and actual host up/restart/stop/stop-one fixtures. A stale PID pointing to an unrelated live process was reproduced and fixed narrowly for secrets-provider start/stop; regression preserves that process. Existing backup-local proto assertion remains skipped because its sibling is absent. `go test ./...` passes cached, ShellCheck/bash syntax/diff/no-replace checks pass. No external-provider connectivity, manual migration or full-stack run |
+| 2026-10-07 | admin-ui `c06ae6c`, [CI run 37573988601](https://github.com/Muxcore-Media/admin-ui/actions/runs/37573988601) and [Accessibility run 37573988452](https://github.com/Muxcore-Media/admin-ui/actions/runs/37573988452) | Both hosted workflows SUCCESS; PR #61 merged as `ae99ba935e3044f6865ba1628b00f052bade44f0` |
+| 2026-10-07 | admin-ui lock-only `9df6691`, source-map-js 1.2.2 build-dependency update | Clean npm install and audit including dev dependencies report zero findings; CSS build, six keyboard and 17 axe checks pass. Runtime-only audit already reported zero before this update. Exact Dependabot alert #5 identity and the standalone Tailwind binary remain unverified; no broader vulnerability-clean claim |
+| 2026-10-07 | `_mvp` `3ba1ec4` independent review and publication | Orchestrator independently reran all 27 compose renders and host fixtures successfully; source pushed, PR #98 stacks on the PR #97 topic branch. Hosted result remains pending |
+| 2026-10-07 | Core [PR #97 CI run 37573823200](https://github.com/Muxcore-Media/core/actions/runs/37573823200) and [PR #98 CI run 37574037033](https://github.com/Muxcore-Media/core/actions/runs/37574037033) | Both hosted workflows SUCCESS. Session-contract/architecture follow-up merged as `c2f8d56a1520eb0b9333dac5e1301cd8e952423b`; spool source `1eec416` merged as `8e04fc2d95d218f1cf74aa28a29bfad13ad6141a`. No dependency tag or provider implementation published |
+| 2026-10-07 | `_mvp` `3ba1ec4`, [Script tests run 37574564697](https://github.com/Muxcore-Media/mvp/actions/runs/37574564697) and [Go CI run 37574564678](https://github.com/Muxcore-Media/mvp/actions/runs/37574564678) | Script tests SUCCESS. Go CI fails during private fetch with empty `TOKEN` and `could not read Username` (job 112640455628): B-1 remains, so this run provides no source build/test result |
+| 2026-10-07 | admin-ui `9df6691`, [CI run 37574497259](https://github.com/Muxcore-Media/admin-ui/actions/runs/37574497259) and [Accessibility run 37574496907](https://github.com/Muxcore-Media/admin-ui/actions/runs/37574496907) | Both hosted workflows SUCCESS; lock-only PR #62 merged as `9c75564c43b36de11b36aff83dce68b3e2d8338a` |
+| 2026-10-07 | Umbrella `2bbc9ccd68cdcc0e47ff214318cc4f9baae4b566` integration | Committed and pushed exact approved gitlinks: core `1eec416`, admin-ui `9df6691`, media-ui-app `99b5ca3`, `_mvp` `3ba1ec4`. Source and local/hosted verification limits are recorded in §12; this pin commit does not cut a release tag or establish full-stack acceptance |
+| 2026-10-07 | Umbrella `78d0ddc`, [CI run 37574985038](https://github.com/Muxcore-Media/umbrella/actions/runs/37574985038) and [Commit lint run 37574985080](https://github.com/Muxcore-Media/umbrella/actions/runs/37574985080) | Both hosted workflows SUCCESS |
+| 2026-10-07 | Core v0.6.16 producer and isolated Go consumer | Remote annotated tag `6139f0ff632ffabad841bd094fd52eb3209318c9` resolves to merged `8e04fc2d95d218f1cf74aa28a29bfad13ad6141a`. A clean `GOWORK=off` consumer downloads the tag without replace directives, compiles/runs ListSessions/RevokeSession interface/descriptor and old-provider `Unimplemented` compatibility checks, and passes `go mod verify`. Release workflow artifacts remain separate evidence |
+| 2026-10-07 | media-ui-app `b1950e6`: keyboard/focus slice local verification | Typecheck and production build pass (2049 modules, 5.49 s); full Vitest 495 suites / 1234 tests (84.17 s), scoped three files 23/23, Chromium 44/44 (52.5 s) and final semantic menu-focus checks 4/4 at all widths pass. Isolated previous `99b5ca3` reproduces seven expected failures with one phone-shelf pass; an additional desktop check proves the pre-existing Downloads item lacks required focus, avoiding dependence on a newly added accessible label. More-menu, shelf endpoints/reduced-motion and invite status/error/focus paths covered; no full WCAG or real-backend acceptance |
+| 2026-10-07 | Core v0.6.16 [release run 37575201268](https://github.com/Muxcore-Media/core/actions/runs/37575201268), draft release 405403125 | Workflow SUCCESS; draft metadata lists 18 nonempty assets with GitHub SHA-256 metadata: four platform archives, four SPDX files, one checksum file and nine signatures. Job 112642426089 records nine successful cosign signing/uploads and four GHCR pushes (`muxcored`/`core`, `0.6.16`/`v0.6.16`) at digest `sha256:c2abc2da2f9bbb6e4647ef8e138dbb592345c2532a00453e1761bc596ab0cd47`. Published auth proto/generated Go are byte-identical to the reviewed tree. Asset download returned 404 and registry readback Unauthorized, so independent cryptographic/artifact readback verification remains unavailable; no new household train or runtime deployment |
+| 2026-10-07 | media-ui-app `b1950e6`, [CI run 37575626349](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37575626349) and [Browser fixtures run 37575626354](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37575626354) | Both hosted workflows SUCCESS; keyboard/focus PR #42 merged as `26be1ead2a1325d3ca11ad31088d7f53d7619b75`. No full WCAG or backend-journey claim |
+| 2026-10-07 | admin-ui `b87ca35` Arr outbound guard: full `make ci`, focused/SDK race fixtures and prior-client regression proof | Full CI passes: Go build/race (handler 104.725 s), CSS build and golangci-lint 2.12.2 zero issues. Focused tests pass 11 top-level + 37 subtests; published SDK v0.6.6 guard tests pass 8 + 82. Coverage includes three Arr services/base paths, nine unsafe destinations, 20 redirect combinations, TLS certificate denial and blocked-handler no-import/no-scan behavior. Prior `9df6691` client overlay produces 24 expected failure events (two top-level + 22 subtests). Fixtures make no requests outside local test services; hosted review pending |
+| 2026-10-07 | admin-ui `b87ca35` independent/hosted verification: [CI run 37576027430](https://github.com/Muxcore-Media/admin-ui/actions/runs/37576027430) and [Accessibility run 37576027490](https://github.com/Muxcore-Media/admin-ui/actions/runs/37576027490) | Independent focused race passes (arrmigrate 1.150 s, handler 1.036 s); both hosted workflows SUCCESS. PR #63 merged as `ad9ed1e8a17e50c2085964d8c93880247ffa1eb6` |
+| 2026-10-07 | Auth-local historical baseline [run 37354893703](https://github.com/Muxcore-Media/auth-local/actions/runs/37354893703), source `7d2a6e7` | Hosted Build/vet/full race (job 112642770443) and lint (job 112642770621) SUCCESS. This verifies the historical source and available hosted path, not new session-provider source `f57d194`; local SQLite download remains blocked by B-3 |
+| 2026-10-07 | Umbrella `534a6f5` third-batch integration | Committed and pushed approved source pins: `_mvp` `76c8a40` (documentation-only follow-up to `3ba1ec4`), admin-ui `b87ca35`, media-ui-app `b1950e6`; core remains `1eec416`. `_mvp` BFF-API now correctly describes indexer POST/PATCH/DELETE as admin-only; GET remains authenticated without a privileged-role requirement. Train metadata unchanged |
+| 2026-10-07 | Umbrella `534a6f5`, [CI run 37576767273](https://github.com/Muxcore-Media/umbrella/actions/runs/37576767273) and [Commit lint run 37576767536](https://github.com/Muxcore-Media/umbrella/actions/runs/37576767536) | Both hosted workflows SUCCESS; workspace/private-token skip limitations remain |
+| 2026-10-07 | media-ui-app `357461d` indexer controls | Typecheck/build (2049 modules, 3.91 s), scoped four files 197 tests (6.40 s), full 495 suites / 1246 tests (65.07 s), and 52/52 browser cases (37.9 s) pass. Eight new cases establish identity through actual Home/session refresh and observed cached roles before direct Acquisition, then verify admin PATCH/DELETE/POST payloads/refresh and manager read-only behavior without mutation requests. Prior `26be1ea` fails two manager tests because the Add form remains visible. The initial browser attempt passed 48/52 and exposed the separate fresh direct-Settings hydration defect; final established-session coverage does not close it |
+| 2026-10-07 | media-ui-app `357461d`, [CI run 37576972268](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37576972268) and [Browser fixtures run 37576972251](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37576972251) | Both hosted workflows SUCCESS; PR #43 merged as `0b6d466105017e15aa80d58b046e0d230e776d29`. Fresh direct-Settings hydration remains a separate follow-up |
+| 2026-10-07 | admin-ui `b84ecc7` provider Devices consumer | Full `make ci` passes: binary/CSS build, race handler 104.917 s and golangci 2.12.2 zero issues. Focused 50 events (16 top-level + 34 subtests), independent focused race 1.243 s, keyboard 6/6 and axe 22/22 over 20 documents pass. Replacing metadata Set with Append fails two top-level/two filter subtests, proving singleton actual-session bearer assertions. `GOWORK=off GOPROXY=off go mod verify` passes and published core v0.6.16 has no replace. Hosted/live provider acceptance and global session revalidation remain separate |
+| 2026-10-07 | `_mvp` `76c8a40`, [Script tests run 37576679722](https://github.com/Muxcore-Media/mvp/actions/runs/37576679722) and [Go CI run 37576679699](https://github.com/Muxcore-Media/mvp/actions/runs/37576679699) | Current-source Script tests SUCCESS. Go CI job 112647022755 again fails before source checks: empty `TOKEN`, private Git `could not read Username` / terminal prompts disabled. Same B-1 credential blocker; no unchanged rerun needed |
+| 2026-10-07 | Auth-local `f57d194`, [feature CI run 37576801789](https://github.com/Muxcore-Media/auth-local/actions/runs/37576801789) | Build/vet/full race/lint SUCCESS; PR #42 merged as `b3b6563c0b057d1b3635a631398d6d29e8e77c62`. This verifies feature source separately from the historical baseline; local Go execution remains blocked by B-3. Consumer propagation and Quick Connect remain outside this slice |
+| 2026-10-07 | Admin-ui `b84ecc7`, [CI run 37577518829](https://github.com/Muxcore-Media/admin-ui/actions/runs/37577518829) and [Accessibility run 37577518699](https://github.com/Muxcore-Media/admin-ui/actions/runs/37577518699) | Both hosted workflows SUCCESS; Devices PR #64 merged as `598f638191d2492794fdcee0571e252ef81eac97`. No live provider integration or global bearer-revalidation claim |
+| 2026-10-07 | userdata-local candidate `b199a59` under ADR-0030 | Pure parental-policy/auth/public-file-store race tests and corresponding vet pass, including independent review checks. Full Go test, SQLite HTTP/store race and full vet are blocked before compilation by the existing SQLite dependency fetch. Source is pushed for draft review; no full compile/runtime, provider acceptance, consumer enforcement or gitlink advancement |
+| 2026-10-07 | Umbrella `92ae3aa03167cb0fb56716f4820cd199fdc267a9` integration | Committed and pushed approved source pins auth-local `f57d194`, admin-ui `b84ecc7` and media-ui-app `357461d`; `_mvp` `76c8a40` and core `1eec416` unchanged. Userdata candidate and active revalidation/hydration follow-ups remain outside these pins |
+| 2026-10-07 | userdata-local `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), [run 37578220627](https://github.com/Muxcore-Media/userdata-local/actions/runs/37578220627) | Generated-code check job 112651789574 PASS. Build 112651789381 and lint 112651789499 fail on private dependencies with empty `TOKEN` / missing `MUXCORE_CI_TOKEN` and Git terminal prompts disabled; build never reaches compilation, vet/full race are skipped, and lint cannot resolve private imports. This is a credential blocker, not a demonstrated source defect or successful runtime validation; draft remains unpinned |
+
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
+
+Historical checkpoint, preserved for context. The current checkpoint is §14.
 
 **State.**
 - **Release train:** `train-2026.10.3` (`release-train.env`): core and images v0.6.15, spool 2.7.0. `check-pins` is ok.
@@ -338,3 +433,156 @@ Checks **actually run** (not proposed). Environment: `claude-workstation` contai
   - Set the new root variables above.
 - Workstation image: add the podman CNI `dnsname` plugin and a docker-compose binary.
 - R-1, R-6, D-1 as before.
+
+## 11. First delivery checkpoint (2026-10-07)
+
+This records the first batch at `1c5d38e`; subsequent work and current next steps
+are in §12. Pending statuses below are retained as the state of that checkpoint.
+
+The first delivery batch is integrated by umbrella `395c0e2`; consumer UI PR #40
+and admin-ui PR #60 have merged, while core and stack reviews remain open.
+The table records verified source checkpoints and merge state. `release-train.env` remains
+`train-2026.10.3` (core/images v0.6.15, spool 2.7.0); no release tag was created and
+no vault deployment was attempted. The original 2026-10-05 full-stack passes
+remain historical evidence.
+
+| Repo | Checkpoint / review | Scope and remaining work |
+|------|---------------------|--------------------------|
+| umbrella | `f82014b`, [PR #195](https://github.com/Muxcore-Media/umbrella/pull/195) (draft) | T-M7-01 release preparation/workflow and clean-room dev transcoder token; release fixtures and GitHub CI pass. First actual train publication and T-M7-03 acceptance remain pending |
+| media-ui-app | `2073a0b` + browser follow-up `6bc26ec`, [PR #40](https://github.com/Muxcore-Media/media-ui-app/pull/40), merged as `f9963d8` | T-M4-04 role gates and T-M4-06 browser fixtures. Local evidence and both hosted gates pass after the transition locator fix. Settings migration and full backend journeys remain open |
+| admin-ui | `a567ab1`, [PR #60](https://github.com/Muxcore-Media/admin-ui/pull/60), merged as `5206686` | T-M4-05 rendered accessibility/keyboard gates and fixes; local module verification and hosted Build/vet/race, Lint and Accessibility pass. NFR-A11Y-001 remains partial |
+| core | `e19d0ff`, [PR #97](https://github.com/Muxcore-Media/core/pull/97) (draft) | T-M5-11 additive session contract and compatibility fixtures; no provider implementation or published dependency tag |
+| `_mvp` | `7dfd7c0` + CI fixture follow-up `ae4a8c4`, [PR #97](https://github.com/Muxcore-Media/mvp/pull/97) | Security-fan-out wiring and BFF boundaries pass local module/script/render checks. Follow-up compose enrollment fixture and hosted Script tests pass; private-fetch Go CI remains blocked by B-1 |
+
+**Current verification limits.** Docker 28.4 and its daemon are available and
+image pulls work, but the clean-room prerequisite Alpine package fetch fails
+(B-5); no new household/dev smoke or restore ran. Helm download is
+blocked (B-4); Kustomize/compose renders do not replace it. Auth-local provider
+tests cannot fetch the SQLite dependency through the current network policy
+(B-3). Git and the GitHub connector work even though `gh` CLI authentication is
+unavailable. No VPN/TCP grants are configured for the owner's vault, and no
+deployment was attempted. The sparse checkout prevents a complete env-doc drift
+check; repository-wide claims retain their dated historical evidence.
+
+**Next work within existing scope:**
+
+1. Complete remaining core/stack reviews and private-fetch CI evidence, keeping
+   integration pins on verified SHAs. Run the household/dev clean-room and
+   restore gate before changing the train or making a deployable claim.
+2. Continue the remaining NFR-SEC-008/009 audit rows. Core's spool dial guard is a
+   new in-progress follow-up; it is not included in the session-contract checkpoint.
+   Keep ADR-0016 phase-2 migration at its one-train compatibility boundary.
+3. Continue M4's parental policy enforcement, profiles, settings migration, user
+   deletion and full fixture-stack journeys. Browser HTTP fixtures alone do not
+   establish those backend behaviors.
+4. Continue T-M5-03 provider-aware operator pages (FR-AUTH-009, currently in
+   progress after the admin accessibility checkpoint); then T-M5-11 provider and
+   consumer work when B-3 clears. Session compatibility tests do not establish
+   provider authorization or revoke propagation.
+
+The full v1.0 completion criteria, GHCR module-image workflow and native/hardware
+items remain open; this checkpoint closes only the verified task slices above.
+
+## 12. Second delivery checkpoint (2026-10-07)
+
+This records the second batch at `78d0ddc`, before the independent core producer
+tag. Subsequent publication and current work are recorded in §13; no-tag and
+pending-dependency statements below describe this earlier checkpoint.
+
+The following second-batch source checkpoints have passed the recorded local
+verification; final review state is recorded per repository. They are not new
+release tags or proof of full-stack acceptance. Umbrella `2bbc9cc` commits and
+pushes the approved source pins: core `1eec416`, admin-ui `9df6691`, media-ui-app
+`99b5ca3` and `_mvp` `3ba1ec4`. Subsequent working changes are outside this
+checkpoint. Core release-tag assessment remains read-only; no new tag was created.
+
+| Repo | Checkpoint / review | Verified slice and remaining acceptance |
+|------|---------------------|-----------------------------------------|
+| core | `1eec416`, [PR #98](https://github.com/Muxcore-Media/core/pull/98), merged as `8e04fc2d`; session-contract [PR #97](https://github.com/Muxcore-Media/core/pull/97) `aacd822` merged as `c2f8d56a`, target `master` | Spool checked-IP transport and exact allow-listed LAN policy (ADR-0028), local race/real golangci/architecture and both hosted workflows pass. PR #97 follow-up fixes architecture lint's missing `integsupport` entry; session-provider implementation and published tag remain absent |
+| admin-ui | `c06ae6c`, [PR #61](https://github.com/Muxcore-Media/admin-ui/pull/61), merged as `ae99ba93`; lock-only follow-up `9df6691`, [PR #62](https://github.com/Muxcore-Media/admin-ui/pull/62), merged as `9c75564c` | FR-AUTH-009 user/TOTP/token/invite unsupported states, caller-bound invite RPCs and partial-rotation outcome; full local and hosted gates pass for #61. Follow-up npm audit/build/keyboard/axe checks and both hosted #62 workflows pass. Live OIDC, direct passkeys, per-page RBAC and global bearer revalidation remain outside this slice |
+| media-ui-app | `99b5ca3`, [PR #41](https://github.com/Muxcore-Media/media-ui-app/pull/41), merged as `d6a9fca8` | Acquisition/Requests-policy role-plus-capability gates; 1233 unit tests and 28 Chromium fixtures pass locally, and both hosted workflows pass. Operator Settings migration remains partial; member readiness/quota reads and approver actions are retained |
+| `_mvp` | `3ba1ec4`, [PR #98](https://github.com/Muxcore-Media/mvp/pull/98), stacked on [PR #97](https://github.com/Muxcore-Media/mvp/pull/97) topic branch | Explicit secrets-provider selection (ADR-0029, FR-INS-008); 27 actual compose renders and host launcher/preflight/process fixtures pass within the full script suite and independent review. Hosted Script tests pass; Go CI private fetch fails on B-1. No live external backend or real migration has been exercised |
+
+**Continue within existing scope:**
+
+1. Complete `_mvp`'s hosted Go verification when B-1 clears; its script gate and
+   local module checks remain separate evidence. Future pins require their own
+   verified source checkpoint.
+2. Finish remaining NFR-SEC-008/009 audit modules. Core spool is now a verified
+   local slice; its HTTP guard does not cover Git clone or another module's URL
+   client. ADR-0016 phase-2 migration stays at its one-train boundary.
+3. Continue M4 parental list/search/detail enforcement, profiles, settings
+   migration, user deletion and full fixture-stack journeys. UI browser fixtures
+   do not establish server authorization or parental policy.
+4. Continue T-M5-03 per-page RBAC and residual provider acceptance, and T-M5-11
+   provider/consumer implementation when B-3 clears. The contract alone does not
+   revoke an app's cached bearer or persistent cookie; Quick Connect's local-only
+   sessions also need a provider device grant before all-devices closure.
+5. Resume household/dev clean-room plus restore from immutable approved snapshots
+   when B-5 clears; verify Helm when B-4 clears. External secrets connectivity,
+   manual migration and provider switching need their own runtime acceptance.
+   No new train or deployment is accepted by the local fixture results.
+
+## 13. Producer and third delivery checkpoint (2026-10-07)
+
+This records producer publication and verified source changes at `8082f79`.
+Subsequent pins and current work are in §14; pending run/source states below
+are retained as this checkpoint's history.
+
+Core's independent module tag `v0.6.16` was pushed at merged source
+`8e04fc2d95d218f1cf74aa28a29bfad13ad6141a`, whose tree matches reviewed source
+`1eec416`. Module semver publication follows TDD §3 and CONTRIBUTING; it does
+not advance the household release train. `release-train.env` remains
+`train-2026.10.3`, core/images v0.6.15 and spool 2.7.0, and umbrella `2bbc9cc`
+remains the reviewed integration pin checkpoint.
+
+| Scope | Current evidence and outstanding verification |
+|-------|-----------------------------------------------|
+| Core producer | Annotated tag, isolated no-replace Go consumption/compatibility, `go mod verify` and proto/generated-file identity are verified. [Release run 37575201268](https://github.com/Muxcore-Media/core/actions/runs/37575201268) succeeds; draft metadata reports 18 assets, with signing/upload and four GHCR-push logs. Independent signature verification and artifact/registry readback remain unavailable; the draft is not a household release |
+| T-M5-11 provider/consumer | Auth-local's historical hosted CI run 37354893703 was rerun while local SQLite dependency retrieval remains blocked by B-3: lint passes and race is still running. Provider and admin Devices consumer implementation are active, with no verified provider/consumer or all-device acceptance yet |
+| NFR-A11Y-001 consumer | `b1950e6`, [PR #42](https://github.com/Muxcore-Media/media-ui-app/pull/42), merged as `26be1ead` after both hosted workflows pass. More-menu, shelf and invite keyboard/focus fixes have local typecheck/build, 1234 unit tests, 44 browser cases and prior-source regression proof. Full WCAG and backend-journey acceptance remain partial |
+| NFR-SEC-009 admin | `b87ca35`, [PR #63](https://github.com/Muxcore-Media/admin-ui/pull/63), merged as `ad9ed1e8` after both hosted workflows pass. Published SDK v0.6.6 Integration retains direct HTTP/HTTPS local/LAN/base-path access and TLS verification while refusing redirects and implicit proxies. Full local `make ci`, focused/SDK race, old-client regression proof and independent review pass. Other outbound-client audit rows remain open |
+
+**New discovery, separate from completed code:** T-M4-01 found that the existing
+playback check does not establish a protected parental-policy boundary (C-28).
+FR-PLAY-007 remains partial; policy authority, trusted media metadata and failure
+behavior still need a design and verification. No parental enforcement fix is
+included in the source checkpoints above. Further consumer indexer-action work
+and admin Devices work likewise await their own verified checkpoints.
+
+The household/dev smoke, restore, external secrets backend and all-device
+acceptance limits from §12 remain. No new household train or runtime deployment
+is established by independent producer publication.
+
+## 14. Current integration and authority work (2026-10-07)
+
+Umbrella `92ae3aa` pins auth-local `f57d194`, admin-ui `b84ecc7`, media-ui-app
+`357461d`, core `1eec416` and `_mvp` `76c8a40`. Core's source tree is identical to independently published
+v0.6.16, while the household train remains core/images v0.6.15 and spool 2.7.0.
+New working branches are outside these reviewed pins.
+
+| Scope | Current evidence and acceptance boundary |
+|-------|------------------------------------------|
+| Auth-local sessions | Provider source `f57d194`, [PR #42](https://github.com/Muxcore-Media/auth-local/pull/42), merged as `b3b6563` after hosted feature build/vet/full race/lint pass and is now pinned by `92ae3aa`. Historical baseline `7d2a6e7` passed separately; local Go execution remains blocked by B-3. Live consumer propagation remains unverified |
+| Admin Devices | `b84ecc7`, [PR #64](https://github.com/Muxcore-Media/admin-ui/pull/64), merged as `598f6381` after hosted CI/Accessibility pass. Provider listing/revoke and separate local mode have full local CI, focused race, exact-bearer mutation proof and rendered UI gates. Live integration, app-cookie/BFF revoke propagation and Quick Connect device grants remain separate |
+| Consumer indexer actions | `357461d`, [PR #43](https://github.com/Muxcore-Media/media-ui-app/pull/43), merged as `0b6d4661` after both hosted workflows pass. Admin-only mutation controls retain admin/manager Acquisition access; scoped 197/full 1246 unit tests and 52 browser cases pass locally. Eight new cases use an established session and do not fix fresh direct-Settings hydration |
+| Parental policy authority | [ADR-0030](docs/adr/0030-authoritative-parental-policy-resource.md) is Accepted/Delegated before source edits. Candidate `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), has passing pure policy/auth/file-store and hosted generated-code checks. Local full/SQLite execution is dependency-blocked; hosted build/lint are blocked by missing private-fetch credentials, with vet/full race skipped. The unused producer remains unpinned and has no full compile/runtime, trusted migration or BFF enforcement acceptance |
+
+The fresh direct-Settings discovery is a usability failure: an empty role cache
+can render personal Profile before the session response, and the role write does
+not notify Settings to re-evaluate. Establishing a real session before testing
+indexer actions verifies those actions but does not fix or accept fresh direct
+entry. FR-ADM-010 remains partial, including migration to admin-ui.
+
+**Active prerequisites outside this verified checkpoint:** auth-local currently
+collapses identity-store failures into an invalid-token response; typed,
+context-aware error distinction is a separate follow-up. Admin request-time
+bearer revalidation is also in progress: identity binding and current claims,
+invalid-session logout versus outage 503 with the cookie retained, deep session
+snapshots, and a revoke-during-RPC guard require their own tests. No global
+revocation, outage-handling or fresh-Settings fix is accepted by the merged
+provider/Devices/indexer slices above.
+
+Runtime blockers and the full household/dev smoke, restore, parental/all-device
+and WCAG acceptance limits remain. Baseline CI success, published contracts and
+reviewed source are each distinct from verified feature behavior.

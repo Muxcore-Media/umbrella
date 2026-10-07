@@ -72,7 +72,7 @@ At the pinned SHAs, 46 of 97 Go modules failed `go build` in the umbrella (valid
 
 ### 4.1 Per-module CI (generated from one template)
 
-- Template lives in the umbrella at `scripts/ci-templates/go-module.yml` (Node SPA template: `node-app.yml`). `scripts/sync-ci.sh` writes `.github/workflows/ci.yml` into each module so that all modules stay identical apart from documented parameters.
+- Templates live in the umbrella at `scripts/ci-templates/go-module-ci.yml`, `go-module-ci-proto.yml`, and `node-app-ci.yml`. `scripts/sync-ci.sh` writes `.github/workflows/ci.yml` into each module so that all modules stay identical apart from documented parameters. Separate UI verification workflows complement those generated files ([ADR-0025](../adr/0025-ui-verification-gates.md)).
 - Runner: `ubuntu-latest` (GitHub-hosted). Self-hosted runners and the `checkout-mirror` action (retired-origin mirror checkout) are removed.
 - Private module access: `secrets.MUXCORE_CI_TOKEN` (already present per repo; verified on `admin-ui`) configured via `git config url."https://x-access-token:${TOKEN}@github.com/".insteadOf "https://github.com/"` with `GOPRIVATE=github.com/Muxcore-Media/*`, `GONOSUMDB`/`GONOSUMCHECK` equivalents.
 - Jobs: one job running `go build ./...`, `go vet ./...`, `go test -race -count=1 ./...` and `golangci-lint` (pinned version) — a single job to minimise minutes (NFR-COST-001).
@@ -97,8 +97,8 @@ macOS (iOS/tvOS) builds and container smoke run via `workflow_dispatch` only (BC
 ## 5. Packaging and release
 
 - **Binaries:** each module tags `vX.Y.Z`; GitHub Releases carry linux/darwin amd64/arm64 builds and checksums for `core` (`muxcored`), `muxcorectl-cli`, and the installer.
-- **Images:** built by `_mvp/scripts/publish-module-images.sh` from the household manifest. Targets: a LAN registry (`_mvp/local-registry.sh`, `MUXCORE_REGISTRY=<host>:5000/muxcore`) — available now; GHCR (`ghcr.io/muxcore-media/*`) — **Blocked** until a token with `write:packages` exists ([ADR-0007](../adr/0007-install-paths-github-only.md)). Every module listed in any compose profile must be in the publish set (fixes the gap where optional modules were omitted).
-- **Release train:** one `MUXCORE_IMAGE_TAG` per umbrella release; installer, operator, starter, Helm, and compose read the same pin (FR-INS-006). The umbrella release is tagged `train-YYYY.MM.N` **[Proposed]** pointing at the pinned SHAs.
+- **Images:** built by `_mvp/scripts/publish-module-images.sh` from the household manifest. A LAN registry (`_mvp/local-registry.sh`, `MUXCORE_REGISTRY=<host>:5000/muxcore`) is available. Core's GHCR workflow has published with its `GITHUB_TOKEN`; central module-image publication still needs the T-M7-02 workflow with `packages: write`, private checkout credentials and a verified run ([ADR-0007](../adr/0007-install-paths-github-only.md), roadmap R-1/C-22). Every module listed in any compose profile must be in the publish set.
+- **Release train:** one `MUXCORE_IMAGE_TAG` per umbrella release; installer, operator, starter, Helm, and compose read the same pin (FR-INS-006). The umbrella release is tagged `train-YYYY.MM.N`, matching committed `release-train.env` and pointing at the pinned SHAs ([ADR-0024](../adr/0024-umbrella-release-trains.md)). `scripts/prepare-release-train.sh` prepares deterministic Conventional Commit notes and a gitlink inventory without changing refs; GitHub Actions publishes the notes without writing back to `main`. Train releases are prereleases during the pre-1.0 beta; readiness remains subject to the ADR-0014 smoke gate and T-M7-03 checklist.
 
 ## 6. Data and migration strategy
 
@@ -121,7 +121,7 @@ Ordered by risk; each item maps to an SRS requirement and is delivered in milest
 | 1 | Remove default credentials; installer/compose generate a random bootstrap password printed once; CI lint for known default literals | NFR-SEC-001, FR-INS-004 |
 | 2 | Profiles: `dev` (insecure allowed, loud warning) vs `household` (TLS on mesh with core CA auto-issue; fixture acquisition; signatures required) — the household profile is the compose/installer default | NFR-SEC-003, FR-EXT-003, NFR-SEC-010 |
 | 3 | Core: require mTLS client cert or bootstrap token for `Register` of security capabilities; bind CN to module ID; refuse duplicate providers of exclusive security capabilities | NFR-SEC-002 |
-| 4 | BFF: CSRF (Origin/Referer check + SameSite), `POST /logout`, `http.Server` timeouts, security headers, persisted sessions (SQLite) | NFR-SEC-004/006, NFR-REL-003 |
+| 4 | BFF: CSRF (Origin/Referer check + SameSite), `POST /logout`, `http.Server` timeouts, security headers, persisted encrypted JSON sessions under its data directory | NFR-SEC-004/006, NFR-REL-003 |
 | 5 | admin-ui: TLS-aware dial helper replacing 27 `insecure.NewCredentials()` sites; session store under data dir, encrypted bearer, 0600 | NFR-SEC-003/005 |
 | 6 | request-media / tenant middleware: derive caller from authenticated context only | NFR-SEC-007 |
 | 7 | Loopback-by-default or auth for scheduler-cron, health-monitor `/status`, core `/metrics` | NFR-SEC-011 |
@@ -137,8 +137,9 @@ Ordered by risk; each item maps to an SRS requirement and is delivered in milest
 | Workspace build | `go.work` build/vet of all active modules | Umbrella CI |
 | Integration (in-process) | `core/internal/integration` (`-tags integration`), root `integration/` | Umbrella CI |
 | Stack smoke (fixture) | `_mvp/smoke.sh` (+ new fixture acquisition assertions, FR-INS-003/SM-1) | Release candidate (manual dispatch) |
-| E2E journeys | **[Proposed]** Playwright against a fixture stack for J-02, J-03, J-08 | Release candidate |
-| Accessibility | `vitest-axe` in SPA; `admin-ui/templ/a11y_test.go` | Per-repo CI |
+| Consumer browser fixtures | Playwright Chromium against the built SPA and strict local HTTP fixtures; selected navigation/settings/invite views, keyboard focus and reduced-motion behavior at 375/768/1280/1920 px (ADR-0025) | Separate `media-ui-app/.github/workflows/browser.yml`; local evidence does not imply a successful GitHub run or full WCAG acceptance |
+| Full E2E journeys | **Pending:** Playwright against a real fixture stack for J-02, J-03, J-08; browser HTTP fixtures do not prove auth, acquisition, playback or parental enforcement | Release candidate |
+| Accessibility | `vitest-axe` in SPA; Go-rendered admin DOM fixtures + axe + jsdom keyboard tests; retain `templ/a11y_test.go` (ADR-0025) | SPA unit CI plus separate admin `accessibility.yml`; contrast and other browser/manual WCAG checks remain pending |
 | Docs | Link/ID checker `scripts/check-docs.mjs` (relative links resolve; every `FR/NFR` ID cited exists in SRS) | Umbrella CI |
 
 ## 10. Migration considerations for this plan

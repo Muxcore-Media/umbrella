@@ -113,7 +113,7 @@ Core server (`muxcored`) and global infrastructure.
 | `MUXCORE_STORAGE_READ_TIMEOUT` | core | `30` | Storage read timeout (seconds). |
 | `MUXCORE_STORAGE_WRITE_TIMEOUT` | core | `300` | Storage write timeout (seconds). |
 | `MUXCORE_STORAGE_DELETE_TIMEOUT` | core | `30` | Storage delete/move timeout (seconds). |
-| `MUXCORE_SPOOL_ALLOWED_HOSTS` | core | all | Comma-separated hosts allowed for spool URL fetch (SSRF guard). |
+| `MUXCORE_SPOOL_ALLOWED_HOSTS` | core | empty: public destinations only | Comma-separated exact URL hosts, including explicit ports, for HTTPS spool fetches and redirects. Listed hosts may use LAN/loopback/CGNAT; metadata/link-local and blocked special-use destinations remain denied. DNS answers are checked and dialed by literal IP; this transport ignores implicit HTTP(S) proxies (ADR-0028). |
 | `MUXCORE_SPOOL_REQUIRE_SIGNATURE` | core | — | `1`: require signed spool packages. |
 | `MUXCORE_SPOOL_PUBLIC_KEY` | core | — | Spool signature verification public key. |
 | `MUXCORE_SPOOL_TRUSTED_KEYS_DIR` | core | — | Directory of trusted spool publisher keys. |
@@ -544,7 +544,7 @@ Set to `1` to start optional sidecars. Defaults vary; see `run-host.sh`.
 | `MVP_ENABLE_MEDIA_INTRO_OUTRO` | _mvp | `0` | Intro/outro skip detection. |
 | `MVP_ENABLE_PLEX` | _mvp | `0` | Plex bridge. |
 | `MVP_ENABLE_EMBY` | _mvp | `0` | Emby bridge. |
-| `MVP_ENABLE_SECRETS_VAULT` | _mvp | `0` | HashiCorp Vault secrets (**conflicts with secrets-file**). |
+| `MVP_ENABLE_SECRETS_VAULT` | _mvp | `0` | Dev host: `1` selects the external secrets provider instead of `secrets-file`, requiring `SECRETS_BACKEND`. Stop the old provider deliberately; preflight rejects a live opposing provider or an unselected-provider restart (ADR-0029). |
 | `MVP_ENABLE_CACHE_LOCAL` | _mvp | `0` | In-process cache module. |
 | `MVP_ENABLE_CIRCUITBREAKER_SIMPLE` | _mvp | `0` | Circuit breaker module. |
 | `MVP_ENABLE_CONFIG_WATCHER` | _mvp | `0` | Config hot-reload watcher. |
@@ -667,7 +667,7 @@ Variables read by active modules that are not described in the sections above. M
 | `SUBTITLES_HTTP_URL` | _mvp | `http://127.0.0.1:9521` | HTTP base URL of the module. |
 | `TAGGING_HTTP_URL` | _mvp | `http://127.0.0.1:9741` | HTTP base URL of the module. |
 | `TORZNAB_URL` | _mvp, indexer-torznab | — | Torznab url. |
-| `TRANSCODER_HTTP_URL` | _mvp | `http://127.0.0.1:9526` | HTTP base URL of the module. |
+| `TRANSCODER_HTTP_URL` | _mvp | `https://127.0.0.1:9526` (`http` in insecure dev) | BFF playback HTTP origin; household requires HTTPS with the BFF mesh certificate. Registry compose uses `https://media-transcoder:9526`; explicitly empty disables the optional transcoder. |
 | `TVSHOWS_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9440` | gRPC address the BFF dials for this module. |
 | `TVSHOWS_HTTP_URL` | _mvp | `http://127.0.0.1:9450` | HTTP base URL of the module. |
 | `WG_CONF` | _mvp, downloader-native-torrent, indexer-piratebay, indexer-torznab | — | Wg conf. |
@@ -968,7 +968,7 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
-| `QBIT_DOWNLOAD_ROOTS` | downloader-qbittorrent | download dir | Allowed roots for `save_path` passed to qBittorrent (RULE-VAL-1). |
+| `QBIT_DOWNLOAD_ROOTS` | downloader-qbittorrent | download dir | Comma-separated allowed roots for `save_path` passed to qBittorrent (RULE-VAL-1); paths must match the external client's filesystem. |
 | `QBIT_FIXTURE` | downloader-qbittorrent, media-automation | — | Qbit fixture. |
 | `QBIT_GRPC_ADDR` | downloader-qbittorrent | `MUXCORE_GRPC_ADDR_OVERRIDE` | gRPC listen address. |
 | `QBIT_HTTP_ADDR` | downloader-qbittorrent | `MUXCORE_HTTP_ADDR` | HTTP listen address. |
@@ -1233,7 +1233,7 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
-| `ROOTS_ALLOWED_PREFIXES` | media-root-folders | — (refuse create) | Prefixes (`:`-separated) a root folder may be created/probed under; set to the library mounts (RULE-VAL-1). |
+| `ROOTS_ALLOWED_PREFIXES` | media-root-folders | — (refuse create) | Comma-separated prefixes a root folder may be created/probed under; set to the library mounts (RULE-VAL-1). |
 
 ### media-scanner
 
@@ -1273,7 +1273,7 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `TRANSCODER_ALLOW_URL_SOURCES` | media-transcoder | off | `1` allows http(s) `src` for playback transcodes (restricted by `TRANSCODER_URL_SOURCE_HOSTS`). |
 | `TRANSCODER_HTTP_ALLOWED_CALLERS` | media-transcoder | `media-ui` | Mesh certificate CNs allowed to call the playback HTTP API in household mode. |
-| `TRANSCODER_HTTP_TOKEN` | media-transcoder | — | Dev only: bearer token required when the playback HTTP API binds a non-loopback address. |
+| `TRANSCODER_HTTP_TOKEN` | media-transcoder, _mvp | — | Dev only: shared operator token sent by the BFF and required by a non-loopback playback HTTP listener. Dev compose requires a supplied random value; clean-room runs generate and mask one. Browser bearer tokens are not forwarded. |
 | `TRANSCODER_MEDIA_ROOTS` | media-transcoder | — (refuse all) | Library roots (`:`-separated) for playback `src` and job inputs (RULE-VAL-1). |
 | `TRANSCODER_OUTPUT_DIR` | media-transcoder | `<db dir>/output` | Allowed location for `Enqueue` outputs. |
 | `TRANSCODER_URL_SOURCE_HOSTS` | media-transcoder | — | host:port allow-list for URL `src` (e.g. `media-movies:9430,media-tvshows:9450`). |
@@ -1477,7 +1477,7 @@ Variables read by active modules that are not described in the sections above. M
 | `INFISICAL_ENV` | secrets-vault | — | Infisical env. |
 | `INFISICAL_PROJECT_ID` | secrets-vault | — | Infisical project id. |
 | `INFISICAL_TOKEN` | secrets-vault | — | Credential (secret). |
-| `SECRETS_BACKEND` | secrets-vault | — | Backend. |
+| `SECRETS_BACKEND` | secrets-vault, _mvp | — | External secrets backend selector; explicitly required by the supported external-provider compose overlay and dev-host selection. The default file-provider path does not require it (FR-INS-008, ADR-0029). |
 | `SECRETS_PREFIX` | secrets-vault | — | Prefix. |
 | `VAULT_ADDR` | secrets-vault | — | Addr. |
 | `VAULT_KV_MOUNT` | secrets-vault | — | Kv mount. |
