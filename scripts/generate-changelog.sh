@@ -7,6 +7,7 @@
 # Options:
 #   --from REF       Start after this ref (default: latest tag reachable from --to)
 #   --to REF         End ref (default: HEAD)
+#   --tag-pattern GLOB  Match previous tags when --from is omitted (default: *)
 #   --version VER    Version heading, e.g. v1.2.3 (default: Unreleased)
 #   --output FILE    Write markdown to FILE instead of stdout
 #   --update FILE    Insert generated section into FILE before ## [Unreleased]
@@ -19,32 +20,49 @@ TO="HEAD"
 VERSION="Unreleased"
 OUTPUT=""
 UPDATE=""
+TAG_PATTERN="*"
+
+fail() { echo "generate-changelog.sh: $*" >&2; exit 1; }
+
+require_value() {
+  [[ $# -ge 2 && -n "$2" ]] || fail "$1 requires a value"
+}
 
 usage() {
-  sed -n '2,12p' "$0" | sed 's/^# //'
+  sed -n '2,13p' "$0" | sed 's/^# //'
   exit "${1:-0}"
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --from)
+      require_value "$@"
       FROM="${2:-}"
       shift 2
       ;;
     --to)
+      require_value "$@"
       TO="${2:-}"
       shift 2
       ;;
     --version)
+      require_value "$@"
       VERSION="${2:-}"
       shift 2
       ;;
     --output)
+      require_value "$@"
       OUTPUT="${2:-}"
       shift 2
       ;;
     --update)
+      require_value "$@"
       UPDATE="${2:-}"
+      shift 2
+      ;;
+    --tag-pattern)
+      require_value "$@"
+      TAG_PATTERN="$2"
       shift 2
       ;;
     -h | --help)
@@ -72,7 +90,7 @@ section_for_type() {
 
 parse_commit() {
   local subject="$1"
-  local type rest description
+  local type description
 
   if [[ ! "$subject" =~ ^(feat|fix|chore|ci|docs|test|refactor|perf|build|revert|style)(\(([a-zA-Z0-9._/-]+)\))?!?:[[:space:]]+(.+)$ ]]; then
     return 1
@@ -86,21 +104,20 @@ parse_commit() {
 resolve_from_ref() {
   local to_ref="$1"
   if [[ -n "$FROM" ]]; then
-    printf '%s\n' "$FROM"
+    local from_ref
+    from_ref="$(git -C "$ROOT" rev-parse --verify --end-of-options "${FROM}^{commit}")" || fail "invalid --from ref: $FROM"
+    git -C "$ROOT" merge-base --is-ancestor "$from_ref" "$to_ref" || fail "--from must be an ancestor of --to"
+    printf '%s\n' "$from_ref"
     return 0
   fi
 
-  if git -C "$ROOT" describe --tags --abbrev=0 "${to_ref}^" >/dev/null 2>&1; then
-    git -C "$ROOT" describe --tags --abbrev=0 "${to_ref}^"
+  if git -C "$ROOT" describe --tags --first-parent --match "$TAG_PATTERN" --abbrev=0 "${to_ref}^" >/dev/null 2>&1; then
+    git -C "$ROOT" describe --tags --first-parent --match "$TAG_PATTERN" --abbrev=0 "${to_ref}^"
     return 0
   fi
 
-  if git -C "$ROOT" rev-list --max-parents=0 "$to_ref" >/dev/null 2>&1; then
-    git -C "$ROOT" rev-list --max-parents=0 "$to_ref" | tail -n 1
-    return 0
-  fi
-
-  return 1
+  # No previous release: include the root commit, including a one-commit repo.
+  printf '\n'
 }
 
 generate_markdown() {
@@ -198,6 +215,8 @@ insert_into_changelog() {
 main() {
   local from_ref tmp_section
 
+  [[ -z "$OUTPUT" || -z "$UPDATE" ]] || fail "--output and --update are mutually exclusive"
+  TO="$(git -C "$ROOT" rev-parse --verify --end-of-options "${TO}^{commit}")" || fail "invalid --to ref"
   from_ref="$(resolve_from_ref "$TO")"
 
   if [[ -n "$OUTPUT" ]]; then

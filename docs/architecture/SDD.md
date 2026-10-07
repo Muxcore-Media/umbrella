@@ -65,6 +65,26 @@ Environment variables are the primary interface (documented in `docs/config-refe
 
 Browser → app session (auth-local code exchange) → app forwards the auth-local bearer as `x-auth-token` on mesh calls → core `AuthInterceptor` → `authorizer.Can(session, method)`. Module-to-module identity is TLS/mTLS (target: CN-bound, NFR-SEC-002). Detail: [LLD auth](lld/auth-and-sessions.md).
 
+### 2.7 Unsupported identity-provider operations
+
+For FR-AUTH-009, admin-ui distinguishes an actual AuthService
+`codes.Unimplemented` response from discovery, authentication, permission and
+backend failures. Only the former renders an explanatory state without mutation
+controls. No provider-name heuristic or capability cache is used; provider
+behavior may differ by operation or change over time. Existing `admin.access`
+authorization still runs first. Detail and coverage limits are in the
+[auth LLD](lld/auth-and-sessions.md#6-oidc-variant).
+
+### 2.8 Secrets-provider selection
+
+The default file provider and optional external provider implement the same
+`secrets` capability, but core does not treat that capability as one of its
+exclusive security providers. Supported deployment configuration selects one
+provider explicitly (FR-INS-008, [ADR-0029](../adr/0029-secrets-provider-deployment-selection.md)).
+Replacing a provider requires deliberate stop/configuration/migration/start
+steps; discovery order is not a selection mechanism. Runtime backend health and
+secret-data migration remain separate from compose/launcher selection checks.
+
 ## 3. Interface responsibilities
 
 | Contract (repo) | Provider(s) | Main consumers | Notes |
