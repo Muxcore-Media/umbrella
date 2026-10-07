@@ -81,7 +81,31 @@ the authenticated security-capability registration requirement.
 
 ## 6. OIDC variant
 
-`auth-oidc` implements `/login`, `/login/exchange`, `/oidc/callback`, `/logout` with PKCE + nonce; roles from `AUTH_OIDC_ROLES_CLAIM` / `AUTH_OIDC_ROLE_MAP` / `AUTH_OIDC_DEFAULT_ROLES`. User CRUD, TOTP, WebAuthn, API-token RPCs return `codes.Unimplemented`. admin-ui must call a capability probe (`GetCapabilities`-style RPC or treat `Unimplemented` as "unsupported") and hide those pages (FR-AUTH-009).
+`auth-oidc` implements `/login`, `/login/exchange`, `/oidc/callback`, `/logout` with
+PKCE + nonce; roles come from `AUTH_OIDC_ROLES_CLAIM` / `AUTH_OIDC_ROLE_MAP` /
+`AUTH_OIDC_DEFAULT_ROLES`. Unsupported identity operations return
+`codes.Unimplemented`.
+
+The T-M5-03 provider-aware admin path uses actual AuthService results rather than
+adding a GetCapabilities RPC or guessing from the provider name. Only typed
+`Unimplemented` from the invoked AuthService operation produces an explanatory,
+control-free page or fragment. Discovery `Unimplemented`, transport failures,
+expired/denied sessions and permission failures stay errors; failed GETs do not
+turn into successful empty lists. There is no capability cache.
+
+The covered surfaces are users list/detail/create form and mutations, TOTP,
+per-user tokens, `/keys` catalogue/mutations and invites list/create/revoke.
+TOTP mutation controls appear only after a successful status response. Existing
+`admin.access` authorization remains; this work does not implement per-page
+manager RBAC (FR-ADM-009). Direct passkey endpoints and a live OIDC acceptance run
+remain outside this slice, so FR-AUTH-009 stays partial.
+
+Invite administration uses the existing AuthService RPCs with the actual caller's
+`x-auth-token`; public redemption remains HTTP. The auth provider owns creator
+attribution. Token rotation preserves the new one-time token if old-token revoke
+is unsupported or unconfirmed, explains that partial outcome and emits no
+successful-rotation audit event. Revoke/invite response error fields must be
+handled as failures rather than success redirects.
 
 ## 7. Administrative session contract (T-M5-11)
 
@@ -100,6 +124,11 @@ revalidate their upstream bearer before administrative revoke can take effect
 across clients. Old/rebuilt providers return `Unimplemented` for unsupported
 methods; auth-local persistence, RPC enforcement and consumer handling remain
 outstanding under FR-AUTH-007.
+
+BFF Quick Connect currently creates a local-only app session without an upstream
+provider bearer. Bearer revalidation therefore cannot list or revoke that path
+through this contract by itself. T-M5-11 also needs a provider device-grant
+integration before claiming all-device coverage.
 
 ## 8. BFF operator and playback HTTP boundaries
 

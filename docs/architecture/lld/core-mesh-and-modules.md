@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Status** | Active — v1.0 (2026-10-05); describes `core` at the umbrella pin with notes on `main` |
+| **Status** | Active — v1.0; base architecture with verified follow-up checkpoints tracked in the roadmap (core default branch: `master`) |
 | **Scope** | `core` (`cmd/muxcored`, `internal/{module,registry,grpcmesh,events,spool,sandbox,audit}`, `pkg/contracts`, `pkg/tenant`, `sdk/go/*`) |
-| **Requirements** | FR-EXT-001…003, NFR-REL-002, NFR-SEC-002/003, NFR-OPS-001/004 |
+| **Requirements** | FR-EXT-001…003, NFR-REL-002, NFR-SEC-002/003/009, NFR-OPS-001/004 |
 
 ## 1. Startup sequence (`cmd/muxcored/main.go`)
 
@@ -39,7 +39,7 @@ Call(target, method, payload):
 | Step | Check | Config |
 |------|-------|--------|
 | 1 | Version string pattern | — |
-| 2 | Repo host allow-list | `MUXCORE_SPOOL_ALLOWED_HOSTS` (target default: `github.com`) |
+| 2 | Repo host allow-list | Manager `allowedRepoHosts` (separate from the HTTP connection policy below) |
 | 3 | `git clone --depth 1 --branch <version>` | — |
 | 4 | Contract reconcile (`contracts-reconciler`) | — |
 | 5 | Source scan: cgo, `go:generate`, `unsafe`, `go.mod replace` | `ScanPolicy` |
@@ -59,3 +59,25 @@ Audit JSONL (`MUXCORE_AUDIT_PATH`; 100 MB × 5 rotation; SHA-256 chain; HMAC ava
 - `pkg/tenant` is a **package of the root module** (`github.com/Muxcore-Media/core/pkg/tenant` resolved via `github.com/Muxcore-Media/core`). The nested-module tag `pkg/tenant/v0.5.8` is obsolete; consumers must drop any `require`/`replace` of `github.com/Muxcore-Media/core/pkg/tenant`.
 - Nested modules that remain: `pkg/contracts`, `sdk/go/client`, `sdk/go/module` — tagged `<path>/v0.6.0` alongside `v0.6.0`.
 - `integsupport` (test harness helpers) is a package of the root module, used by the umbrella `integration/` suite.
+
+## 8. Spool HTTP destination policy (NFR-SEC-009)
+
+[ADR-0028](../../adr/0028-spool-dial-time-destination-policy.md) governs HTTP
+spool-tag requests; it does not add a Git-clone transport guard. The fetcher uses
+a core-local client without a module-SDK dependency.
+
+| Boundary | Behavior |
+|----------|----------|
+| URL | HTTPS, nonempty host, valid port, no userinfo or ambiguous IP literal |
+| Host allow-list | Exact URL `Host` equality, including an explicitly written port; no wildcard/case/implicit-port expansion. Empty list permits public destinations only; explicitly listed hosts may use LAN/loopback/CGNAT |
+| Universally denied destinations | Metadata names/addresses, link-local, unspecified, multicast, scoped IPv6 and blocked special-use ranges; an exact host entry does not override this denial |
+| Address aliases | IPv4-mapped IPv6 and embedded IPv4 in well-known NAT64/6to4 are classified; Teredo `2001::/32` and reserved network-specific NAT64 `64:ff9b:1::/48` are refused. Arbitrary operator-defined translation prefixes cannot be inferred |
+| DNS and dialing | Validate every returned address before dialing any; connect to a checked literal address without resolving the name again. Checked-address family fallback retains the same policy |
+| HTTPS identity | TLS verifies the original URL hostname, even though dialing uses a literal address |
+| Redirects | Each target passes the same URL/host checks and guarded connection path; the existing `len(via) >= 3` ceiling is unchanged |
+| Limits | Existing 10-second request timeout and 1 MiB read bound retained; request cancellation ends associated dialing work |
+| Policy update | In-flight requests retain their immutable policy/client snapshot; later fetches use the new snapshot |
+| Proxy | This product transport ignores implicit HTTP(S) proxy environment variables so proxy-side DNS cannot bypass address checks |
+
+Verification is tracked in the roadmap's NFR-SEC-009 checkpoint. Core's spool
+slice does not close the outbound-request audit in other modules.

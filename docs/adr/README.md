@@ -43,3 +43,5 @@
 | [0025](0025-ui-verification-gates.md) | Rendered accessibility and consumer browser fixture gates | Accepted | Delegated (2026-10-07) |
 | [0026](0026-administrative-session-contract.md) | Administrative session management belongs to the auth provider | Accepted | Delegated (2026-10-07) |
 | [0027](0027-transcoder-http-mesh-boundary.md) | Transcoder HTTP uses the BFF's verified mesh identity | Accepted | Delegated (2026-10-07) |
+| [0028](0028-spool-dial-time-destination-policy.md) | Spool HTTP destinations are checked at connection time | Accepted | Delegated (2026-10-07) |
+| [0029](0029-secrets-provider-deployment-selection.md) | Select the secrets provider explicitly in deployment configuration | Accepted | Delegated (2026-10-07) |

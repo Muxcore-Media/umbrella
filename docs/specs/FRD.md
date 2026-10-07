@@ -25,7 +25,7 @@ Roles and permissions are owned by the identity module (`auth-local`; `auth-oidc
 
 **RULE-AUTH-1** — A missing `policies.yaml` falls back to built-in defaults; a policy file that parses to zero roles denies everything (fail-closed). *(Current, `auth-local`.)*
 **RULE-AUTH-2** — `admin-ui` requires `admin.access` on `admin.ui` for every request; only `admin` passes under default policy. *(Current, `admin-ui` `requireAuth`.)* **Target:** per-page permissions so `manager` can use request/library pages → `FR-ADM-009`.
-**RULE-AUTH-3** — The consumer BFF generally treats `admin` and `manager` as privileged (`sessionHasPrivilegedRole`), but list-sync handlers, indexer create/edit/delete, migration import, and root-folder create/update require `admin`. Indexer reads and root browse/probe/delete keep their existing privileged-role rules. Userdata scope is the session's user unless the caller is privileged. Consumer Quality/Delay links and direct routes require `admin`/`manager` plus the relevant feature capability; operator settings migration to admin-ui remains incomplete (FR-ADM-010). *(Current, `_mvp/cmd/mediauiprox`; `media-ui-app` Settings.)*
+**RULE-AUTH-3** — The consumer BFF generally treats `admin` and `manager` as privileged (`sessionHasPrivilegedRole`), but list-sync handlers, indexer create/edit/delete, migration import, and root-folder create/update require `admin`. Indexer reads and root browse/probe/delete keep their existing privileged-role rules. Userdata scope is the session's user unless the caller is privileged. Consumer Quality/Delay, Acquisition and Requests-policy Settings links and direct routes require `admin`/`manager` plus the relevant feature capability. Denied policy routes render personal Profile without fetching that policy; member acquisition-readiness and request-quota information remain available. These UI checks do not change backend authorization. Operator settings migration to admin-ui remains incomplete (FR-ADM-010). *(Current, `_mvp/cmd/mediauiprox`; `media-ui-app` Settings and `AcquisitionSetupBanner`.)*
 **RULE-AUTH-4** — Request approval requires a privileged role; `REQUEST_AUTO_APPROVE_USERS` lists user IDs that bypass the pending queue. *(Current, `request-media/internal/approval.go`, `settings.go`.)*
 
 ## 2. Workflows
@@ -40,6 +40,7 @@ Roles and permissions are owned by the identity module (`auth-local`; `auth-oidc
 - **Alternate:** installer TUI collects values interactively (`muxcore-installer`).
 - **Failure:** a required module fails Init → core marks it `degraded`, publishes `module.degraded`; admin-ui dashboard shows it; smoke fails.
 - **Current:** bootstrap scripts and the installer generate a one-time secret, or compose requires an operator-supplied value; fixed default credentials are rejected by the repository check → `NFR-SEC-001`, `FR-INS-004`.
+- **Optional secrets provider:** the supported external-provider path selects one provider through the last-applied compose overlay or dev-host flag; default installs retain `secrets-file`. Stop the old provider explicitly, configure the selected backend and migrate secrets manually before restarting dependents. Neither compose `up` alone nor discovery order performs this transition. Selection design and verification limits: `FR-INS-008`, [ADR-0029](../adr/0029-secrets-provider-deployment-selection.md).
 
 ### WF-02 Login and session (all journeys)
 
@@ -49,17 +50,19 @@ Roles and permissions are owned by the identity module (`auth-local`; `auth-oidc
 4. Session TTL: auth-local 24 h; BFF 24 h, persisted under `MEDIA_UI_USERDATA_DIR`; admin-ui 30 min (`ADMIN_UI_SESSION_TTL`), persisted under its durable data directory. App session identifiers are hashed and upstream bearer tokens encrypted in 0600 JSON files. BFF operation without a usable persistence directory/key falls back to memory-only with a warning → `NFR-REL-003`.
 
 - **Alternate:** native clients use `/api/mobile/auth/*` (iOS deep link `muxcore://auth/callback`) or `/api/tv/login` + Quick Connect (tvOS).
-- **Alternate:** `auth-oidc` replaces auth-local's login with an OIDC PKCE flow; user CRUD, TOTP, API tokens, and invites are then **unavailable** (RPCs return `Unimplemented`). admin-ui must hide those pages → `FR-AUTH-009`.
+- **Alternate:** `auth-oidc` replaces auth-local's login with an OIDC PKCE flow. An actual AuthService operation returning typed `Unimplemented` makes admin-ui show an explanation without mutation controls for the covered user, TOTP, token and invite surfaces. Discovery failures, provider `Unauthenticated`/`PermissionDenied` responses and backend errors remain errors; no provider-name inference or capability cache is used. This does not add global upstream-session revalidation. Direct passkey endpoints and live OIDC acceptance remain pending → `FR-AUTH-009`, [auth LLD §6](../architecture/lld/auth-and-sessions.md#6-oidc-variant).
 - **Failure:** code exchange timeout (8 s in BFF) → error page, no session. Invalid/expired session → redirect to login.
 - **Current:** cookie-authenticated BFF mutations require an allowed Origin/Referer, logout is `POST`, and browser servers set timeouts/security headers. Native bearer-authenticated requests are exempt from the browser Origin check. Persistence/key rotation behavior is documented in the [auth LLD](../architecture/lld/auth-and-sessions.md) → `NFR-SEC-004`, `NFR-SEC-005`, `NFR-SEC-006`.
 
 ### WF-03 Invite and onboarding (J-02)
 
-1. Admin creates an invite (role, max uses, expiry) in admin-ui `/invites` → auth-local stores a SHA-256 token hash (`internal/store/invites.go`).
-2. Member opens `/invite/:token` in `media-ui-app` (`InviteJoin.tsx`) → BFF `GET /api/invite/peek` shows validity → `POST /api/invite/redeem` creates the account with the invite's role.
-3. Member lands on Home.
+1. Admin creates an invite (role, max uses, expiry) in admin-ui `/invites` through the existing AuthService RPC, forwarding the current caller's bearer on the actual call → auth-local stores a SHA-256 token hash (`internal/store/invites.go`). Nonpositive form uses map to the contract's unlimited `-1`; positive expiry hours become seconds, with zero preserving the provider default. Explicit tenant wins, then the session tenant; creator attribution belongs to the auth provider.
+2. The generated admin-ui link opens `/invite/redeem?token=…`; admin-ui's public redemption handler calls the auth provider's HTTP peek/redeem endpoints to create the account with the invite's role.
+3. Successful admin-ui redemption redirects the member to auth login (`handler/household_redeem.go`); creating the account does not itself establish an app session.
 
-- **RULE-INV-1** — Redemption fails if the invite is revoked, expired, or exhausted (uses ≥ max uses). *(Current.)*
+- **Alternate:** the consumer SPA separately supports `/invite/:token` (`InviteJoin.tsx`) using BFF `GET /api/invite/peek` and `POST /api/invite/redeem`, with a login handoff after success. It is not the link generated by admin-ui.
+- **RULE-INV-1** — Redemption fails if the invite is revoked, expired, or its finite use limit is exhausted (`max_uses > 0 && uses >= max_uses`). The provider stores an unlimited limit as zero. *(Current, auth-local `internal/store/invites.go`.)*
+- **Alternate:** unsupported list/create/revoke RPCs render the explanatory provider state; genuine failures are not reported as an empty invite list or successful mutation. Public peek/redemption continue using HTTP.
 - **Failure:** invalid token → generic "invite not valid" (no distinction between expired/revoked, to avoid enumeration).
 
 ### WF-04 Request lifecycle (J-03)
@@ -168,6 +171,6 @@ admin-ui `/migrate` connects to Radarr/Sonarr/Lidarr APIs (`arrmigrate/client.go
 ## 3. Cross-cutting validation rules
 
 - **RULE-VAL-1** — All user-supplied filesystem paths (root folders, restore targets, library-plus imports) must resolve inside a configured allow-listed root (`validateLibraryPath` is the existing pattern). → `NFR-SEC-008`
-- **RULE-VAL-2** — Outbound HTTP to user-configured URLs (indexers, lists, spool) goes through host allow-lists or SSRF guards (`spool-resolver-http` is the existing pattern). → `NFR-SEC-009`
+- **RULE-VAL-2** — Outbound HTTP to user-configured URLs (indexers, lists, spool) must check the destination at connection time; a textual host allow-list alone does not establish the address boundary. Core's HTTPS spool path checks every DNS answer and dials checked literal addresses, including redirects. Exact listed hosts may use intentional LAN destinations, but metadata/link-local and blocked special-use addresses remain denied ([ADR-0028](../adr/0028-spool-dial-time-destination-policy.md)). Other module audit gaps remain tracked separately → `NFR-SEC-009`.
 - **RULE-VAL-3** — IDs crossing module boundaries are strings (`tmdb_id`, `item_id`, `wanted_item_id`); no cross-module foreign keys. Consumers must tolerate a referenced item having been deleted (soft-fail, not crash).
 - **RULE-VAL-4** — Optional peers degrade softly: library-plus BFF routes return HTTP 200 with `available:false` when the peer is absent. *(Current.)*

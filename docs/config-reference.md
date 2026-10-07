@@ -113,7 +113,7 @@ Core server (`muxcored`) and global infrastructure.
 | `MUXCORE_STORAGE_READ_TIMEOUT` | core | `30` | Storage read timeout (seconds). |
 | `MUXCORE_STORAGE_WRITE_TIMEOUT` | core | `300` | Storage write timeout (seconds). |
 | `MUXCORE_STORAGE_DELETE_TIMEOUT` | core | `30` | Storage delete/move timeout (seconds). |
-| `MUXCORE_SPOOL_ALLOWED_HOSTS` | core | all | Comma-separated hosts allowed for spool URL fetch (SSRF guard). |
+| `MUXCORE_SPOOL_ALLOWED_HOSTS` | core | empty: public destinations only | Comma-separated exact URL hosts, including explicit ports, for HTTPS spool fetches and redirects. Listed hosts may use LAN/loopback/CGNAT; metadata/link-local and blocked special-use destinations remain denied. DNS answers are checked and dialed by literal IP; this transport ignores implicit HTTP(S) proxies (ADR-0028). |
 | `MUXCORE_SPOOL_REQUIRE_SIGNATURE` | core | — | `1`: require signed spool packages. |
 | `MUXCORE_SPOOL_PUBLIC_KEY` | core | — | Spool signature verification public key. |
 | `MUXCORE_SPOOL_TRUSTED_KEYS_DIR` | core | — | Directory of trusted spool publisher keys. |
@@ -544,7 +544,7 @@ Set to `1` to start optional sidecars. Defaults vary; see `run-host.sh`.
 | `MVP_ENABLE_MEDIA_INTRO_OUTRO` | _mvp | `0` | Intro/outro skip detection. |
 | `MVP_ENABLE_PLEX` | _mvp | `0` | Plex bridge. |
 | `MVP_ENABLE_EMBY` | _mvp | `0` | Emby bridge. |
-| `MVP_ENABLE_SECRETS_VAULT` | _mvp | `0` | HashiCorp Vault secrets (**conflicts with secrets-file**). |
+| `MVP_ENABLE_SECRETS_VAULT` | _mvp | `0` | Dev host: `1` selects the external secrets provider instead of `secrets-file`, requiring `SECRETS_BACKEND`. Stop the old provider deliberately; preflight rejects a live opposing provider or an unselected-provider restart (ADR-0029). |
 | `MVP_ENABLE_CACHE_LOCAL` | _mvp | `0` | In-process cache module. |
 | `MVP_ENABLE_CIRCUITBREAKER_SIMPLE` | _mvp | `0` | Circuit breaker module. |
 | `MVP_ENABLE_CONFIG_WATCHER` | _mvp | `0` | Config hot-reload watcher. |
@@ -1477,7 +1477,7 @@ Variables read by active modules that are not described in the sections above. M
 | `INFISICAL_ENV` | secrets-vault | — | Infisical env. |
 | `INFISICAL_PROJECT_ID` | secrets-vault | — | Infisical project id. |
 | `INFISICAL_TOKEN` | secrets-vault | — | Credential (secret). |
-| `SECRETS_BACKEND` | secrets-vault | — | Backend. |
+| `SECRETS_BACKEND` | secrets-vault, _mvp | — | External secrets backend selector; explicitly required by the supported external-provider compose overlay and dev-host selection. The default file-provider path does not require it (FR-INS-008, ADR-0029). |
 | `SECRETS_PREFIX` | secrets-vault | — | Prefix. |
 | `VAULT_ADDR` | secrets-vault | — | Addr. |
 | `VAULT_KV_MOUNT` | secrets-vault | — | Kv mount. |
