@@ -12,9 +12,9 @@
 | Table | Contents | Protection |
 |-------|----------|------------|
 | `users` | id, username, bcrypt hash (cost 12), roles (JSON), tenant | bcrypt |
-| `sessions` | 32-byte random token (SHA-256 hex), user, kind (`full`, `api-token`, …), expiry (24 h) | **plaintext token** → hash at rest (NFR-SEC-005) |
+| `sessions` | Session token hash, user, kind (`full`, `api-token`, …), expiry (24 h) | SHA-256 token hashes; plaintext-token migration shipped in auth-local v0.1.19 (NFR-SEC-005) |
 | `api_tokens` | `token_hash`, prefix, scopes | hashed |
-| `totp` | secret | **plaintext** → encrypt with `encryption` capability or local key (NFR-SEC-005) |
+| `totp` | encrypted secret | AES-256-GCM with migration, auth-local v0.1.19 (NFR-SEC-005) |
 | `webauthn_credentials`, `webauthn_sessions` | passkeys | — |
 | `invites` | SHA-256 token hash, role, tenant, max uses, uses, expiry, revoked_at | hashed |
 
@@ -41,17 +41,22 @@ The app stores the auth-local token server-side, keyed by its own session ID, an
 
 ## 3. App session stores
 
-| App | Store today | TTL | Target |
+| App | Store | TTL | Protection and limitations |
 |-----|-------------|-----|--------|
-| BFF | In-memory map (`sessionStore`) | 24 h | SQLite under BFF data dir; random session ID; auth-local token encrypted at rest; survives restart (NFR-REL-003) |
-| admin-ui | JSON file (`session.NewFileStore`), default dir `os.TempDir()/muxcore-admin-ui` | 30 min | Data dir required (`ADMIN_UI_DATA_DIR`, default `$XDG_STATE_HOME/muxcore/admin-ui`); file mode 0600; bearer encrypted (NFR-SEC-005) |
+| BFF | `sessions.json` under `MEDIA_UI_USERDATA_DIR`, backed by an in-memory map (`session_store.go`) | 24 h | SHA-256 session IDs; upstream token sealed with AES-256-GCM; file/key mode 0600. Key from `MEDIA_UI_SESSION_KEY` or generated `session.key`. Missing directory or unusable key falls back to memory-only with a warning; such sessions do not survive restart (NFR-REL-003). |
+| admin-ui | JSON file (`session.NewFileStore`) under `ADMIN_UI_DATA_DIR`, fallback `MEDIA_UI_USERDATA_DIR`, then `$XDG_STATE_HOME/muxcore/admin-ui` or `~/.local/state/muxcore/admin-ui` | 30 min | Hashed session IDs and AES-256-GCM bearer ciphertext, file/key mode 0600; key from `ADMIN_UI_SESSION_KEY` or generated `session.key`. `ADMIN_UI_SESSION_FILE` can override the file. Legacy plaintext files are removed/discarded; temp fallback exists only when no home/state directory can be resolved (NFR-SEC-005). |
+
+Expired or undecryptable persisted sessions are discarded, requiring sign-in.
+The shipped JSON implementation supersedes the earlier unimplemented SQLite
+sketch; requirements constrain protection and restart behavior, not the file
+format (roadmap conflict C-19).
 
 ## 4. CSRF and request hygiene
 
-| App | Today | Target (NFR-SEC-004/006) |
+| App | CSRF behavior | Timeouts and headers (NFR-SEC-004/006) |
 |-----|-------|--------------------------|
-| admin-ui | Double-submit cookie `csrf-token` + `X-CSRF-Token` on mutating methods; CSP and frame headers | Unchanged |
-| BFF | None; `GET /logout`; bare `http.ListenAndServe` | Middleware: for non-GET/HEAD/OPTIONS require `Origin` (or `Referer`) host ∈ {public origin, trusted origins}; `POST /logout`; `http.Server{ReadHeaderTimeout: 10s, ReadTimeout: 60s, WriteTimeout: 0 for /stream/* else 60s, IdleTimeout: 120s}`; headers `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin`, `X-Frame-Options: DENY` |
+| admin-ui | Double-submit cookie `csrf-token` + `X-CSRF-Token` on mutating methods | Existing server hardening and CSP/frame headers |
+| BFF | Allowed Origin/Referer for cookie-authenticated mutations; `POST /logout` | `http.Server`: read-header 10 s, read/write/idle 120 s; streaming routes lift read/write deadlines. CSP, `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: SAMEORIGIN` (same-origin reader frames are supported). |
 
 Native clients authenticate with a bearer (`Authorization` / `X-MuxCore-Session`) and are exempt from Origin checks; cookie-authenticated requests are not.
 
@@ -63,12 +68,50 @@ Native clients authenticate with a bearer (`Authorization` / `X-MuxCore-Session`
 2. Otherwise: if `authorizer` and `identity` providers are registered → `ExtractIdentity` (forwards `authorization`, `x-caller-id`) → `Authorizer.Can(session, fullMethod, "*")`.
 3. Failures: per-caller exponential backoff; permanent lockout after 100 failures.
 
-**Target (NFR-SEC-002):**
-- `Register` requires either a verified mTLS client certificate whose CN equals the module ID being registered, or a single-use bootstrap token (`certauth.GenerateToken`, issued via `muxcorectl modules token` — new admin RPC).
-- Registration of an exclusive security capability (`call.policy`, `publish.policy`, `authorizer`, `identity`, `auth`) when a provider already exists is rejected unless the existing provider is unhealthy and the new registrant presents the same identity.
-- `Events.Subscribe` requires an authenticated caller outside the dev profile.
-- Caller identity for audit is the authenticated module ID, not the peer address.
+The interceptor's public-method allow-list does not waive registration-service
+checks. Household Register/Unregister bind verified certificate CNs to module IDs;
+`BootstrapRegister` exchanges a single-use token for a module certificate.
+Exclusive security capabilities and replacement/dev restart behavior follow
+[ADR-0017](../../adr/0017-mesh-module-identity.md) and
+[ADR-0022](../../adr/0022-registration-rules-dev-restarts.md). Protected RPCs
+distinguish module and end-user principals, using the module allow-list in
+`auth.go` or the user authorizer as appropriate (ADR-0020). Public method and
+service-level policies remain owned by their implementations; NFR-SEC-002 is
+the authenticated security-capability registration requirement.
 
 ## 6. OIDC variant
 
 `auth-oidc` implements `/login`, `/login/exchange`, `/oidc/callback`, `/logout` with PKCE + nonce; roles from `AUTH_OIDC_ROLES_CLAIM` / `AUTH_OIDC_ROLE_MAP` / `AUTH_OIDC_DEFAULT_ROLES`. User CRUD, TOTP, WebAuthn, API-token RPCs return `codes.Unimplemented`. admin-ui must call a capability probe (`GetCapabilities`-style RPC or treat `Unimplemented` as "unsupported") and hide those pages (FR-AUTH-009).
+
+## 7. Administrative session contract (T-M5-11)
+
+[ADR-0026](../../adr/0026-administrative-session-contract.md) adds
+`AuthService.ListSessions` and `RevokeSession` in core's auth proto. This is a
+producer contract checkpoint: current provider and app implementations do not
+yet provide the all-sessions UI.
+
+The provider must require a current full admin end-user session in `x-auth-token`;
+a module certificate alone is insufficient. Management IDs and continuation
+tokens must not disclose or act as bearer credentials. Active-only lists use
+creation-time/ID ordering, a default page size of 100 and a maximum of 500, with
+filter-bound cursors. Revoke atomically matches `(user_id, session_id)` and is
+idempotent for unknown or previously revoked pairs. App cookie sessions must
+revalidate their upstream bearer before administrative revoke can take effect
+across clients. Old/rebuilt providers return `Unimplemented` for unsupported
+methods; auth-local persistence, RPC enforcement and consumer handling remain
+outstanding under FR-AUTH-007.
+
+## 8. BFF operator and playback HTTP boundaries
+
+The direct BFF applies the per-route role rules in FRD RULE-AUTH-3 before module
+calls. A hidden Settings link is not the authorization boundary. Arr migration
+uses the Integration SSRF profile for explicit operator-configured local/LAN
+services, denies metadata/link-local targets at dial time, and refuses redirects
+to prevent forwarding `X-Api-Key` to a new origin.
+
+The BFF's transcoder transport uses its enrolled mesh certificate and trusted CA
+for HTTP as well as gRPC ([ADR-0027](../../adr/0027-transcoder-http-mesh-boundary.md)).
+Browser identity headers are stripped; dev container calls use the shared operator
+token. Only relative movie/TV stream sources enter the playback proxy or direct
+fallback. Root/host allow-lists remain enforced by the source and transcoder
+modules as well as the BFF input checks.

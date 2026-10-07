@@ -25,7 +25,7 @@ Roles and permissions are owned by the identity module (`auth-local`; `auth-oidc
 
 **RULE-AUTH-1** — A missing `policies.yaml` falls back to built-in defaults; a policy file that parses to zero roles denies everything (fail-closed). *(Current, `auth-local`.)*
 **RULE-AUTH-2** — `admin-ui` requires `admin.access` on `admin.ui` for every request; only `admin` passes under default policy. *(Current, `admin-ui` `requireAuth`.)* **Target:** per-page permissions so `manager` can use request/library pages → `FR-ADM-009`.
-**RULE-AUTH-3** — The consumer BFF treats `admin` and `manager` as privileged for operator routes (`sessionHasPrivilegedRole`). Userdata scope is always the session's user unless the caller is privileged. *(Current, `_mvp/cmd/mediauiprox`.)*
+**RULE-AUTH-3** — The consumer BFF generally treats `admin` and `manager` as privileged (`sessionHasPrivilegedRole`), but list-sync handlers, indexer create/edit/delete, migration import, and root-folder create/update require `admin`. Indexer reads and root browse/probe/delete keep their existing privileged-role rules. Userdata scope is the session's user unless the caller is privileged. Consumer Quality/Delay links and direct routes require `admin`/`manager` plus the relevant feature capability; operator settings migration to admin-ui remains incomplete (FR-ADM-010). *(Current, `_mvp/cmd/mediauiprox`; `media-ui-app` Settings.)*
 **RULE-AUTH-4** — Request approval requires a privileged role; `REQUEST_AUTO_APPROVE_USERS` lists user IDs that bypass the pending queue. *(Current, `request-media/internal/approval.go`, `settings.go`.)*
 
 ## 2. Workflows
@@ -39,19 +39,19 @@ Roles and permissions are owned by the identity module (`auth-local`; `auth-oidc
 
 - **Alternate:** installer TUI collects values interactively (`muxcore-installer`).
 - **Failure:** a required module fails Init → core marks it `degraded`, publishes `module.degraded`; admin-ui dashboard shows it; smoke fails.
-- **Current defect / Target:** shipped defaults set `AUTH_BOOTSTRAP_PASSWORD=admin-dev-only` (`_mvp/.env.example`, `bootstrap-auth.sh`, `setup.sh`, registry compose). Target: no default password; installer/compose generate a random one-time password and print it once, or require the operator to set it → `NFR-SEC-001`, `FR-INS-004`.
+- **Current:** bootstrap scripts and the installer generate a one-time secret, or compose requires an operator-supplied value; fixed default credentials are rejected by the repository check → `NFR-SEC-001`, `FR-INS-004`.
 
 ### WF-02 Login and session (all journeys)
 
 1. Unauthenticated browser hits BFF (`:5173`) or admin-ui (`:8082`) → redirect to `auth-local /login?redirect=…`.
 2. User authenticates (password, then TOTP if enrolled; or passkey). auth-local issues a one-time code and redirects to the app's `/auth/callback`.
 3. The app exchanges the code server-to-server (`/login/exchange`) and issues **its own** session cookie (`HttpOnly`, `SameSite=Lax`, `Secure` when the public origin is https).
-4. Session TTL: auth-local 24 h; BFF 24 h in-memory; admin-ui 30 min (`ADMIN_UI_SESSION_TTL`) persisted to a JSON file.
+4. Session TTL: auth-local 24 h; BFF 24 h, persisted under `MEDIA_UI_USERDATA_DIR`; admin-ui 30 min (`ADMIN_UI_SESSION_TTL`), persisted under its durable data directory. App session identifiers are hashed and upstream bearer tokens encrypted in 0600 JSON files. BFF operation without a usable persistence directory/key falls back to memory-only with a warning → `NFR-REL-003`.
 
 - **Alternate:** native clients use `/api/mobile/auth/*` (iOS deep link `muxcore://auth/callback`) or `/api/tv/login` + Quick Connect (tvOS).
 - **Alternate:** `auth-oidc` replaces auth-local's login with an OIDC PKCE flow; user CRUD, TOTP, API tokens, and invites are then **unavailable** (RPCs return `Unimplemented`). admin-ui must hide those pages → `FR-AUTH-009`.
 - **Failure:** code exchange timeout (8 s in BFF) → error page, no session. Invalid/expired session → redirect to login.
-- **Current defects / Target:** BFF has no CSRF token or Origin check; `GET /logout` mutates state; BFF sessions are lost on restart; admin-ui session file stores bearer tokens in plaintext under `os.TempDir()` by default → `NFR-SEC-004`, `NFR-SEC-005`, `NFR-SEC-006`.
+- **Current:** cookie-authenticated BFF mutations require an allowed Origin/Referer, logout is `POST`, and browser servers set timeouts/security headers. Native bearer-authenticated requests are exempt from the browser Origin check. Persistence/key rotation behavior is documented in the [auth LLD](../architecture/lld/auth-and-sessions.md) → `NFR-SEC-004`, `NFR-SEC-005`, `NFR-SEC-006`.
 
 ### WF-03 Invite and onboarding (J-02)
 
@@ -84,7 +84,7 @@ stateDiagram-v2
 - **RULE-REQ-1** — Quotas: `MaxPendingPerUser` and `MaxPerWeek` per requester are enforced at creation, except for auto-approved users' pending limit. *(Current, `reqquota`.)*
 - **RULE-REQ-2** — Only a `pending` request can be approved or denied; only a `watchlisted` record can be promoted. *(Current.)*
 - **RULE-REQ-3** — A "ready" notification is sent at most once per request (`request_ready_notified`). *(Current.)*
-- **RULE-REQ-4** — `request-media` trusts the `X-Caller-Id` header on direct HTTP; it must only be reachable via the BFF/mesh. **Target:** authenticate callers by session/mTLS instead → `NFR-SEC-007`.
+- **RULE-REQ-4** — `request-media` derives the end-user caller from a validated bearer. BFF/admin-ui forward the bearer and strip client identity headers; module identity uses the mesh certificate rather than an untrusted end-user header ([ADR-0019](../adr/0019-end-user-identity-propagation.md), [ADR-0020](../adr/0020-module-principal-allowlists.md)) → `NFR-SEC-007`.
 - **Gap:** music/book/comic/audiobook requests: `media.music.requested` is defined but has no subscriber in `media-automation` → `FR-MM-002`.
 
 ### WF-05 Acquisition: wanted → search → score → grab → download → import (J-03, J-04)
@@ -114,7 +114,7 @@ Business rules (current, `media-automation/internal`):
 - **RULE-ACQ-3 (blocklist scope)** — Blocklisted releases are keyed on `(wanted_item_id, guid, loop)`: scoped to the current attempt loop, not global.
 - **RULE-ACQ-4 (stall)** — A download with no progress for the stall timeout (default 180 min; auto loops 60 → 360 min) is marked `stalled`, its release blocklisted, and the item re-enters search.
 - **RULE-ACQ-5 (indexer rate limit)** — An indexer that signals rate limiting is held for 15 min.
-- **RULE-ACQ-6 (fixture gate)** — When `DOWNLOADER_ENGINE=fixture|fake` or `QBIT_FIXTURE` is set, any non-fixture grab is refused (`dispatch_guard.go`). **Target:** the gate must be fail-closed by default in the shipped household profile → `NFR-SEC-010`.
+- **RULE-ACQ-6 (fixture gate)** — When `DOWNLOADER_ENGINE=fixture|fake` or `QBIT_FIXTURE` is set, any non-fixture grab is refused (`dispatch_guard.go`). The shipped native torrent engine defaults to fixture and the dispatch guard fails closed; explicit live configuration remains subject to RULE-ACQ-7 → `NFR-SEC-010`.
 - **RULE-ACQ-7 (live VPN)** — Live torrenting requires `WG_CONF`; Init fails otherwise (`enforceLiveDownloaderVPN`).
 
 History status values: `sent` → `completed` | `failed` | `stalled` | `import_failed` (`history_status.go`). `import_failed` → `completed` via `RetryImport` (manual, or once at boot via `retryImportFailed`).
@@ -132,13 +132,13 @@ History status values: `sent` → `completed` | `failed` | `stalled` | `import_f
 ### WF-07 Playback (J-03, J-10)
 
 1. Client calls BFF `/api/playback/resolve` with item ID.
-2. BFF applies **server-side parental check** (`playback.go`), probes the file, and returns `direct` or `transcode` (HLS via `media-transcoder`) plus subtitle/audio tracks, segments (intro/outro), chapters.
+2. BFF applies **server-side parental check** (`playback.go`), probes the file, and returns `direct` or `transcode` (HLS via `media-transcoder`) plus subtitle/audio tracks, segments (intro/outro), chapters. Transcoder requests use the BFF's mesh certificate in household mode; browser source inputs are restricted to relative movie/TV stream routes ([ADR-0027](../adr/0027-transcoder-http-mesh-boundary.md)).
 3. Player streams `/stream/*` or `/stream/hls`; progress is written to userdata (`/api/userdata`) and mirrored to `userdata-local`.
 4. **Near-term alternate:** play via Jellyfin deep link (`/api/jellyfin/play`) when the bridge is enabled ([ADR-0005](../adr/0005-consumer-ui-replaces-jellyfin-web.md)).
 
 - **RULE-PLAY-1** — Resume offers the last position when progress is between the configured thresholds; "watched" is set at the completion threshold. *(Current, `lib/userdata.ts`.)*
 - **Failure:** transcoder unavailable → resolve returns direct-only; incompatible codec shows an error with a Jellyfin handoff option when available.
-- **Gap / Target:** parental filtering on **list, search, and detail** APIs is client-side only → `FR-PLAY-007`. Cast/AirPlay controls are visible but non-functional → `FR-PLAY-009`.
+- **Gap / Target:** parental filtering on **list, search, and detail** APIs is client-side only → `FR-PLAY-007`. Unsupported Cast/AirPlay controls are hidden; Remote Playback API support does not provide a Cast SDK implementation → `FR-PLAY-009`.
 
 ### WF-08 Operator triage (J-04, J-09)
 
@@ -149,7 +149,7 @@ admin-ui `/queue`, `/activity`, `/failed-downloads`, `/wanted`, `/calendar`, `/d
 1. `backup-local` creates tar.gz archives on a cron schedule (`BACKUP_SCHEDULE_CRON`) of configured directories and `Backupable` peers (`ExportState`), with SHA-256 and retention by count/age.
 2. Restore extracts into a target directory with path-traversal checks.
 
-- **Gaps / Target:** most stateful modules do not implement `ExportState`, so backups rely on directory lists; admin-ui restore accepts an arbitrary `target_path` while the BFF restricts to `BACKUP_RESTORE_DIR`; no documented, tested restore drill → `FR-BAK-002..004`.
+- **Current:** household state coverage is checked against manifest state entries and mounted volumes; host and compose restore drills passed locally (roadmap §9). Admin-ui confines restore targets to its configured restore root, while the BFF uses `BACKUP_RESTORE_DIR` → `FR-BAK-002..004`. Remaining path-confinement audit work in other modules stays tracked under `NFR-SEC-008`.
 
 ### WF-10 Module registration, discovery, and deploy (J-07)
 
@@ -158,8 +158,8 @@ admin-ui `/queue`, `/activity`, `/failed-downloads`, `/wanted`, `/calendar`, `/d
 3. Marketplace deploy (`SpoolService.DeployTag`): version pattern → repo host allow-list → shallow clone → contract reconcile → source scan → build → SHA-256 checksum → publisher allow-list → signature (ed25519/minisign) when required.
 
 - **RULE-MOD-1** — With no `call.policy` provider registered, every `ModuleMesh.Call` fails; with no `publish.policy`, every publish (including core lifecycle events) is denied. *(Current.)*
-- **RULE-MOD-2** — The first registered provider of `call.policy`, `authorizer`, or `identity` wins. **Target:** registration of these security capabilities requires an authenticated identity (mTLS CN or bootstrap token) → `NFR-SEC-002`.
-- **RULE-MOD-3** — Unsigned modules deploy unless `MUXCORE_SPOOL_REQUIRE_SIGNATURE=1`. **Target:** require signatures in the household profile → `FR-EXT-003`.
+- **RULE-MOD-2** — Exclusive security capabilities require authenticated module registration. Bootstrap tokens enroll a module certificate; Register/Unregister bind the verified certificate CN to its module ID. Replacement and dev restart behavior follow [ADR-0022](../adr/0022-registration-rules-dev-restarts.md) → `NFR-SEC-002`.
+- **RULE-MOD-3** — Household marketplace deploys and orphan resurrection require signatures; curated boot tags retain their checksum trust anchor ([ADR-0016](../adr/0016-security-profiles.md)) → `FR-EXT-003`.
 
 ### WF-11 Migration from Arr (J-05)
 

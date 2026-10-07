@@ -40,3 +40,6 @@
 | [0022](0022-registration-rules-dev-restarts.md) | Registration rules, with dev-mode restarts | Accepted | Delegated (2026-10-05) |
 | [0023](0023-mesh-identity-outside-backups.md) | Mesh CA and module identities are not backed up | Accepted | Delegated (2026-10-05) |
 | [0024](0024-umbrella-release-trains.md) | Umbrella release-train tags and deterministic notes | Accepted | Delegated (2026-10-07) |
+| [0025](0025-ui-verification-gates.md) | Rendered accessibility and consumer browser fixture gates | Accepted | Delegated (2026-10-07) |
+| [0026](0026-administrative-session-contract.md) | Administrative session management belongs to the auth provider | Accepted | Delegated (2026-10-07) |
+| [0027](0027-transcoder-http-mesh-boundary.md) | Transcoder HTTP uses the BFF's verified mesh identity | Accepted | Delegated (2026-10-07) |

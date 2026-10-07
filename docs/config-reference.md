@@ -667,7 +667,7 @@ Variables read by active modules that are not described in the sections above. M
 | `SUBTITLES_HTTP_URL` | _mvp | `http://127.0.0.1:9521` | HTTP base URL of the module. |
 | `TAGGING_HTTP_URL` | _mvp | `http://127.0.0.1:9741` | HTTP base URL of the module. |
 | `TORZNAB_URL` | _mvp, indexer-torznab | — | Torznab url. |
-| `TRANSCODER_HTTP_URL` | _mvp | `http://127.0.0.1:9526` | HTTP base URL of the module. |
+| `TRANSCODER_HTTP_URL` | _mvp | `https://127.0.0.1:9526` (`http` in insecure dev) | BFF playback HTTP origin; household requires HTTPS with the BFF mesh certificate. Registry compose uses `https://media-transcoder:9526`; explicitly empty disables the optional transcoder. |
 | `TVSHOWS_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9440` | gRPC address the BFF dials for this module. |
 | `TVSHOWS_HTTP_URL` | _mvp | `http://127.0.0.1:9450` | HTTP base URL of the module. |
 | `WG_CONF` | _mvp, downloader-native-torrent, indexer-piratebay, indexer-torznab | — | Wg conf. |
@@ -968,7 +968,7 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
-| `QBIT_DOWNLOAD_ROOTS` | downloader-qbittorrent | download dir | Allowed roots for `save_path` passed to qBittorrent (RULE-VAL-1). |
+| `QBIT_DOWNLOAD_ROOTS` | downloader-qbittorrent | download dir | Comma-separated allowed roots for `save_path` passed to qBittorrent (RULE-VAL-1); paths must match the external client's filesystem. |
 | `QBIT_FIXTURE` | downloader-qbittorrent, media-automation | — | Qbit fixture. |
 | `QBIT_GRPC_ADDR` | downloader-qbittorrent | `MUXCORE_GRPC_ADDR_OVERRIDE` | gRPC listen address. |
 | `QBIT_HTTP_ADDR` | downloader-qbittorrent | `MUXCORE_HTTP_ADDR` | HTTP listen address. |
@@ -1233,7 +1233,7 @@ Variables read by active modules that are not described in the sections above. M
 
 | Env Var | Module | Default | Description |
 |---------|--------|---------|-------------|
-| `ROOTS_ALLOWED_PREFIXES` | media-root-folders | — (refuse create) | Prefixes (`:`-separated) a root folder may be created/probed under; set to the library mounts (RULE-VAL-1). |
+| `ROOTS_ALLOWED_PREFIXES` | media-root-folders | — (refuse create) | Comma-separated prefixes a root folder may be created/probed under; set to the library mounts (RULE-VAL-1). |
 
 ### media-scanner
 
@@ -1273,7 +1273,7 @@ Variables read by active modules that are not described in the sections above. M
 |---------|--------|---------|-------------|
 | `TRANSCODER_ALLOW_URL_SOURCES` | media-transcoder | off | `1` allows http(s) `src` for playback transcodes (restricted by `TRANSCODER_URL_SOURCE_HOSTS`). |
 | `TRANSCODER_HTTP_ALLOWED_CALLERS` | media-transcoder | `media-ui` | Mesh certificate CNs allowed to call the playback HTTP API in household mode. |
-| `TRANSCODER_HTTP_TOKEN` | media-transcoder | — | Dev only: bearer token required when the playback HTTP API binds a non-loopback address. |
+| `TRANSCODER_HTTP_TOKEN` | media-transcoder, _mvp | — | Dev only: shared operator token sent by the BFF and required by a non-loopback playback HTTP listener. Dev compose requires a supplied random value; clean-room runs generate and mask one. Browser bearer tokens are not forwarded. |
 | `TRANSCODER_MEDIA_ROOTS` | media-transcoder | — (refuse all) | Library roots (`:`-separated) for playback `src` and job inputs (RULE-VAL-1). |
 | `TRANSCODER_OUTPUT_DIR` | media-transcoder | `<db dir>/output` | Allowed location for `Enqueue` outputs. |
 | `TRANSCODER_URL_SOURCE_HOSTS` | media-transcoder | — | host:port allow-list for URL `src` (e.g. `media-movies:9430,media-tvshows:9450`). |

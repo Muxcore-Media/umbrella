@@ -123,7 +123,8 @@ git push origin "refs/tags/$train"
 Pushed tags trigger `.github/workflows/release.yml`, which:
 
 1. Runs the offline release-tooling fixtures and checks that the tag matches the
-   committed `MUXCORE_TRAIN` and has not been reused for another commit.
+   committed `MUXCORE_TRAIN`. Local preparation refuses a conflicting existing
+   tag; publish new tags without force, preserving their immutability.
 2. Generates notes since the previous train on the first-parent history, ignoring
    unrelated semver tags and tags on merged feature branches. The first train
    includes the initial commit. The notes also record the committed version pins
