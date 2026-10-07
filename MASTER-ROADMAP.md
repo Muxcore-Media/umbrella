@@ -377,6 +377,8 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-07 | Auth-local `f57d194`, [feature CI run 37576801789](https://github.com/Muxcore-Media/auth-local/actions/runs/37576801789) | Build/vet/full race/lint SUCCESS; PR #42 merged as `b3b6563c0b057d1b3635a631398d6d29e8e77c62`. This verifies feature source separately from the historical baseline; local Go execution remains blocked by B-3. Consumer propagation and Quick Connect remain outside this slice |
 | 2026-10-07 | Admin-ui `b84ecc7`, [CI run 37577518829](https://github.com/Muxcore-Media/admin-ui/actions/runs/37577518829) and [Accessibility run 37577518699](https://github.com/Muxcore-Media/admin-ui/actions/runs/37577518699) | Both hosted workflows SUCCESS; Devices PR #64 merged as `598f638191d2492794fdcee0571e252ef81eac97`. No live provider integration or global bearer-revalidation claim |
 | 2026-10-07 | userdata-local candidate `b199a59` under ADR-0030 | Pure parental-policy/auth/public-file-store race tests and corresponding vet pass, including independent review checks. Full Go test, SQLite HTTP/store race and full vet are blocked before compilation by the existing SQLite dependency fetch. Source is pushed for draft review; no full compile/runtime, provider acceptance, consumer enforcement or gitlink advancement |
+| 2026-10-07 | Umbrella `92ae3aa03167cb0fb56716f4820cd199fdc267a9` integration | Committed and pushed approved source pins auth-local `f57d194`, admin-ui `b84ecc7` and media-ui-app `357461d`; `_mvp` `76c8a40` and core `1eec416` unchanged. Userdata candidate and active revalidation/hydration follow-ups remain outside these pins |
+| 2026-10-07 | userdata-local `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), [run 37578220627](https://github.com/Muxcore-Media/userdata-local/actions/runs/37578220627) | Generated-code check job 112651789574 PASS. Build 112651789381 and lint 112651789499 fail on private dependencies with empty `TOKEN` / missing `MUXCORE_CI_TOKEN` and Git terminal prompts disabled; build never reaches compilation, vet/full race are skipped, and lint cannot resolve private imports. This is a credential blocker, not a demonstrated source defect or successful runtime validation; draft remains unpinned |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -554,17 +556,17 @@ is established by independent producer publication.
 
 ## 14. Current integration and authority work (2026-10-07)
 
-Umbrella `534a6f5` pins core `1eec416`, admin-ui `b87ca35`, media-ui-app `b1950e6`
-and `_mvp` `76c8a40`. Core's source tree is identical to independently published
+Umbrella `92ae3aa` pins auth-local `f57d194`, admin-ui `b84ecc7`, media-ui-app
+`357461d`, core `1eec416` and `_mvp` `76c8a40`. Core's source tree is identical to independently published
 v0.6.16, while the household train remains core/images v0.6.15 and spool 2.7.0.
 New working branches are outside these reviewed pins.
 
 | Scope | Current evidence and acceptance boundary |
 |-------|------------------------------------------|
-| Auth-local sessions | Provider source `f57d194`, [PR #42](https://github.com/Muxcore-Media/auth-local/pull/42), merged as `b3b6563` after hosted feature build/vet/full race/lint pass. Historical baseline `7d2a6e7` passed separately; local Go execution remains blocked by B-3. Exact provider pin and live consumer propagation remain separate steps |
+| Auth-local sessions | Provider source `f57d194`, [PR #42](https://github.com/Muxcore-Media/auth-local/pull/42), merged as `b3b6563` after hosted feature build/vet/full race/lint pass and is now pinned by `92ae3aa`. Historical baseline `7d2a6e7` passed separately; local Go execution remains blocked by B-3. Live consumer propagation remains unverified |
 | Admin Devices | `b84ecc7`, [PR #64](https://github.com/Muxcore-Media/admin-ui/pull/64), merged as `598f6381` after hosted CI/Accessibility pass. Provider listing/revoke and separate local mode have full local CI, focused race, exact-bearer mutation proof and rendered UI gates. Live integration, app-cookie/BFF revoke propagation and Quick Connect device grants remain separate |
 | Consumer indexer actions | `357461d`, [PR #43](https://github.com/Muxcore-Media/media-ui-app/pull/43), merged as `0b6d4661` after both hosted workflows pass. Admin-only mutation controls retain admin/manager Acquisition access; scoped 197/full 1246 unit tests and 52 browser cases pass locally. Eight new cases use an established session and do not fix fresh direct-Settings hydration |
-| Parental policy authority | [ADR-0030](docs/adr/0030-authoritative-parental-policy-resource.md) is Accepted/Delegated before source edits. Candidate `b199a59` is pushed for draft review with pure policy/auth/file-store checks passing, but full/SQLite compilation remains dependency-blocked and hosted validation is pending. The separate typed resource is initially unused; no gitlink advancement, trusted migration or BFF enforcement acceptance |
+| Parental policy authority | [ADR-0030](docs/adr/0030-authoritative-parental-policy-resource.md) is Accepted/Delegated before source edits. Candidate `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), has passing pure policy/auth/file-store and hosted generated-code checks. Local full/SQLite execution is dependency-blocked; hosted build/lint are blocked by missing private-fetch credentials, with vet/full race skipped. The unused producer remains unpinned and has no full compile/runtime, trusted migration or BFF enforcement acceptance |
 
 The fresh direct-Settings discovery is a usability failure: an empty role cache
 can render personal Profile before the session response, and the role write does
