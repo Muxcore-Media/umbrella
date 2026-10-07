@@ -113,8 +113,9 @@ handled as failures rather than success redirects.
 `AuthService.ListSessions` and `RevokeSession` in core's auth proto, published in
 core v0.6.16. An isolated consumer verifies the tagged module without a workspace
 or replace directive, and the published auth proto/generated Go match the
-reviewed source byte-for-byte. This is a producer contract checkpoint: current
-provider and app implementations do not yet provide the all-sessions UI.
+reviewed source byte-for-byte. Producer contract, provider implementation and
+consumer UI have separate source checkpoints; all-session end-to-end acceptance
+remains incomplete.
 
 The provider must require a current full admin end-user session in `x-auth-token`;
 a module certificate alone is insufficient. Management IDs and continuation
@@ -124,13 +125,41 @@ filter-bound cursors. Revoke atomically matches `(user_id, session_id)` and is
 idempotent for unknown or previously revoked pairs. App cookie sessions must
 revalidate their upstream bearer before administrative revoke can take effect
 across clients. Old/rebuilt providers return `Unimplemented` for unsupported
-methods; auth-local persistence, RPC enforcement and consumer handling remain
-outstanding under FR-AUTH-007.
+methods. Auth-local `f57d194` implements the provider and passes hosted feature
+CI; live cross-module consumer integration and app bearer revalidation remain
+outstanding under FR-AUTH-007. The independently verified consumer slice is
+described below.
 
 BFF Quick Connect currently creates a local-only app session without an upstream
 provider bearer. Bearer revalidation therefore cannot list or revoke that path
 through this contract by itself. T-M5-11 also needs a provider device-grant
 integration before claiming all-device coverage.
+
+### 7.1 Provider Devices consumer
+
+Admin-ui `b84ecc7` uses the published core v0.6.16 contract and passes local and
+hosted CI/Accessibility checks. `/devices` lists
+provider sessions by default; `/devices?scope=local` retains the app-local
+rename/revoke view and its existing POST paths. Local cookie hashes are never
+treated as provider management IDs. An optional exact `user_id` filter, fixed
+page size 100, and opaque page token support First/Next navigation; changing the
+filter resets the cursor.
+
+Each actual ListSessions/RevokeSession call forwards exactly one bearer from the
+app session, replacing inherited metadata values. Missing/blank bearer returns
+401 without an RPC. This does not add global app-session revalidation: provider
+authorization still determines whether a forwarded bearer is currently valid.
+Typed `Unimplemented` from the actual auth operation renders a control-free
+explanation; discovery failure and auth/permission/input/provider errors stay
+distinct failures rather than a successful empty list.
+
+The separate `POST /devices/provider/revoke` sends the exact body
+`(user_id, session_id)` and preserves the list filter separately. Success returns
+to the first filtered page and audits actor, target user and opaque management
+ID. It neither revokes API keys nor promises immediate cross-app cookie/session
+invalidation; its effect is observable at the next provider validation. Local
+handler/race/accessibility fixtures are separate from live provider acceptance
+and the remaining global bearer-revalidation work.
 
 ## 8. Operator and playback HTTP boundaries
 

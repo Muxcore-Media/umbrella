@@ -45,3 +45,4 @@
 | [0027](0027-transcoder-http-mesh-boundary.md) | Transcoder HTTP uses the BFF's verified mesh identity | Accepted | Delegated (2026-10-07) |
 | [0028](0028-spool-dial-time-destination-policy.md) | Spool HTTP destinations are checked at connection time | Accepted | Delegated (2026-10-07) |
 | [0029](0029-secrets-provider-deployment-selection.md) | Select the secrets provider explicitly in deployment configuration | Accepted | Delegated (2026-10-07) |
+| [0030](0030-authoritative-parental-policy-resource.md) | Parental policy has a separate authenticated provider resource | Accepted | Delegated (2026-10-07) |
