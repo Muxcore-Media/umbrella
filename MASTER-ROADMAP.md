@@ -335,6 +335,7 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-07 | Latest first-batch hosted results | media-ui-app `6bc26ec` [Browser fixtures run 37572331426](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37572331426) SUCCESS; its unit/build rerun still running at this checkpoint. Admin-ui PR #60 hosted Build/vet/race, Lint and Accessibility all SUCCESS; merged as `520668658a771b3f6355d1d5e77a4057208d3b18` |
 | 2026-10-07 | `_mvp` `ae4a8c4` CI compose fixture follow-up | Exact workflow compose check and full `run-script-tests.sh` pass locally. CI fixture now generates a temporary 0600 env with 51 enrollment tokens, supplies the dev transcoder token, validates household and dev compose, and removes the file via trap. Hosted rerun and full clean-room remain separate pending evidence |
 | 2026-10-07 | Clean-room prerequisite container-build probe (Docker 28.4) | `registry:2` and Alpine 3.21 pulls succeed. Required `apk add --no-cache ca-certificates curl` fails with APKINDEX `Permission denied` (apk exit 2 / Docker exit 1) at `dl-cdn.alpinelinux.org` (B-5); inherited proxy and TLS verification retained. No household/dev stack smoke or restore ran, and no active module branches were changed for the probe |
+| 2026-10-07 | First-batch terminal hosted results and umbrella integration | media-ui-app PR #40 both hosted gates SUCCESS; merged as `f9963d80415ffd6c032447e1fa21929b84ab75ec`. `_mvp` `ae4a8c4` Script tests [run 37572573165](https://github.com/Muxcore-Media/mvp/actions/runs/37572573165) SUCCESS; Go CI still fails on B-1. Umbrella `395c0e2` pins approved source SHAs `6bc26ec` (UI), `a567ab1` (admin), `e19d0ff` (core) and `ae4a8c4` (`_mvp`); core and stack reviews remain open |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -392,7 +393,8 @@ Historical checkpoint, preserved for context. The current checkpoint is §11.
 
 ## 11. Current checkpoint (2026-10-07)
 
-The first delivery batch is under review on GitHub; admin-ui PR #60 has merged.
+The first delivery batch is integrated by umbrella `395c0e2`; consumer UI PR #40
+and admin-ui PR #60 have merged, while core and stack reviews remain open.
 The table records verified source checkpoints and merge state. `release-train.env` remains
 `train-2026.10.3` (core/images v0.6.15, spool 2.7.0); no release tag was created and
 no vault deployment was attempted. The original 2026-10-05 full-stack passes
@@ -401,10 +403,10 @@ remain historical evidence.
 | Repo | Checkpoint / review | Scope and remaining work |
 |------|---------------------|--------------------------|
 | umbrella | `f82014b`, [PR #195](https://github.com/Muxcore-Media/umbrella/pull/195) (draft) | T-M7-01 release preparation/workflow and clean-room dev transcoder token; release fixtures and GitHub CI pass. First actual train publication and T-M7-03 acceptance remain pending |
-| media-ui-app | `2073a0b` + browser follow-up `6bc26ec`, [PR #40](https://github.com/Muxcore-Media/media-ui-app/pull/40) | T-M4-04 role gates and T-M4-06 browser fixtures. Local evidence and latest hosted Browser fixtures pass after the transition locator fix; latest unit/build job is still running. Settings migration and full backend journeys remain open |
+| media-ui-app | `2073a0b` + browser follow-up `6bc26ec`, [PR #40](https://github.com/Muxcore-Media/media-ui-app/pull/40), merged as `f9963d8` | T-M4-04 role gates and T-M4-06 browser fixtures. Local evidence and both hosted gates pass after the transition locator fix. Settings migration and full backend journeys remain open |
 | admin-ui | `a567ab1`, [PR #60](https://github.com/Muxcore-Media/admin-ui/pull/60), merged as `5206686` | T-M4-05 rendered accessibility/keyboard gates and fixes; local module verification and hosted Build/vet/race, Lint and Accessibility pass. NFR-A11Y-001 remains partial |
 | core | `e19d0ff`, [PR #97](https://github.com/Muxcore-Media/core/pull/97) (draft) | T-M5-11 additive session contract and compatibility fixtures; no provider implementation or published dependency tag |
-| `_mvp` | `7dfd7c0` + CI fixture follow-up `ae4a8c4`, [PR #97](https://github.com/Muxcore-Media/mvp/pull/97) | Security-fan-out wiring and BFF boundaries pass local module/script/render checks. Follow-up compose enrollment fixture passes the exact workflow command locally; hosted rerun pending and private-fetch CI remains blocked by B-1 |
+| `_mvp` | `7dfd7c0` + CI fixture follow-up `ae4a8c4`, [PR #97](https://github.com/Muxcore-Media/mvp/pull/97) | Security-fan-out wiring and BFF boundaries pass local module/script/render checks. Follow-up compose enrollment fixture and hosted Script tests pass; private-fetch Go CI remains blocked by B-1 |
 
 **Current verification limits.** Docker 28.4 and its daemon are available and
 image pulls work, but the clean-room prerequisite Alpine package fetch fails
@@ -418,8 +420,8 @@ check; repository-wide claims retain their dated historical evidence.
 
 **Next work within existing scope:**
 
-1. Observe the remaining UI and `_mvp` CI results, review the published module checkpoints,
-   and integrate only their verified SHAs. Run the household/dev clean-room and
+1. Complete remaining core/stack reviews and private-fetch CI evidence, keeping
+   integration pins on verified SHAs. Run the household/dev clean-room and
    restore gate before changing the train or making a deployable claim.
 2. Continue the remaining NFR-SEC-008/009 audit rows. Core's spool dial guard is a
    new in-progress follow-up; it is not included in the session-contract checkpoint.
