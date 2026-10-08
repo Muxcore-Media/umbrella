@@ -101,6 +101,7 @@ Current task evidence is in §§5–6 and §9; the latest checkpoint is in §14.
 | C-26 | FRD invite workflow said admin-ui's generated link opened the SPA and went directly Home, and its exhaustion rule omitted unlimited invites | Document the actual admin-ui redemption link and HTTP redemption-to-login handoff, retaining the separate SPA path. Apply exhaustion only to a positive finite limit | admin-ui `handler/invites.go`, `household_redeem.go`, caller/URL fixtures and auth-local `internal/store/invites.go`; no full-stack J-02 acceptance inferred |
 | C-27 | NFR-MNT-005 literally required push-to-`main` although core's default branch is `master` | Target each repository's actual default branch; ADR-0003 defines hosted CI, not a mandatory branch name. Record present failures/successes by run rather than extending the old credential-count snapshot | GitHub core PR #97/#98 target and workflow evidence; no branch rename or CI-host change |
 | C-28 | FR-PLAY-007/FRD described playback as the server-enforced exception, but its inputs and policy are not authoritative | Keep the requirement partial and describe the observed trust gaps before designing the provider/policy boundary; list/search/detail middleware alone would not close it | Read-only BFF review: `playback.go` request metadata, ignored rating/allowed tags in `parental.go`, self-service userdata mutation and provider-failure local fallback; implementation/design acceptance pending |
+| C-29 | FRD WF-07 said resolve takes an "item ID"; `playback.go:99` takes `src`. Separately, the ADR-0031 review found the existing playback check never blocks in practice: the SPA sends only `src` (`media-ui-app/src/api/client.ts:3291-3294`) so the request-supplied `tags`/`parental_rating`/`unrated` inputs are always empty | FRD corrected to `src`; classification must come from the owning media module, not the request ([ADR-0031](docs/adr/0031-bff-enforcement-of-parental-policy.md)) | Read-only design review 2026-10-08 (file:line citations in ADR-0031 Context) |
 
 **Assumptions (labelled, revisit if wrong):** A-1 `MUXCORE_CI_TOKEN` exists in every repo (verified on `admin-ui` only). A-2 Content of the four empty GitHub repos is not recoverable from GitHub. A-3 Free-plan Actions minutes suffice once self-hosted jobs stop queueing. A-4 The owner's vault/homelab deployment remains in use as a reference deployment but is not a product requirement. A-5 Agents on `claude-workstation` cannot reach vault (no ZeroTier, no SSH key); module releases since 2026-10-05 are not redeployed there until the owner pulls them or grants access.
 
@@ -209,13 +210,31 @@ Nine items from [TDD §8](docs/architecture/TDD.md#8-security-hardening-approach
 
 | ID | Objective / refs | Status and remaining acceptance |
 |----|------------------|---------------------------------|
-| T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | In progress — prerequisite typed userdata-local authority foundation accepted in ADR-0030; source work starts as an unused producer with admin-bearer CAS writes and tenant-bound self/admin reads. Current playback still trusts request metadata/self-editable userdata. Trusted migration, media classification, failure handling and consumer route enforcement remain; no implementation acceptance yet |
+| T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | In progress — prerequisite typed userdata-local authority foundation accepted in ADR-0030; the producer is merged on userdata-local `main` (`d07d419`, unpinned, unused; local full verification 2026-10-08, §9). [ADR-0031](docs/adr/0031-bff-enforcement-of-parental-policy.md) (Accepted/Delegated) decides BFF enforcement: one gate with an exact route-class table, classification from the owning media modules (operator rating first, TMDB later), fail-closed failure behavior, a 30 s cache and an admin-run trusted migration. Current playback still trusts request metadata/self-editable userdata until the slices below land; no implementation acceptance yet |
 | T-M4-02 | Profiles incl. kids/PIN (FR-AUTH-010) | Todo |
 | T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
 | T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — `357461d` aligns indexer mutation controls with admin-only BFF writes; admin/manager Acquisition access and earlier role/capability gates remain. Local scoped 197, full 1246 and browser 52 tests pass, with established-session action coverage. Fresh direct-Settings role hydration is addressed by media-ui-app #44 `ab429bc` (fixture-level, see §9); settings migration/admin destination/manager page access remain open |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
 | T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — `357461d` has 52 Chromium HTTP-fixture cases across 375/768/1280/1920 px with local/hosted success, including prior keyboard/focus/reduced-motion and new established-session indexer actions. Fresh direct-Settings hydration is covered by #44's delayed-identity, expired-session and sign-out fixtures (`e2e/session.spec.ts`). These prove selected UI behavior, not real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
 | T-M4-07 | User deletion fan-out (NFR-DATA-003) | Todo |
+
+**T-M4-01 slices (ADR-0031; one repository each; status `Todo` unless noted):**
+
+| Slice | Repo | Change | Depends |
+|-------|------|--------|---------|
+| S0 | umbrella | ADR-0031, FRD WF-07 `src` fix, C-29, this plan — **Done** (this change) | — |
+| S1 | userdata-local | Pure `parental.Evaluate`/`Classification`/`RatingLevel` with fixtures for the ADR-0031 ladder and tag cases; publish a tag | ADR-0030 producer |
+| S2 / S3 | media-movies / media-tvshows | `content_rating`, `content_rating_source`, `tag_labels`, admin-only `SetContentRating`, optional `classification_filter`; TV adds `GetEpisode`; ADR-0015 upgrade fixtures | — (parallel) |
+| S4a–c | contracts-metadata → metadata-tmdb → media modules | TMDB certification for one configured country (operator value always wins) | S2/S3 |
+| S5a | `_mvp` BFF | `parentalGate` (policy client, strict envelope, cache, error codes), route-class table with inventory test, C-PLAY/C-DENY wiring, HLS key binding; reconcile the BFF `TENANT_MODE` `"default"` tenant fallback with ADR-0030's empty-verified-tenant rule (design review finding, unverified beyond that report) | S1 |
+| S5b | `_mvp` BFF | Classification wiring for list/detail routes, `GetEpisode` mapping, classification cache | S5a, S2, S3 |
+| S6 | admin-ui | Provider-backed parental form (revision/409), dry-run migration of `parental.json`, stop copying restrictions into the blob | S1 |
+| S7 | muxcorectl-cli | `users parental set` stops reporting success for the legacy file | — |
+| S8 | media-ui-app | Handle 403 `parental.*` / 503 states; stop relying on blob `prefs.parental` | S5a codes |
+| S9 | userdata-local + `_mvp` | Authenticated transport for the policy call (required before FR-PLAY-007 leaves Part) | S1 |
+| S10 / S11 | `_mvp` deploy / umbrella | Manifest pins and rollout order; gitlinks and `integration/` negative tests | all |
+
+Rollout order matters: BFF enforcement (S5) must not reach a deployment before the S6 migration has run, because an unconfigured account is denied by design. `_mvp` slices must not be edited by two agents at once.
 
 ### M5 — Operator & acquisition completeness
 

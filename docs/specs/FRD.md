@@ -140,7 +140,7 @@ History status values: `sent` → `completed` | `failed` | `stalled` | `import_f
 
 ### WF-07 Playback (J-03, J-10)
 
-1. Client calls BFF `/api/playback/resolve` with item ID.
+1. Client calls BFF `/api/playback/resolve` with the media `src` (the handler reads `src`, not an item ID; C-29).
 2. BFF runs an existing parental check using request-supplied metadata and userdata preferences (`playback.go`); this does not establish authoritative enforcement (gap below). It probes the file and returns `direct` or `transcode` (HLS via `media-transcoder`) plus subtitle/audio tracks, segments (intro/outro), chapters. Transcoder requests use the BFF's mesh certificate in household mode; browser source inputs are restricted to relative movie/TV stream routes ([ADR-0027](../adr/0027-transcoder-http-mesh-boundary.md)).
 3. Player streams `/stream/*` or `/stream/hls`; progress is written to userdata (`/api/userdata`) and mirrored to `userdata-local`.
 4. **Near-term alternate:** play via Jellyfin deep link (`/api/jellyfin/play`) when the bridge is enabled ([ADR-0005](../adr/0005-consumer-ui-replaces-jellyfin-web.md)).
