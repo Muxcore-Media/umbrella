@@ -266,7 +266,8 @@ default to household. M3 still needs remaining SSRF/path audit rows and ADR-0016
 phase-2 migration one train after the household switch; the current train has not
 advanced. **M4 is active:** continue server-side parental enforcement, profiles,
 operator-settings migration and true fixture-stack journeys. M5 admin
-request-time bearer revalidation has local race evidence, and the auth-local
+request-time bearer revalidation is merged (admin-ui `4e9692e`, after a review-driven
+fix), and the auth-local
 invalid-versus-outage provider fix is merged. Next, finish BFF revalidation,
 live revoke propagation and the parental
 policy producer. Release tooling is ready for a reviewed train only after
@@ -387,7 +388,7 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-08 | `_mvp/deploy/helm/muxcore`, helm v3.16.4 | `helm lint` and `helm template` pass with `healthMonitor.token` set (22 resources: ConfigMap, 10 Deployments, Namespace, 4 PVCs, Secret, 5 Services); without a token render fails closed by design (NFR-SEC-011). Schema validation (kubeconform) was not run; clears B-4's missing render/lint |
 | 2026-10-08 | userdata-local candidate `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), local Go 1.27.1, golangci-lint 2.14.0 | `gofmt`, `go mod verify`, `go build`, `go vet`, `go test -race -count=1 -p 2 ./...` (internal, internal/auth, internal/server, internal/store, parental, store) and `golangci-lint run` (0 issues) all pass; no `replace`; `make proto` leaves no diff. Hosted build/lint failures are the missing private-fetch credential (B-1), not code. Reported by a delegated read-only run in an isolated worktree; the candidate remains unpinned and has no BFF enforcement or trusted migration |
 | 2026-10-08 | media-ui-app `ab429bc` (includes #44), local Node 24.21.0 | `npm ci`, `npm run typecheck` and `npm test` pass: 178 files, 1259/1259 tests. Playwright browser cases were not run on this host; #44's hosted `fixtures` and `Typecheck, test, build` jobs passed at merge |
-| 2026-10-08 | admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) `a57e02e`, independent read-only review in an isolated worktree, Go 1.27.1 | `gofmt`, `go vet`, `go build`, `go test -race -count=1 -p 2 ./...` (handler 107 s) and `golangci-lint` (0 issues) pass on the PR as written. Review verdict **changes needed**: (1) stale claims can be applied after commit because a second `Snapshot` re-reads the store; (2) `Store.Get` hands out the live session while `CommitValidatedClaims` rewrites it per request — a probe failed under `-race` with `WARNING: DATA RACE` at `session/store.go:201`; (3) a mutation making `requireAuth` fall through after rejection still passed all revalidation tests (ResponseRecorder keeps the first status), so the reject/503 tests do not prove the handler is skipped; (4) the sessions file is rewritten on every bound request; (5) tenant is replaced by `resp.GetTenantId()` without the login-time claim fallback. Findings 1–4 are being fixed on the PR branch; 5 is documented
+| 2026-10-08 | admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) `a57e02e`, independent read-only review in an isolated worktree, Go 1.27.1 | `gofmt`, `go vet`, `go build`, `go test -race -count=1 -p 2 ./...` (handler 107 s) and `golangci-lint` (0 issues) pass on the PR as written. Review verdict **changes needed**: (1) stale claims can be applied after commit because a second `Snapshot` re-reads the store; (2) `Store.Get` hands out the live session while `CommitValidatedClaims` rewrites it per request — a probe failed under `-race` with `WARNING: DATA RACE` at `session/store.go:201`; (3) a mutation making `requireAuth` fall through after rejection still passed all revalidation tests (ResponseRecorder keeps the first status), so the reject/503 tests do not prove the handler is skipped; (4) the sessions file is rewritten on every bound request; (5) tenant is replaced by `resp.GetTenantId()` without the login-time claim fallback. Findings 1–4 were fixed in `efe28f9` (atomic per-request claim copy, `Get` returns a copy, reject/503 tests assert the page handler and authorization are not reached and fail under a fall-through mutation, writes skipped when unchanged; a new concurrency test fails under `-race` on the old `Get`); 5 is documented. Re-run: gofmt, vet, `go test -race -count=1 -p 2 ./...` (handler 105.6 s) and golangci-lint (0 issues) pass locally, hosted Build/vet/test and Lint pass, merged as `4e9692e`
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -596,11 +597,12 @@ build, vet, race and lint passed and it merged as `55e9747` (reviewed source
 verified locally with race tests and a full handler/session package run:
 identity binding and current claims, invalid-session logout versus outage 503
 with the cookie retained, deep session snapshots, and a revoke-or-rebind-during-RPC
-guard. Hosted build/vet/test and lint on #65 pass, but an independent review on
+guard. Hosted build/vet/test and lint on #65 passed at `a57e02e`, but an independent review on
 2026-10-08 found a confirmed data race (`Store.Get` live pointer vs the per-request
 writer), a stale-claims ordering window and tests that cannot catch a fail-open
-`requireAuth` (§9); fixes are in progress on the PR branch and #65 is not merged.
-BFF revalidation and live integration remain unaccepted. No global revocation is
+`requireAuth` (§9). Those were fixed in `efe28f9` and #65 merged as `4e9692e`
+(not yet pinned by the umbrella). BFF revalidation and live integration remain
+unaccepted. No global revocation is
 accepted by the merged provider/Devices/indexer slices above.
 
 Runtime blockers and the full household/dev smoke, restore, parental/all-device
