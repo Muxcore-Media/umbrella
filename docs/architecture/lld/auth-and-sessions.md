@@ -126,9 +126,9 @@ idempotent for unknown or previously revoked pairs. App cookie sessions must
 revalidate their upstream bearer before administrative revoke can take effect
 across clients. Old/rebuilt providers return `Unimplemented` for unsupported
 methods. Auth-local `f57d194` implements the provider and passes hosted feature
-CI; live cross-module consumer integration and app bearer revalidation remain
-outstanding under FR-AUTH-007. The independently verified consumer slice is
-described below.
+CI; live cross-module consumer integration and BFF bearer revalidation remain
+outstanding under FR-AUTH-007. Admin request-time revalidation is described in
+§7.2. The independently verified consumer slice is described below.
 
 BFF Quick Connect currently creates a local-only app session without an upstream
 provider bearer. Bearer revalidation therefore cannot list or revoke that path
@@ -189,6 +189,15 @@ including local-only admin sessions, skip `Validate`. This does not revalidate
 BFF cookies or Quick Connect's local-only sessions, and it depends on the
 provider returning storage and cancellation failures as gRPC errors rather than
 `Valid: false`.
+
+A follow-up against current admin source `6d0eb55` is in progress under T-M5-11;
+it is not implementation acceptance. Validate and Can must carry the currently
+bound bearer as singleton metadata, with an eight-second bound covering each
+lookup/call. A changed binding during either call must stop the request, and an
+invalid old Validate result must not delete a replacement session. Explicit
+policy denial or `PermissionDenied` should return 403; operational failures
+should return 503 with the cookie retained. Local-only sessions and the claim,
+permission and persistence behavior above remain part of the contract.
 
 ## 8. Operator and playback HTTP boundaries
 
