@@ -47,3 +47,4 @@
 | [0029](0029-secrets-provider-deployment-selection.md) | Select the secrets provider explicitly in deployment configuration | Accepted | Delegated (2026-10-07) |
 | [0030](0030-authoritative-parental-policy-resource.md) | Parental policy has a separate authenticated provider resource | Accepted | Delegated (2026-10-07) |
 | [0031](0031-bff-enforcement-of-parental-policy.md) | The BFF is the single enforcement point for the authoritative parental policy | Accepted | Delegated (2026-10-08) |
+| [0032](0032-fail-closed-paginated-classification.md) | Reject inconsistent paginated classification responses; narrowly supersedes 0031 §2.1 for paginated results | Accepted | Delegated (2026-10-08) |
