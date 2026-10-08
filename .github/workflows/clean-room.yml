@@ -41,8 +41,6 @@ jobs:
     timeout-minutes: 60
     env:
       TOKEN: ${{ secrets.MUXCORE_CI_TOKEN }}
-      CLEAN_ROOM_WORKDIR: ${{ runner.temp }}/clean-room
-      CLEAN_ROOM_LOG_DIR: ${{ runner.temp }}/clean-room-logs
     steps:
       - name: Require MUXCORE_CI_TOKEN (B-1)
         run: |
@@ -64,6 +62,8 @@ jobs:
           node-version: "22"
       - name: Clean-room install + smoke
         env:
+          CLEAN_ROOM_WORKDIR: ${{ runner.temp }}/clean-room
+          CLEAN_ROOM_LOG_DIR: ${{ runner.temp }}/clean-room-logs
           CONTAINER_RUNTIME: docker
           COMPOSE: docker compose
           PROFILES: ${{ inputs.profiles }}
