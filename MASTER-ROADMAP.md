@@ -212,9 +212,9 @@ Nine items from [TDD §8](docs/architecture/TDD.md#8-security-hardening-approach
 | T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | In progress — prerequisite typed userdata-local authority foundation accepted in ADR-0030; source work starts as an unused producer with admin-bearer CAS writes and tenant-bound self/admin reads. Current playback still trusts request metadata/self-editable userdata. Trusted migration, media classification, failure handling and consumer route enforcement remain; no implementation acceptance yet |
 | T-M4-02 | Profiles incl. kids/PIN (FR-AUTH-010) | Todo |
 | T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
-| T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — `357461d` aligns indexer mutation controls with admin-only BFF writes; admin/manager Acquisition access and earlier role/capability gates remain. Local scoped 197, full 1246 and browser 52 tests pass, with established-session action coverage. Fresh direct-Settings role hydration remains a separate verified gap; settings migration/admin destination/manager page access remain open |
+| T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — `357461d` aligns indexer mutation controls with admin-only BFF writes; admin/manager Acquisition access and earlier role/capability gates remain. Local scoped 197, full 1246 and browser 52 tests pass, with established-session action coverage. Fresh direct-Settings role hydration is addressed by media-ui-app #44 `ab429bc` (fixture-level, see §9); settings migration/admin destination/manager page access remain open |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
-| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — `357461d` has 52 Chromium HTTP-fixture cases across 375/768/1280/1920 px with local/hosted success, including prior keyboard/focus/reduced-motion and new established-session indexer actions. Fresh direct-Settings hydration remains open. These prove selected UI behavior, not real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
+| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — `357461d` has 52 Chromium HTTP-fixture cases across 375/768/1280/1920 px with local/hosted success, including prior keyboard/focus/reduced-motion and new established-session indexer actions. Fresh direct-Settings hydration is covered by #44's delayed-identity, expired-session and sign-out fixtures (`e2e/session.spec.ts`). These prove selected UI behavior, not real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
 | T-M4-07 | User deletion fan-out (NFR-DATA-003) | Todo |
 
 ### M5 — Operator & acquisition completeness
@@ -268,7 +268,7 @@ advanced. **M4 is active:** continue server-side parental enforcement, profiles,
 operator-settings migration and true fixture-stack journeys. M5 admin
 request-time bearer revalidation has local race evidence, and the auth-local
 invalid-versus-outage provider fix is merged. Next, finish BFF revalidation,
-live revoke propagation, the fresh Settings hydration fix, and the parental
+live revoke propagation and the parental
 policy producer. Release tooling is ready for a reviewed train only after
 acceptance. See §14 for the current checkpoint and verification limits.
 
@@ -386,6 +386,8 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-08 | auth-local `55e9747`, local Go 1.27.1 linux/arm64 | `go build ./...`, `go vet ./...` and `go test -race -count=1 ./...` pass (internal, grpctls, policy, redirectallow, server 180 s, store 187 s); clears B-3 for this host |
 | 2026-10-08 | `_mvp/deploy/helm/muxcore`, helm v3.16.4 | `helm lint` and `helm template` pass with `healthMonitor.token` set (22 resources: ConfigMap, 10 Deployments, Namespace, 4 PVCs, Secret, 5 Services); without a token render fails closed by design (NFR-SEC-011). Schema validation (kubeconform) was not run; clears B-4's missing render/lint |
 | 2026-10-08 | userdata-local candidate `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), local Go 1.27.1, golangci-lint 2.14.0 | `gofmt`, `go mod verify`, `go build`, `go vet`, `go test -race -count=1 -p 2 ./...` (internal, internal/auth, internal/server, internal/store, parental, store) and `golangci-lint run` (0 issues) all pass; no `replace`; `make proto` leaves no diff. Hosted build/lint failures are the missing private-fetch credential (B-1), not code. Reported by a delegated read-only run in an isolated worktree; the candidate remains unpinned and has no BFF enforcement or trusted migration |
+| 2026-10-08 | media-ui-app `ab429bc` (includes #44), local Node 24.21.0 | `npm ci`, `npm run typecheck` and `npm test` pass: 178 files, 1259/1259 tests. Playwright browser cases were not run on this host; #44's hosted `fixtures` and `Typecheck, test, build` jobs passed at merge |
+| 2026-10-08 | admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) `a57e02e`, independent read-only review in an isolated worktree, Go 1.27.1 | `gofmt`, `go vet`, `go build`, `go test -race -count=1 -p 2 ./...` (handler 107 s) and `golangci-lint` (0 issues) pass on the PR as written. Review verdict **changes needed**: (1) stale claims can be applied after commit because a second `Snapshot` re-reads the store; (2) `Store.Get` hands out the live session while `CommitValidatedClaims` rewrites it per request — a probe failed under `-race` with `WARNING: DATA RACE` at `session/store.go:201`; (3) a mutation making `requireAuth` fall through after rejection still passed all revalidation tests (ResponseRecorder keeps the first status), so the reject/503 tests do not prove the handler is skipped; (4) the sessions file is rewritten on every bound request; (5) tenant is replaced by `resp.GetTenantId()` without the login-time claim fallback. Findings 1–4 are being fixed on the PR branch; 5 is documented
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -575,11 +577,15 @@ New working branches are outside these reviewed pins.
 | Consumer indexer actions | `357461d`, [PR #43](https://github.com/Muxcore-Media/media-ui-app/pull/43), merged as `0b6d4661` after both hosted workflows pass. Admin-only mutation controls retain admin/manager Acquisition access; scoped 197/full 1246 unit tests and 52 browser cases pass locally. Eight new cases use an established session and do not fix fresh direct-Settings hydration |
 | Parental policy authority | [ADR-0030](docs/adr/0030-authoritative-parental-policy-resource.md) is Accepted/Delegated before source edits. Candidate `b199a59`, [draft PR #4](https://github.com/Muxcore-Media/userdata-local/pull/4), has passing pure policy/auth/file-store and hosted generated-code checks. Local full/SQLite execution is dependency-blocked; hosted build/lint are blocked by missing private-fetch credentials, with vet/full race skipped. The unused producer remains unpinned and has no full compile/runtime, trusted migration or BFF enforcement acceptance |
 
-The fresh direct-Settings discovery is a usability failure: an empty role cache
-can render personal Profile before the session response, and the role write does
-not notify Settings to re-evaluate. Establishing a real session before testing
-indexer actions verifies those actions but does not fix or accept fresh direct
-entry. FR-ADM-010 remains partial, including migration to admin-ui.
+The fresh direct-Settings discovery was a usability failure: an empty role cache
+could render personal Profile before the session response, and the role write did
+not notify Settings to re-evaluate. media-ui-app [PR #44](https://github.com/Muxcore-Media/media-ui-app/pull/44)
+(`ab429bc`, merged with both hosted workflows passing) adds session-role
+subscription and fixture scenarios for delayed identity, cached-role downgrade,
+expired sessions, userdata failure, unsaved personal form state, sign-out handoff
+and cross-tab role correction. This is UI-fixture evidence: cached identity stays
+cosmetic and the BFF remains the authorization boundary. FR-ADM-010 remains
+partial, including migration to admin-ui.
 
 **Active prerequisites outside this verified checkpoint:** auth-local
 [PR #43](https://github.com/Muxcore-Media/auth-local/pull/43) distinguishes
@@ -590,9 +596,12 @@ build, vet, race and lint passed and it merged as `55e9747` (reviewed source
 verified locally with race tests and a full handler/session package run:
 identity binding and current claims, invalid-session logout versus outage 503
 with the cookie retained, deep session snapshots, and a revoke-or-rebind-during-RPC
-guard. Hosted admin CI, BFF revalidation, live integration and the fresh
-direct-Settings hydration fix remain unaccepted. No global revocation or
-fresh-Settings fix is accepted by the merged provider/Devices/indexer slices above.
+guard. Hosted build/vet/test and lint on #65 pass, but an independent review on
+2026-10-08 found a confirmed data race (`Store.Get` live pointer vs the per-request
+writer), a stale-claims ordering window and tests that cannot catch a fail-open
+`requireAuth` (§9); fixes are in progress on the PR branch and #65 is not merged.
+BFF revalidation and live integration remain unaccepted. No global revocation is
+accepted by the merged provider/Devices/indexer slices above.
 
 Runtime blockers and the full household/dev smoke, restore, parental/all-device
 and WCAG acceptance limits remain. Baseline CI success, published contracts and
