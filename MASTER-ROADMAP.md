@@ -280,6 +280,25 @@ mapping in the client or treat this source-only finding as a new tenancy design.
 
 Rollout order matters: BFF enforcement (S5) must not reach a deployment before the S6 migration has run, because an unconfigured account is denied by design. `_mvp` slices must not be edited by two agents at once.
 
+**T-M4-01 admin classification follow-up (FR-PLAY-007; registered before implementation, 2026-10-08):**
+
+The recoverable baseline is merged admin-ui #68 `f14e50b`, on
+`codex/admin-rating-outcomes-20261008`. Root accepted the following narrow plan
+after read-only discovery; implementation and verification remain pending.
+Historical `4629312` is unavailable here and is not a source dependency.
+
+| Follow-up | Scoped change / evidence motivating it | Required verification and current state |
+|-----------|----------------------------------------|-----------------------------------------|
+| F1 | Put one content-rating response budget outside registered-route authentication/revalidation, covering fresh Validate/Can and the GET or POST provider work while reserving render time. At #68 the sequential 8 s Validate, 8 s Can and handler deadlines (GET 8 s / POST 13 s) can outlast the 15 s server write timeout. Preserve current-admin/bound-bearer checks and provider cancellation | In progress (planned). Registered-route fixtures must consume time in authentication and provider work, verify the response completes within the server budget, cancellation reaches the provider, expired authorization cannot dispatch a write, and successful reads/writes retain their behavior |
+| F2 | Read-only disposition: #68 already distinguishes loaded, empty and error states substantially; no additional defect was established. Preserve those semantics while changing F1/F3 | No new implementation scope; retain state/interaction regressions |
+| F3 | Audit every dispatched rating write as confirmed, refused or uncertain with a sanitized reason. #68 audits only a confirmed authoritative readback; dispatched timeout/unknown outcomes and acknowledgments followed by failed readback lack an audit. Keep no automatic retries and no confirmation without authoritative readback | In progress (planned). Fixtures must cover confirmed readback, definitive refusal, dispatched timeout/unknown outcomes and failed readback; verify sanitized audit fields, no duplicate write/retry and no false success |
+
+Run focused registered-route/client/handler tests plus full Go race/build/vet/lint
+and affected interaction/accessibility gates, then independent review. Record
+exact heads and local/hosted evidence separately before acceptance. This does not
+implement S9c transport, alter classification authority or accept a live
+restricted-account journey; FR-PLAY-007 remains Part.
+
 ### M5 — Operator & acquisition completeness
 
 T-M5-01 indexer & downloader admin pages (FR-ADM-006) · T-M5-02 unified wanted across media (FR-ADM-002) · T-M5-03 per-page RBAC + OIDC-aware pages (FR-ADM-009, FR-AUTH-009) · T-M5-04 transcoder queue/pool profiles — issue #121 (FR-ADM-008, FR-TRN-001) · T-M5-05 migration depth + dry-run (FR-MIG-002/003) · T-M5-06 decision corpus + quality-tier cutoff (FR-ACQ-005/006, SM-3) · T-M5-07 explicit secrets-provider selection — issue #151 (FR-INS-008) · T-M5-08 downloader contract unification (FR-ACQ-011) · T-M5-09 subtitle providers beyond OpenSubtitles (FR-SUB-001) · T-M5-10 event-redelivery idempotency tests (NFR-REL-004).
@@ -797,3 +816,34 @@ transport at current source, current-tip/amd64/hosted acceptance or deployment.
 B-3/B-4/B-5/B-6 are limits of this managed workspace, not blanket claims about all
 environments. No live session-revoke propagation, established-stream termination,
 new release train or deployment acceptance is claimed.
+
+### Follow-up recovery checkpoint (2026-10-08, after PR #210)
+
+This work starts from [umbrella PR #210](https://github.com/Muxcore-Media/umbrella/pull/210),
+`d0fce32781b0475f1cb783f8a7edbbddef9a534c`, on
+`codex/followup-recovery-20261008`. The earlier checkpoint and §9 entries remain
+dated evidence; their local-only source claims are not proof that those objects
+are available in this workspace. At recovery, no previous source worker or
+repository process was found active. A Codex chat inventory attempt did not
+complete, so chat state is unverified; ownership below governs this batch.
+
+| Worker | Exclusive scope / recoverable base | Current task and next gate |
+|--------|------------------------------------|----------------------------|
+| `root/consumer_followup` | `media-ui-app`, existing draft [PR #48](https://github.com/Muxcore-Media/media-ui-app/pull/48) at `d39156c`, based on merged #47 `517ba0a` | Continue T-M5-12 / FR-ADM-010 stale-role denial handling and the T-M4-08 / NFR-A11Y-001/002 contrast follow-up. Reproduce the Movies/light/wide failure, make the smallest rendered contrast correction, and run relevant/full UI gates plus independent review before acceptance. Historical "pristine baseline" attribution remains unconfirmed until reproduced; no passing result is inferred |
+| `root/admin_followup` | `admin-ui`, `codex/admin-rating-outcomes-20261008` from accepted merged [PR #68](https://github.com/Muxcore-Media/admin-ui/pull/68) `f14e50b` | Read-only discovery established F1 response-deadline and F3 uncertain-audit gaps; root approved the bounded T-M4-01 / FR-PLAY-007 plan in §6 before implementation. F2 states are already substantially fixed in #68, with no further gap established. Historical local-only `4629312` cannot be resolved by `git cat-file` in this checkout, so it is neither recovered nor reused. Implement the registered scope, verify and independently review before acceptance |
+| `root/followup_checkpoint_docs` | Umbrella canonical roadmap/SRS/FRD on `codex/followup-recovery-20261008` | Register ownership and gates, then reconcile only verified source/review/CI evidence. Root reviews and publishes the documentation. No ADR, gitlink or release-train edits |
+
+The current managed workspace remains restricted with enforced network policy;
+no configured credentials, outbound identity or VPN route changes its existing
+gates. B-1/B-3/B-4/B-5/B-6 remain unchanged. Native draft heads `6bc13a5` and
+`fe08722` still have zero exact-head Actions runs; no rerun, merge or Apple/native
+acceptance is implied. S9a remains a blocked draft and does not unlock its
+dependent consumer work.
+
+The `_mvp` local-only `530537d` subtitle-bearing reconciliation remains historical
+out-of-scope evidence for this batch. T-M3-10 stays blocked, with no subtitle
+investigation, implementation or retry. All current checks remain fixture-only;
+GitHub remains the sole origin/tracker/CI host, no paid services or external
+messages are introduced, and no deployment or full household acceptance is
+claimed. Later source and validation results will be recorded separately in §9
+and the applicable SRS/FRD entries.
