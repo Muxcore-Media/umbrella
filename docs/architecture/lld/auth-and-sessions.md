@@ -162,9 +162,9 @@ handler/race/accessibility fixtures are separate from live provider acceptance.
 
 ### 7.2 Admin request-time bearer revalidation
 
-Admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) (`a57e02e`)
-adds this behavior. Local session and handler tests pass; hosted CI and live
-provider integration are still open.
+Admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) (merged as
+`4e9692e`, reviewed source `efe28f9`) adds this behavior. Local race tests and
+hosted build/vet/test and lint pass; live provider integration is still open.
 
 `requireAuth` revalidates a non-empty provider bearer before authorization and
 before the page handler. The token sent to `AuthService.Validate` is the bearer
@@ -174,10 +174,15 @@ header. `Valid: false`, an empty validated user, a different user ID, and gRPC
 operator to login. Discovery, dial, `Internal`, `Unavailable`,
 `DeadlineExceeded`, `PermissionDenied` and other non-invalid statuses return
 503 and leave the cookie and local session in place. A successful validation
-replaces username, roles and tenant with the current public claims. It does
-not change the bound user ID, permissions or provider bearer.
+replaces username, roles and tenant with the current public claims; the tenant
+comes only from the Validate `tenant_id` (no fallback to the token claim as at
+login, so a provider that reports it only as a claim blanks it). The session file
+is rewritten only when one of those three changed. It does not change the bound
+user ID, permissions or provider bearer.
 
-The handler context receives a deep copy. A local revoke during the validation
+The handler context receives a deep copy built under the same lock as the claim
+write, so concurrent requests on one session never see each other's claims;
+`Store.Get` likewise returns a copy. A local revoke during the validation
 RPC does not recreate the session. A provider bearer replaced during that RPC
 does not receive the old call's claims. Sessions with no provider bearer,
 including local-only admin sessions, skip `Validate`. This does not revalidate
