@@ -162,42 +162,53 @@ handler/race/accessibility fixtures are separate from live provider acceptance.
 
 ### 7.2 Admin request-time bearer revalidation
 
-Admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) (merged as
-`4e9692e`, reviewed source `efe28f9`) adds this behavior. Local race tests and
-hosted build/vet/test and lint pass; live provider integration is still open.
+Admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) is merged and
+pinned as `4e9692e` (reviewed `efe28f9`). The binding/authorization follow-up in
+[PR #67](https://github.com/Muxcore-Media/admin-ui/pull/67), reviewed source
+`7e00627` on the later `6d0eb55` base, is merged as `c686129` and remains unpinned.
+Full/focused local race, lint, build and rendered UI checks pass; hosted CI
+passes build/vet/full race/lint. Accessibility evidence for this follow-up is
+local (8 interaction and 31 axe checks); no separate hosted Accessibility run
+was triggered. The behavior below describes that reviewed follow-up source.
 
-`requireAuth` revalidates a non-empty provider bearer before authorization and
-before the page handler. The token sent to `AuthService.Validate` is the bearer
-stored with the local session, not a browser `Authorization` or `X-Auth-Token`
-header. `Valid: false`, an empty validated user, a different user ID, and gRPC
-`Unauthenticated` revoke the local session, clear the cookie and send the
-operator to login. Discovery, dial, `Internal`, `Unavailable`,
-`DeadlineExceeded`, `PermissionDenied` and other non-invalid statuses return
-503 and leave the cookie and local session in place. A successful validation
-replaces username, roles and tenant with the current public claims; the tenant
-comes only from the Validate `tenant_id` (no fallback to the token claim as at
-login, so a provider that reports it only as a claim blanks it). The session file
-is rewritten only when one of those three changed. It does not change the bound
-user ID, permissions or provider bearer.
+`requireAuth` first validates a non-empty provider bearer, then checks
+`AuthService.Can` for `admin.access` on `admin.ui`, before invoking the page
+handler. Validate's body contains the exact bearer stored with the local
+session. Both calls replace inherited credential metadata with exactly one
+`x-auth-token` and one `authorization: Bearer …` from that same binding; browser
+identity headers are not credential sources. Local-only sessions still skip
+Validate, and their Can call removes inherited bearer metadata.
 
-The handler context receives a deep copy built under the same lock as the claim
-write, so concurrent requests on one session never see each other's claims;
-`Store.Get` likewise returns a copy. A local revoke during the validation
-RPC does not recreate the session. A provider bearer replaced during that RPC
-does not receive the old call's claims. Sessions with no provider bearer,
-including local-only admin sessions, skip `Validate`. This does not revalidate
-BFF cookies or Quick Connect's local-only sessions, and it depends on the
-provider returning storage and cancellation failures as gRPC errors rather than
+Each discovery-plus-RPC check has its own eight-second deadline. These deadlines
+are not passed to the protected handler: authentication occurs at request or
+stream establishment and does not cancel an already established stream.
+
+| Result | Response and local session effect |
+|--------|-----------------------------------|
+| Validate returns `Valid: false`, an empty user or a different user; Validate/Can returns `Unauthenticated` | `RevokeIfBound` atomically deletes only the local session whose user and upstream bearer match the checked snapshot. A matching or already absent session clears the cookie and redirects to login (303, or 200 with `HX-Redirect` for HTMX). A replacement binding is retained and receives 503 |
+| Validate/Can returns `PermissionDenied`, or Can returns `Allowed: false` | HTTP 403 Forbidden; retain the cookie/session and do not invoke the page handler |
+| Discovery/dial failure, nil RPC response, `Internal`, `Unavailable`, deadline/cancellation or another operational error | HTTP 503 with a retry message; retain the cookie/session and do not invoke the page handler |
+| Binding is gone after either RPC | Clear the cookie and send the login redirect; do not invoke the page handler |
+| User or provider bearer has changed after either RPC | HTTP 503; preserve the replacement binding and do not invoke the page handler |
+
+The post-RPC binding checks apply to successful and failed responses. The
+atomic comparison inside `RevokeIfBound` also protects a replacement made after
+a snapshot check, so a late invalid response cannot revoke a newer binding.
+
+Successful Validate preserves the canonical claim behavior from #65: username,
+roles and tenant are updated from current public claims, and the session file
+is rewritten only if one of those changes. Tenant comes only from Validate's
+`tenant_id`, without the login-time token-claim fallback. The bound user ID,
+`Permissions` and provider bearer are not changed. The handler receives a deep
+copy built under the same lock as the claim update; `Store.Get` returns a copy.
+A revoked session is not recreated, and a replaced bearer does not receive the
+old call's claims.
+
+These local/fake-provider checks do not establish live provider integration,
+BFF cookie revalidation, Quick Connect device grants or termination of an
+established stream. Invalid-versus-outage handling depends on auth-local
+returning storage and cancellation failures as gRPC errors rather than
 `Valid: false`.
-
-A follow-up against current admin source `6d0eb55` is in progress under T-M5-11;
-it is not implementation acceptance. Validate and Can must carry the currently
-bound bearer as singleton metadata, with an eight-second bound covering each
-lookup/call. A changed binding during either call must stop the request, and an
-invalid old Validate result must not delete a replacement session. Explicit
-policy denial or `PermissionDenied` should return 403; operational failures
-should return 503 with the cookie retained. Local-only sessions and the claim,
-permission and persistence behavior above remain part of the contract.
 
 ## 8. Operator and playback HTTP boundaries
 
