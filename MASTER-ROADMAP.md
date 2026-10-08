@@ -243,7 +243,25 @@ Rollout order matters: BFF enforcement (S5) must not reach a deployment before t
 
 T-M5-01 indexer & downloader admin pages (FR-ADM-006) · T-M5-02 unified wanted across media (FR-ADM-002) · T-M5-03 per-page RBAC + OIDC-aware pages (FR-ADM-009, FR-AUTH-009) · T-M5-04 transcoder queue/pool profiles — issue #121 (FR-ADM-008, FR-TRN-001) · T-M5-05 migration depth + dry-run (FR-MIG-002/003) · T-M5-06 decision corpus + quality-tier cutoff (FR-ACQ-005/006, SM-3) · T-M5-07 explicit secrets-provider selection — issue #151 (FR-INS-008) · T-M5-08 downloader contract unification (FR-ACQ-011) · T-M5-09 subtitle providers beyond OpenSubtitles (FR-SUB-001) · T-M5-10 event-redelivery idempotency tests (NFR-REL-004).
 
-**T-M5-03 per-page RBAC + OIDC-aware pages — Part:** admin-ui `c06ae6c` handles actual AuthService `Unimplemented` on user, TOTP, token and invite operations with explanatory control-free states; genuine failures remain errors, and invites use existing RPCs with the caller context. Local focused/full race, rendered accessibility and keyboard checks pass. Direct passkey endpoints, live OIDC acceptance and per-page RBAC remain; the global `admin.access` guard is unchanged. **Next: read-only manager-page discovery** — inventory current request/library routes and actions, compare their permission needs with the global `admin.access` guard and provider behavior, and propose a role/permission test matrix under FR-ADM-009. This is discovery only; no page-permission implementation is included in this checkpoint.
+**T-M5-03 per-page RBAC + OIDC-aware pages — Part:** admin-ui `c06ae6c` handles actual AuthService `Unimplemented` on user, TOTP, token and invite operations with explanatory control-free states; genuine failures remain errors, and invites use existing RPCs with the caller context. Local focused/full race, rendered accessibility and keyboard checks pass. Direct passkey endpoints, live OIDC acceptance and per-page RBAC remain; the global `admin.access` guard is unchanged. **Next: proposed request-only slice (FR-ADM-009), read-only planning at admin-ui `c686129`.** Accept an ADR before code for the permission vocabulary, default `admin.access` fallback, entry/navigation behavior and unchanged parental boundaries. No ADR or implementation is accepted in this checkpoint; library access is deferred.
+
+Exactly seven routes are proposed, using `Can` with resource `media`:
+
+| Route | Proposed required actions |
+|-------|---------------------------|
+| `GET /request` | `requests.read` |
+| `POST /request` | `requests.read` + `requests.create` |
+| `POST /request/{id}/approve` | `requests.read` + `requests.approve` |
+| `POST /request/{id}/deny` | `requests.read` + `requests.deny` |
+| `GET /approvals` | `requests.read` |
+| `POST /approvals/{id}/approve` | `requests.read` + `requests.approve` |
+| `POST /approvals/{id}/deny` | `requests.read` + `requests.deny` |
+
+Default admin (`*`) and manager (`media.*`) policies should pass; user/viewer/module and lookalike roles should not. Custom read-only policies should see the pages without mutations; read plus one action should expose only that write. Every other route retains `admin.access`, including all library GETs, media POSTs, parental/PIN/migration, roots, settings, users and credentials.
+
+Keep callback/login/brand redirects to `/`. At exact `/`, authenticate first: show the dashboard only with `admin.access`, otherwise send a `requests.read` caller to `/request`; deny others and retain 503 for indeterminate authorization. Navigation should use current, nonpersisted Can results: the existing full menu for `admin.access`, otherwise Request/Approvals only, with action-specific forms and HTMX sidebar refresh on role/policy changes. Reuse #67's exact bearer metadata, bounded checks, typed failures and binding guards.
+
+**Open verification:** registered-route tests with independent permission expectations, zero downstream calls for denied or forged writes, allowed-manager bearer metadata, fresh-login landing, custom permissions and current role/policy changes. Verify downstream `request-media` bearer-authorized manager behavior and surface upstream rejection: legacy `X-MuxCore-Roles` labels managers `user`, and decision handlers currently redirect after rejection; never relabel a manager as admin. `auth-oidc` source is unavailable in this checkout, so its policy behavior and live OIDC acceptance remain open checks.
 
 **T-M5-07 explicit secrets-provider selection — Part:** `_mvp` `3ba1ec4` adds the last-applied compose overlay and host-runner selection in [ADR-0029](docs/adr/0029-secrets-provider-deployment-selection.md). Twenty-seven actual compose renders and host launcher/preflight/process fixtures pass locally, preserving default file behavior and unrelated reused PIDs. Operators explicitly stop the old provider and migrate secrets; external-provider connectivity and manual migration have not run. Requires `!reset` support; Docker Compose 2.40.3 verified, earlier versions and Podman Compose unverified.
 
@@ -646,9 +664,10 @@ Reviewed source remains recoverable on local branches
 and [`codex/consumer-contrast-20261008`](https://github.com/Muxcore-Media/media-ui-app/commit/690442b0a79828e909e106a53e0ac5a964cbf4cf);
 the links resolve the immutable reviewed commits even if remote branches are
 removed after merge. Umbrella docs continue on `codex/roadmap-resume-20261008`,
-[draft PR #205](https://github.com/Muxcore-Media/umbrella/pull/205). These module
+[PR #205](https://github.com/Muxcore-Media/umbrella/pull/205). These module
 sources remain unpinned because the broader parental integration/rollout is
-unfinished; the next T-M5-03 manager-page investigation is read-only.
+unfinished; the next T-M5-03 request-only plan is proposed/read-only and requires
+an ADR before code.
 
 The later ampere household clean-room/restore passes, including unrestricted
 parental playback and unconfigured-account denial, are retained with their exact
