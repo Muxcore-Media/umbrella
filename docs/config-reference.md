@@ -663,6 +663,8 @@ Variables read by active modules that are not described in the sections above. M
 | `SMOKE_HEALTH_MONITOR_STATUS` | _mvp | — | Smoke health monitor status. |
 | `SMOKE_JELLYFIN_WEBHOOK` | _mvp | — | Smoke jellyfin webhook. |
 | `SMOKE_MEDIA_UI_URL` | _mvp | — | Smoke media ui url. |
+| `SMOKE_PARENTAL_UNCONFIGURED_USER` | _mvp | `smoke-no-policy` | Username of the throwaway account `smoke.sh` creates to prove an account without a parental policy is denied playback (`403 parental.policy_unconfigured`, ADR-0031); deleted afterwards. |
+| `SMOKE_USERDATA_URL` | _mvp | `http://127.0.0.1:${USERDATA_LOCAL_PORT:-9672}` | userdata-local HTTP URL `smoke.sh` uses to seed the explicit `unrestricted` parental policy before stream steps (ADR-0030/0031). |
 | `SUBTITLES_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9520` | gRPC address the BFF dials for this module. |
 | `SUBTITLES_HTTP_URL` | _mvp | `http://127.0.0.1:9521` | HTTP base URL of the module. |
 | `TAGGING_HTTP_URL` | _mvp | `http://127.0.0.1:9741` | HTTP base URL of the module. |
@@ -681,6 +683,7 @@ Variables read by active modules that are not described in the sections above. M
 | `ADMIN_UI_LIVETV_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the Live TV settings file. |
 | `ADMIN_UI_NETWORKING_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the networking settings file. |
 | `ADMIN_UI_PARENTAL_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the parental-controls settings file. |
+| `ADMIN_UI_PARENTAL_MIGRATION_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of `parental-migration.json`, the run record of the one-time `parental.json` → userdata-local policy migration (ADR-0031 §5; written 0600; never deleted automatically). |
 | `ADMIN_UI_PASSWORD_RESET_FILE` | admin-ui | under `ADMIN_UI_DATA_DIR` | Path of the password-reset request file shared with the BFF. |
 | `ADMIN_UI_REQUEST_MEDIA_URL` | admin-ui | — | Request media url. |
 | `ADMIN_UI_RESTORE_ROOT` | admin-ui | backup-local restore area | Only directory restores may target (FR-BAK-003, RULE-VAL-1). |
