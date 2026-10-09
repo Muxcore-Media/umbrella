@@ -718,6 +718,10 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 
 | 2026-10-09 | T-M5-03 initial candidate `c1349e5` failed gates and approved narrow follow-up | Exact full `make ci` fails new `TestRequestMutationRouteBudgetCoversEveryPhase` at approvals-deny/Can: its intentionally stalled auth stub returns `Allowed: true` after context cancellation, creating a provider-dispatch race; author is changing the stub to gRPC `DeadlineExceeded`. Separately, independent `TestIndependentRequestMutationUnreadNonFormBody` sends partial JSON over real TCP to create and approvals-deny: each dispatches the provider once (403) and then fails to deliver a response, exceeding 150 ms request / 600 ms server budgets and timing out at approximately one second. Log `/tmp/request-adapter-independent-c1349e5/unread-body.log` was inspected. `ParseForm` succeeds without consuming the unsupported body, so clearing its read deadline and connection-close state permits blocked response draining. Root approved a pre-dispatch Content-Type refusal after unchanged guards, with JSON/absent/invalid-MIME TCP regressions. These are new adapter failures, not the external #70 body's unverified historical classification flakiness. #71 remains draft, no final accepted admin SHA; follow-up needs full local checks, independent re-review and exact-candidate hosted gates |
 
+| 2026-10-09 | T-M5-03 corrected candidate `a4bdb2be67a67ee00fd211ab0e745cfca72ea5a3`, draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71) | Two-file follow-up to rejected `c1349e5`: after unchanged guards, Nonempty JSON/multipart bodies or nonempty bodies with absent/invalid MIME are refused with 400, no-store, visible HTMX error and Connection close before mutation dispatch, with zero provider calls. Valid URL-encoded forms with charset and empty-body behavior are retained. The deliberately stalled auth fixture now returns typed gRPC `DeadlineExceeded`. New focused race regressions pass (3.732 s), and the ninth source mutant is detected/restored. Full local checks, independent re-review and exact-head hosted checks are rerunning; no acceptance or merge. Old-head [CI 37867235323](https://github.com/Muxcore-Media/admin-ui/actions/runs/37867235323) and [Accessibility 37867235361](https://github.com/Muxcore-Media/admin-ui/actions/runs/37867235361) succeeded for `c1349e5`, but its local-full/review failures remain decisive and those runs do not verify this replacement head |
+
+| 2026-10-09 | T-M5-03 corrected `a4bdb2b` independent acceptance and changed integration base | Independent full-diff review accepts only the adapter scope at `a4bdb2be67a67ee00fd211ab0e745cfca72ea5a3` against `1a90d8c`. Focused race passes 19 top-level / 213 tests including subtests (22.534 s); the original raw-TCP unread-body regression now passes (0.014 s). Root inspected `/tmp/request-adapter-independent-a4bdb2b/{focused-race,unread-body-fixed}.log`; original failing log remains preserved. Templates/tests/assets are unchanged from the independent eight controls / 41 HTMX-accessibility checks at `c1349e5`. External #70 merged as `ddeced6`, creating conflicts in #71; no hosted Actions run exists for `a4bdb2b`. Root authorized the sole admin owner to save current gate results and merge current main additively, followed by full local, independent and exact-head hosted verification of the new resolved source. Neither this scoped review nor old hosted success accepts that future head or the full external classification scope |
+
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
 Historical checkpoint, preserved for context. The current checkpoint is §14.
@@ -1028,19 +1032,26 @@ consumer owners inspect accepted module main, while the umbrella gitlinks and
 
 | Worker | Exclusive scope / discovery base | Current task and next gate |
 |--------|----------------------------------|----------------------------|
-| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009` from merged #69 `1a90d8c`; draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71) | T-M5-03 existing-admin adapter repair remains In progress. Initial candidate `c1349e5` is not accepted: full make-ci found a deadline-fixture stub race, and independent real TCP reproduced a partial JSON unread-body hang after provider dispatch (§9). Narrow content-type refusal and fixture correction are underway under §6. No final SHA is accepted; full local/reviewer/hosted gates must run on the follow-up. Permission expansion stays paused |
+| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009`; reviewed corrected `a4bdb2be67a67ee00fd211ab0e745cfca72ea5a3` from #69 `1a90d8c`, draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71) | T-M5-03 adapter repair remains In progress. Independent scoped review accepts `a4bdb2b`, but external #70 is now merged on main as `ddeced6`; #71 conflicts and has no hosted runs for `a4bdb2b`. Sole admin owner must save current checks, merge main preserving both features, freeze the resolved head and rerun full local/independent/hosted gates against `ddeced6`. Old-head evidence does not accept that merge; permission expansion stays paused |
 | `root/request_permissions_review` | Independent read-only review of admin-ui, canonical request-media `10483aa`, auth-local `55e9747` and auth-oidc `636780b` | Exact-copy matcher fixtures establish the downstream permission mismatch below. Further producer semantics require a decision and a runnable producer gate; no provider source or matcher change is approved |
 | `root/consumer_preference_ordering` | `media-ui-app`, `codex/preference-ordering-20261009`; local base `ef4d284`, tree identical to merged #49 `79cc826` | T-M4-04/T-M4-06 preference-only repair is Done at accepted source `54585c68296378b74683e0702ee7cf91e7439fd4`. Test-only `1f1f8d2` preserves two actual-client Chromium 151 failures. Full local typecheck/build and 1394 unit tests pass; Chromium 151 browser suite passes 292 cases with 16 existing skips. Independent 18 scratch / 58 repository tests and 36 browser cases pass. [PR #50](https://github.com/Muxcore-Media/media-ui-app/pull/50) exact-candidate hosted CI/Browser checks pass (Chromium 153, 292 pass / 16 skips); root accepts scoped source, merged as `ba68ada`, unpinned. Global mount-only warning, whole-blob/backend concurrency and provider/device persistence remain residuals |
 | `root/permissions_preferences_docs` | Umbrella canonical documentation on this branch/base | Register both approved adapter/preference scopes and the separate permission pause before production; proposed ADR `0034` remains outline-only. Synchronize only exact source/review/CI evidence. Root owns commits, PRs and publication |
 
-A separate external classification draft, [admin-ui PR #70](https://github.com/Muxcore-Media/admin-ui/pull/70),
-appeared at 00:51:50 UTC on 2026-10-09: `feat/content-rating-ui`, head
-`26015bc66c5f09be50f6cc4ab048935a92f8fc18`, based on `1a90d8c`. Root inspected
-only its metadata and file list. It is not recovered historical `4629312` or
-accepted source from this batch; no source review, verification, integration or
-PR change was performed. Its body reports earlier classification deadline-test
-flakiness, which this batch has not reproduced. Preserve that independent draft
-and its ownership separately from request-adapter #71.
+Separate external classification [admin-ui PR #70](https://github.com/Muxcore-Media/admin-ui/pull/70)
+appeared at 00:51:50 UTC on 2026-10-09 on `feat/content-rating-ui`, head
+`26015bc66c5f09be50f6cc4ab048935a92f8fc18`, based on `1a90d8c`; it merged at
+00:57:41 UTC as `ddeced6df42d0a0ee3628d74383093422733f8b1`, now admin main.
+Root fetched that merge after inspecting its metadata/file list. This batch
+has not accepted its full classification scope, and it is not recovered
+historical `4629312`. Its body's reported historical classification deadline-test
+flakiness remains unverified here. No source/PR change was made by this batch
+before the authorized reconciliation. Request-adapter #71 now conflicts;
+its sole source owner is authorized to preserve both features through additive
+conflict resolution, then obtain new full checks and independent review for the
+resolved head. No hosted run exists for adapter `a4bdb2b`; its accepted scoped
+review cannot verify the upcoming merge. The reviewer's final turn reached model
+capacity after delivering its accepted result and logs; that evidence remains
+valid for its named head, while the new head needs a fresh review.
 
 The consumer owner and independent reviewer have released their source and
 processes. Root verified that reviewed `54585c6` and merged `ba68ada` share tree
