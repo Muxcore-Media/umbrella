@@ -165,7 +165,7 @@ handler/race/accessibility fixtures are separate from live provider acceptance.
 Admin-ui [PR #65](https://github.com/Muxcore-Media/admin-ui/pull/65) is merged and
 pinned as `4e9692e` (reviewed `efe28f9`). The binding/authorization follow-up in
 [PR #67](https://github.com/Muxcore-Media/admin-ui/pull/67), reviewed source
-`7e00627` on the later `6d0eb55` base, is merged as `c686129` and remains unpinned.
+`7e00627` on the later `6d0eb55` base, is merged as `c686129` and, with #68–#70, is carried by the 2026-10-09 admin-ui pin `ddeced6`.
 Full/focused local race, lint, build and rendered UI checks pass; hosted CI
 passes build/vet/full race/lint. Accessibility evidence for this follow-up is
 local (8 interaction and 31 axe checks); no separate hosted Accessibility run
