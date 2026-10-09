@@ -397,14 +397,17 @@ Keep callback/login/brand redirects to `/`. At exact `/`, authenticate first: sh
 
 **Open verification:** registered-route tests with independent permission expectations, zero downstream calls for denied or forged writes, allowed-manager bearer metadata, fresh-login landing, custom permissions and current role/policy changes. Verify downstream `request-media` bearer-authorized manager behavior and surface upstream rejection: legacy `X-MuxCore-Roles` labels managers `user`, and decision handlers currently redirect after rejection; never relabel a manager as admin. Auth-local `55e9747` and connector-retrieved auth-oidc `636780b` first-dot matcher fixtures now establish the producer resource mismatch (§9/§14); this source evidence does not establish live OIDC validation or role propagation. Member read ownership, request-policy administration and approval/auto-approval semantics need a producer decision before this route plan can proceed.
 
-**T-M5-03 existing-admin request-adapter follow-up (FR-REQ-001/002/003) — In progress (approved bounded plan, 2026-10-09):**
+**T-M5-03 existing-admin request-adapter follow-up (FR-REQ-001/002/003) — Done (scoped source, merged/unpinned, 2026-10-09):**
 
 Registered-route/provider fixtures on accepted admin main `1a90d8c` reproduce
 three independent defects (§9): a TV create uses `type` instead of the canonical
 `mediaType` key and decodes as movie; all five create/approve/deny writes hide
 upstream 403 behind empty 303 navigation; an upstream 307 follows a second
-mutation attempt before reporting success. Root accepted this admin-only repair
-on `codex/admin-request-adapter-20261009`:
+mutation attempt before reporting success. Accepted source `b747861` on
+`codex/admin-request-adapter-20261009` implements the registered admin-only
+repair below. It reconciles external main `ddeced6` additively; final local,
+independent and hosted gates pass (§9), and [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71)
+merged at the reviewed head as `aa2b904032306582383c9156503a72fafddf68a4`, unpinned:
 
 - Send create JSON with the producer's existing `mediaType` key.
 - Preserve verified search-result type. Canonical request-media currently asks
@@ -413,7 +416,7 @@ on `codex/admin-request-adapter-20261009`:
   show fixed unavailable feedback without request controls. Explicitly typed TV
   fixtures may verify the create contract, but do not establish a canonical
   end-to-end TV search/request journey.
-- Use a redirect-refusing client only for the five request mutations: exactly
+- Use a redirect-refusing client only for the five request mutations: at most
   one POST, no implicit retry. Show fixed safe failure content/status with
   `Cache-Control: no-store` and visible HTMX error handling; only upstream 2xx
   responses navigate to success. Preserve uncertain outcomes rather than
@@ -432,9 +435,10 @@ on `codex/admin-request-adapter-20261009`:
   the unchanged guard's plaintext 503; the new HTMX error-page visibility
   covers post-auth adapter outcomes only. No other route or general
   authorization middleware changes. Root approved these narrow plan additions
-  before deadline implementation; they are not implementation acceptance.
-- Refuse unsupported, absent or invalid request Content-Type before mutation
-  dispatch, after the unchanged guards. Independent real-TCP review of initial
+  before deadline implementation; final acceptance rests on the later checks
+  recorded in §9.
+- Refuse nonempty bodies with unsupported, absent or invalid request
+  Content-Type before mutation dispatch, after the unchanged guards. Independent real-TCP review of initial
   candidate `c1349e5` found that `ParseForm` can return success without consuming
   an `application/json` body; clearing the read deadline/connection-close state
   then lets unread-body draining block the response. Root approved this narrow
@@ -443,19 +447,20 @@ on `codex/admin-request-adapter-20261009`:
   and existing header behavior. No manager access, permission vocabulary,
   provider contract, parental boundary or policy-setting change is included.
 
-Required evidence includes the baseline failures passing after repair, typed
+Completed verification includes the baseline failures passing after repair, typed
 TV/movie payloads and untyped/mismatched search results, all five mutations'
 visible failures, single-attempt redirects and ordinary/HTMX success behavior,
 plus real `http.Server` tests with the 15-second `WriteTimeout`, combined
 auth/upstream delays, slow forms, unsupported/absent/invalid Content-Type,
 read-deadline clearing and caller cancellation.
-Assert that the socket-timeout rendering exception cannot dispatch provider work,
-that ordinary cancellation stays canceled and that auth expiry retains the guard
-response. Include a negative control
-that proves the complete-route deadline matters. These run in addition to
-applicable full Go race/build/vet/lint, interaction/accessibility gates,
-independent review and exact-candidate hosted outcomes. Producer full/live
-acceptance and the paused permission-model work retain their separate gates.
+Fixtures assert that the socket-timeout rendering exception cannot dispatch
+provider work, ordinary cancellation stays canceled and auth expiry retains the
+guard response. Negative controls establish that the complete-route deadline
+and MIME refusal matter. Full Go race/build/vet/lint, interaction/accessibility,
+independent review and exact-candidate hosted gates pass. The rendered templates,
+jsdom/axe and synthetic HTMX checks do not establish actual browser XHR/navigation
+or visual contrast. Producer full/live acceptance and the paused permission-model
+work retain their separate gates.
 
 **T-M5-07 explicit secrets-provider selection — Part:** `_mvp` `3ba1ec4` adds the last-applied compose overlay and host-runner selection in [ADR-0029](docs/adr/0029-secrets-provider-deployment-selection.md). Twenty-seven actual compose renders and host launcher/preflight/process fixtures pass locally, preserving default file behavior and unrelated reused PIDs. Operators explicitly stop the old provider and migrate secrets; external-provider connectivity and manual migration have not run. Requires `!reset` support; Docker Compose 2.40.3 verified, earlier versions and Podman Compose unverified.
 
@@ -721,6 +726,12 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-09 | T-M5-03 corrected candidate `a4bdb2be67a67ee00fd211ab0e745cfca72ea5a3`, draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71) | Two-file follow-up to rejected `c1349e5`: after unchanged guards, Nonempty JSON/multipart bodies or nonempty bodies with absent/invalid MIME are refused with 400, no-store, visible HTMX error and Connection close before mutation dispatch, with zero provider calls. Valid URL-encoded forms with charset and empty-body behavior are retained. The deliberately stalled auth fixture now returns typed gRPC `DeadlineExceeded`. New focused race regressions pass (3.732 s), and the ninth source mutant is detected/restored. Full local checks, independent re-review and exact-head hosted checks are rerunning; no acceptance or merge. Old-head [CI 37867235323](https://github.com/Muxcore-Media/admin-ui/actions/runs/37867235323) and [Accessibility 37867235361](https://github.com/Muxcore-Media/admin-ui/actions/runs/37867235361) succeeded for `c1349e5`, but its local-full/review failures remain decisive and those runs do not verify this replacement head |
 
 | 2026-10-09 | T-M5-03 corrected `a4bdb2b` independent acceptance and changed integration base | Independent full-diff review accepts only the adapter scope at `a4bdb2be67a67ee00fd211ab0e745cfca72ea5a3` against `1a90d8c`. Focused race passes 19 top-level / 213 tests including subtests (22.534 s); the original raw-TCP unread-body regression now passes (0.014 s). Root inspected `/tmp/request-adapter-independent-a4bdb2b/{focused-race,unread-body-fixed}.log`; original failing log remains preserved. Templates/tests/assets are unchanged from the independent eight controls / 41 HTMX-accessibility checks at `c1349e5`. External #70 merged as `ddeced6`, creating conflicts in #71; no hosted Actions run exists for `a4bdb2b`. Root authorized the sole admin owner to save current gate results and merge current main additively, followed by full local, independent and exact-head hosted verification of the new resolved source. Neither this scoped review nor old hosted success accepts that future head or the full external classification scope |
+
+| 2026-10-09 | T-M5-03 reconciled candidate `b747861ba2f749d5a1ee4b1cc7624aa92f47f1d6`, draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71) | Parents are corrected adapter `a4bdb2b` and external main `ddeced6`. Only `tests/a11y.test.mjs` conflicted; both features and the 43-fixture count were retained. Root verified the final 16-path adapter diff against `ddeced6`, unchanged adapter source/test/template blobs from `a4bdb2b`, and unchanged bulk-classification production/assets/CHANGELOG from main. Exact-head `make ci` passes lint (zero issues), all-package race (handler 130.433 s, root 2.914 s), CSS/Templ (zero updates) and build; standalone vet, eight interaction tests and 49 accessibility checks over 43 documents pass. Logs `/tmp/admin-adapter-b747861-{ci,vet,npm,a11y}.log` were inspected. Nine earlier source mutants remain detected/restored evidence for the unchanged adapter blobs; no repeated mutation run is claimed. The reported historical classification flake did not occur in this local run. At this intermediate checkpoint fresh independent merge review and exact-head CI/Accessibility were still running; their final results and source merge are recorded below. No permission expansion or full external-classification acceptance follows from this local run |
+
+| 2026-10-09 | T-M5-03 final independent review and hosted acceptance of `b747861` | Independent reviewer ACCEPTS the exact 16-file adapter diff against `ddeced6`, no findings. All 12 adapter-only blobs match `a4bdb2b`, all nine bulk-only blobs match `ddeced6`, and shared changes are additive. Fresh race checks pass 19 top-level / 213 including subtests (22.375 s); original independent unread-body TCP regression passes under race (1.046 s). Eight interaction tests and 49 accessibility checks across 43 actual Go-rendered documents pass independently; checkout remains clean. Root inspected `/tmp/request-adapter-independent-b747861/review.txt` and logs. Hosted [Accessibility 37868838850](https://github.com/Muxcore-Media/admin-ui/actions/runs/37868838850) succeeds, with actual eight/49 counts inspected; Root inspected exact [CI 37868838944](https://github.com/Muxcore-Media/admin-ui/actions/runs/37868838944): actual build/vet/full race (handler 138.989 s) and lint all succeed. These template/jsdom/axe and synthetic HTMX selection/status checks do not establish real browser XHR/navigation, visual contrast or full WCAG acceptance; the full external bulk-rating feature remains outside this batch's acceptance. Root accepts this scoped source; #71 merged at expected head as `aa2b904032306582383c9156503a72fafddf68a4`, unpinned |
+
+| 2026-10-09 | Final permissions/preference source handoff and canonical documentation, umbrella [PR #212](https://github.com/Muxcore-Media/umbrella/pull/212) | `node scripts/check-docs.mjs` and `git diff --check` pass. Records scoped accepted consumer #50 `54585c6` → `ba68ada` and admin #71 `b747861` → `aa2b904`, with exact local/independent/hosted evidence and superseded failures retained. Root confirms matching reviewed/merged trees, released source/reviewer processes and clean canonical media-ui-app `816abd65`, admin-ui `6d0eb559` and request-media `10483aa`. Only roadmap/SRS/FRD change; accepted ADRs, gitlinks, release train and versions remain untouched. FR-REQ-001/FR-PLAY-004/FR-ADM-010 remain Part; FR-ADM-009 remains Plan. No producer permission correction, deployment, full external bulk-feature, full browser/admin contrast, canonical TV-provider or household acceptance. Final umbrella publication needs its own exact-head hosted checks; module results do not verify the documentation head |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -1032,33 +1043,51 @@ consumer owners inspect accepted module main, while the umbrella gitlinks and
 
 | Worker | Exclusive scope / discovery base | Current task and next gate |
 |--------|----------------------------------|----------------------------|
-| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009`; reviewed corrected `a4bdb2be67a67ee00fd211ab0e745cfca72ea5a3` from #69 `1a90d8c`, draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71) | T-M5-03 adapter repair remains In progress. Independent scoped review accepts `a4bdb2b`, but external #70 is now merged on main as `ddeced6`; #71 conflicts and has no hosted runs for `a4bdb2b`. Sole admin owner must save current checks, merge main preserving both features, freeze the resolved head and rerun full local/independent/hosted gates against `ddeced6`. Old-head evidence does not accept that merge; permission expansion stays paused |
-| `root/request_permissions_review` | Independent read-only review of admin-ui, canonical request-media `10483aa`, auth-local `55e9747` and auth-oidc `636780b` | Exact-copy matcher fixtures establish the downstream permission mismatch below. Further producer semantics require a decision and a runnable producer gate; no provider source or matcher change is approved |
+| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009`; accepted `b747861ba2f749d5a1ee4b1cc7624aa92f47f1d6` (parents `a4bdb2b` and `ddeced6`), [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71), merged as `aa2b904` | T-M5-03 adapter repair is Done at scoped source level, unpinned. Final 16-path diff against `ddeced6` passes full local Go/interaction/accessibility, independent review and exact hosted CI/Accessibility (§9). Source owner has released the checkout/processes; root restored clean canonical `6d0eb559`. Permission expansion stays paused; no full external bulk-feature, browser-navigation, TV-provider or deployment acceptance |
+| `root/request_permissions_review` | Independent read-only review of admin-ui, canonical request-media `10483aa`, auth-local `55e9747` and auth-oidc `636780b` | Exact-copy matcher fixtures establish the downstream permission mismatch below. Independent adapter review accepted `a4bdb2b`; its source evidence is retained after reviewer capacity interruption. Further producer semantics require a decision and runnable producer gate; no provider source or matcher change is approved |
+| `root/adapter_merge_review` | Independent read-only review of final admin `b747861` against updated main `ddeced6` | ACCEPT, no findings: reconciled 16-file adapter scope and additive merge pass fresh focused race, original TCP regression, interaction and rendered accessibility checks (§9). This does not accept the full external classification feature or establish full-browser navigation/contrast |
 | `root/consumer_preference_ordering` | `media-ui-app`, `codex/preference-ordering-20261009`; local base `ef4d284`, tree identical to merged #49 `79cc826` | T-M4-04/T-M4-06 preference-only repair is Done at accepted source `54585c68296378b74683e0702ee7cf91e7439fd4`. Test-only `1f1f8d2` preserves two actual-client Chromium 151 failures. Full local typecheck/build and 1394 unit tests pass; Chromium 151 browser suite passes 292 cases with 16 existing skips. Independent 18 scratch / 58 repository tests and 36 browser cases pass. [PR #50](https://github.com/Muxcore-Media/media-ui-app/pull/50) exact-candidate hosted CI/Browser checks pass (Chromium 153, 292 pass / 16 skips); root accepts scoped source, merged as `ba68ada`, unpinned. Global mount-only warning, whole-blob/backend concurrency and provider/device persistence remain residuals |
-| `root/permissions_preferences_docs` | Umbrella canonical documentation on this branch/base | Register both approved adapter/preference scopes and the separate permission pause before production; proposed ADR `0034` remains outline-only. Synchronize only exact source/review/CI evidence. Root owns commits, PRs and publication |
+| `root/permissions_preferences_docs` | Umbrella canonical documentation on this branch/base | Final roadmap/SRS/FRD evidence and recoverable source handoff are prepared for root review/publication in #212. Both chosen source slices are merged/unpinned; proposed ADR `0034` remains outline-only and the producer permission decision stays paused. Root owns commits, PRs and exact-head documentation checks |
 
 Separate external classification [admin-ui PR #70](https://github.com/Muxcore-Media/admin-ui/pull/70)
 appeared at 00:51:50 UTC on 2026-10-09 on `feat/content-rating-ui`, head
 `26015bc66c5f09be50f6cc4ab048935a92f8fc18`, based on `1a90d8c`; it merged at
-00:57:41 UTC as `ddeced6df42d0a0ee3628d74383093422733f8b1`, now admin main.
+00:57:41 UTC as `ddeced6df42d0a0ee3628d74383093422733f8b1`, then admin main.
 Root fetched that merge after inspecting its metadata/file list. This batch
 has not accepted its full classification scope, and it is not recovered
 historical `4629312`. Its body's reported historical classification deadline-test
 flakiness remains unverified here. No source/PR change was made by this batch
-before the authorized reconciliation. Request-adapter #71 now conflicts;
-its sole source owner is authorized to preserve both features through additive
-conflict resolution, then obtain new full checks and independent review for the
-resolved head. No hosted run exists for adapter `a4bdb2b`; its accepted scoped
-review cannot verify the upcoming merge. The reviewer's final turn reached model
-capacity after delivering its accepted result and logs; that evidence remains
-valid for its named head, while the new head needs a fresh review.
+before the authorized reconciliation. The adapter owner resolved #71's sole
+conflict in `tests/a11y.test.mjs` additively, retaining both features and the
+43-fixture count. Frozen merge `b747861` has parents `a4bdb2b` and `ddeced6`;
+root verified that adapter production/tests/templates are unchanged from the
+reviewed adapter and bulk-classification production/assets/CHANGELOG are
+unchanged from that main base. The final diff against `ddeced6` is the original
+16 adapter paths. No hosted run exists for old adapter `a4bdb2b`; new-head
+hosted runs are listed in §9. Earlier reviewer capacity interruptions preserve
+the delivered evidence for its named head; a fresh independent merge reviewer
+has accepted the new head within the adapter/integration scope. Full local,
+independent and exact-head hosted checks pass; root accepts the scoped source
+and #71 is merged as `aa2b904`, unpinned. This reconciliation does not accept
+the full external classification scope on behalf of this batch.
 
 The consumer owner and independent reviewer have released their source and
 processes. Root verified that reviewed `54585c6` and merged `ba68ada` share tree
 `3fbf65b14f9b3bb99370e6ad7af12d104d05b5f5`, then restored the clean canonical
 media-ui-app checkout `816abd65`. The accepted #50 branch/merge remain recoverable;
 that canonical checkout and unchanged gitlink do not contain the repair. Admin
-adapter work is still In progress under its exclusive owner.
+source owner and final reviewer have also released their source/processes. Root
+verified that reviewed `b747861` and merge `aa2b904` share tree
+`2a4928e1651dce45375673a2eceec9b6b7f000ff`, then restored clean canonical
+admin-ui `6d0eb559e2dc29540fb112274c2be6e226d4a935`. Request-media remains
+clean at canonical `10483aa`; no producer edits/publication occurred. Both
+accepted feature branches and merge commits remain locally/remotely recoverable.
+No gitlink, release-train, version or deployment change accompanies this handoff.
+Final umbrella publication belongs to [PR #212](https://github.com/Muxcore-Media/umbrella/pull/212):
+root will commit the final canonical evidence and verify its exact hosted head.
+Next source work retains the paused producer permission/ownership decision and
+B-3 gate, consumer global-warning/whole-blob/durability residuals, and the
+separate blocked S9/native/subtitle boundaries.
 
 The request-only permission plan is **paused**. Canonical request-media uses
 default branch `master`, matching umbrella pin

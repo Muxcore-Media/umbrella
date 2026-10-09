@@ -140,6 +140,31 @@ stateDiagram-v2
 - **Known permission mismatch (C-34):** canonical request-media `10483aa` checks resource `media.request` with separate create/list/approve/deny actions. Current auth-local/OIDC policies split at the first dot, so default user `media.request` and manager `media.*` do not authorize that resource. Existing lifecycle/guard fixtures remain evidence for their own behavior; they do not establish a working member/manager request journey. A producer correction and member-ownership/shared-policy decision remain planned and blocked; no live journey rejection or permission-model change is asserted → `FR-REQ-001`, `FR-ADM-009`.
 - **Gap:** music/book/comic/audiobook requests: `media.music.requested` is defined but has no subscriber in `media-automation` → `FR-MM-002`.
 
+Accepted admin request-adapter source `b747861` (#71, merged as `aa2b904`,
+unpinned) uses the producer's existing `mediaType` create key. TV search does not infer type from the selected option:
+untyped/movie results are omitted with an unavailable explanation and no request
+controls. Canonical producer search still requests MOVIE and omits result type;
+typed TV fixtures verify the adapter contract only, not a canonical TV journey.
+
+The five existing-admin create/approve/deny writes make at most one upstream
+POST without following redirects. Only 2xx navigates to success; post-auth
+adapter failures return fixed safe no-store error content with HTMX error
+selection. A 12-second total request budget starts before unchanged auth guards,
+and form reads are bounded. Nonempty bodies with unsupported/absent/invalid
+Content-Type are refused before dispatch; valid URL-encoded forms with charset
+and existing empty-body handling remain. A completed form parse clears its read
+deadline. Only a confirmed socket-read-timeout refusal before dispatch may use
+a one-second detached rendering context; provider work never does, and ordinary
+caller cancellation stays honored. Auth-budget expiry retains the guard's
+plaintext 503. Global `admin.access`, session guards, read clients and authority
+remain unchanged; this is not manager access or a provider permission correction.
+
+Exact-head local, independent and hosted Go/TCP, interaction and rendered
+accessibility checks pass (roadmap §9). Go-rendered templates, jsdom/axe and
+synthetic HTMX selection/status handling do not establish full browser XHR/navigation, visual
+contrast or live provider acceptance. The external bulk-classification feature
+preserved by the merge is outside this adapter review's full feature scope.
+
 ### WF-05 Acquisition: wanted → search → score → grab → download → import (J-03, J-04)
 
 ```mermaid
