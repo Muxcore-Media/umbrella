@@ -57,11 +57,23 @@ in the current visit hydrate from returned preferences; sparse per-field drafts
 preserve edits, focus and an unsaved theme choice. Saving remains explicit,
 preserves unrelated cached preferences, and clears submitted drafts without
 erasing newer edits. Fixtures cover actual PUT payloads, applied theme and
-remount behavior. Save before the initial GET resolves and out-of-order
-transport/cache acknowledgments remain residuals; this does not define general
-concurrency or provider/device durability. Other personal panes, parental/PIN
-behavior and backend persistence contracts are outside the slice → FR-PLAY-004,
-FR-ADM-010.
+remount behavior. Accepted follow-up #50 `54585c6` (merged as `ba68ada`,
+unpinned) keeps Display drafts editable while loading and permits Save only
+after a successful GET for the current document/session. A failed read offers
+explicit Retry; session-generation invalidation offers explicit reload. Neither
+read completion nor retry submits preferences automatically. Drafts and focus
+are retained. Preference edit revision, request order and a pending marker
+prevent stale GET/PUT results from replacing saved edits or readiness; failed
+PUT retains the marker, and only a matching successful acknowledgment clears
+it. Raw unknown preference keys and existing normalization/parental aliases
+are preserved. Local, independent and hosted checks pass (roadmap §9).
+
+Display Retry clears its pane error and restores correct Save readiness, but
+the application's separate mount-only progress-sync warning can remain visible
+after recovery. That warning, non-preference blob ordering, backend concurrent
+writes and provider/device durability remain residuals. Other personal panes,
+parental/PIN behavior and backend persistence contracts are outside the slice
+→ FR-PLAY-004, FR-ADM-010.
 
 ## 2. Workflows
 

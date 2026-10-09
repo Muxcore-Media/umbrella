@@ -219,9 +219,9 @@ The original nine items from [TDD §8](docs/architecture/TDD.md#8-security-harde
 | T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | In progress — [ADR-0030](docs/adr/0030-authoritative-parental-policy-resource.md) provider (userdata-local `v0.1.5`, `e544b35`) is pinned and consumed. [ADR-0031](docs/adr/0031-bff-enforcement-of-parental-policy.md) (Accepted/Delegated) decides BFF enforcement: one gate with an exact route-class table, classification from the owning media modules (operator rating first, TMDB later), fail-closed failure behavior, a 30 s cache and an admin-run trusted migration. **State 2026-10-08:** S1–S3, S5a, S6, S7 and S8 are merged and pinned (§9). The S5a gate (`_mvp` PR #99, `7e0f45c`; umbrella pin `_mvp` `3c16074`, which also carries the T-M5-12/T-M5-13 fixes) replaced the old trust of request metadata and self-editable userdata for playback; the integrated pin still denies a restricted principal all playback and exposes list/detail titles. S5b source `0b51bfd` is locally verified under ADR-0031/0032: trusted movie/TV classification, episode inheritance, visible lists/totals, fresh item checks and a playback-only cache of at most 30 s. Source [PR #103](https://github.com/Muxcore-Media/mvp/pull/103) was selected after read-only comparison with parallel draft [PR #102](https://github.com/Muxcore-Media/mvp/pull/102) (`8757ad9`); the final test-only follow-up passes focused race/lint and independent review. PR #103 merged as `41a18c0`, unpinned; parallel #102 was later reopened as a draft by an authorized user. Its remote head `e0f1e54` conflicts with main; local-only, unpushed reconciliation `530537d` (a merge of main plus two commits, 11 files against `214484f`) adds sidecar-subtitle ownership and session/item-bound restricted subtitle fetch. A fresh independent review accepts that source and its focused tests; current full build/race/lint/script verification of `530537d` is not done, and the earlier full checks at `e0f1e54` do not count for the reconciled candidate. It is not on main, pinned or deployed. A reviewer fixture confirmed that an operator-writable misnamed, symlinked or replaced sidecar can carry other content, so filename ownership trusts the operator library (a residual, not an untrusted-user exploit claim); the existing unrestricted `sc_base64` confinement gap (T-M3-10) is separate. Full production verification is at `4054780`; final-head hosted scripts pass, while Go jobs stop at private-module credentials (B-1), with hosted vet/race skipped. On merged main, ambiguous segment `media_id` and opaque subtitle references stay denied for restricted principals; T-M3-10 remains blocked. The admin S6 provider-backed form and migration (admin-ui PR #66, `6d0eb55`) are merged and pinned. S9 transport design is accepted under [ADR-0033](docs/adr/0033-userdata-http-mesh-transport.md) (Accepted/Delegated; S9a is In progress, no implementation acceptance). Admin classification source `154d74b` on `codex/admin-classification-20261008` (base `c686129`) passes local and hosted checks and independent review; [PR #68](https://github.com/Muxcore-Media/admin-ui/pull/68) merged as `f14e50b`, unpinned (§9). #68 was rebuilt on the preserved #67 base because the historical `feat/content-rating-ui` source was unrecoverable with no open PR. The historical PR #210 checkpoint recorded a separate local-only `feat/content-rating-ui` head `4629312` (also from `c686129`; unpushed, no PR, not merged) with F1 response-deadline, F2 loaded/empty/error-state and F3 uncertain-audit follow-ups, source accepted and full verification in progress. That object is unavailable in the current checkout and is not recovered or reused. Fresh read-only discovery on merged #68 established F1/F3 gaps but no additional F2 gap. Replacement source `dfdaa2f` on `codex/admin-rating-outcomes-20261008` from `f14e50b` implements the registered plan below and passes full local gates plus independent review; [PR #69](https://github.com/Muxcore-Media/admin-ui/pull/69) passes exact-head hosted build/vet/race/lint and merged as `1a90d8c`, unpinned. Hosted Accessibility did not trigger; its 37/37 result is local only. The historical candidate remains unavailable; local source verification does not establish integrated or live acceptance. S10/S11 rollout/integration and profiles remain open; merged gate/migration code is not deployment acceptance. No full acceptance: FR-PLAY-007 stays Part. History: the producer was first merged as `d07d419` (tree identical to verified candidate `b199a59`) before it was pinned; local full verification 2026-10-08 is in §9 |
 | T-M4-02 | Profiles incl. kids/PIN (FR-AUTH-010) | Todo |
 | T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
-| T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — admin-only indexer mutation controls retain admin/manager Acquisition access. Fresh direct-Settings role hydration is fixed in source `881bfb1`, merged as `ab429bc` (#44), included in current UI pin `816abd6`, with delayed identity, current-role correction, expiry, sign-out and cross-tab fixtures. T-M5-12 source `0ef06f3` adds verified operator-action controls, merged as `517ba0a` (#47) after both hosted workflows passed; unpinned. Display preference hydration source `ef4d284` (#49), merged as `79cc826`, is locally/independently/hosted verified and unpinned (details below). Settings migration, an admin destination and manager page access remain open |
+| T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — admin-only indexer mutation controls retain admin/manager Acquisition access. Fresh direct-Settings role hydration is fixed in source `881bfb1`, merged as `ab429bc` (#44), included in current UI pin `816abd6`, with delayed identity, current-role correction, expiry, sign-out and cross-tab fixtures. T-M5-12 source `0ef06f3` adds verified operator-action controls, merged as `517ba0a` (#47) after both hosted workflows passed; unpinned. Display preference hydration source `ef4d284` (#49), merged as `79cc826`, and preference-ordering source `54585c6` (#50), merged as `ba68ada`, are locally/independently/hosted verified and unpinned (details below). Settings migration, an admin destination and manager page access remain open |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
-| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, unpinned. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
+| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, unpinned. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
 | T-M4-07 | User deletion fan-out (NFR-DATA-003) | Todo |
 | T-M4-08 | Consumer theme contrast and a rendered browser gate (NFR-A11Y-001, NFR-A11Y-002, NFR-MNT-002, ADR-0025) | Done (selected fixture scope) — source `690442b`, [PR #46](https://github.com/Muxcore-Media/media-ui-app/pull/46), merged as `7a45f33` after hosted CI/Browser success, unpinned. Anchor layering, theme-aware tertiary/danger/success text and foreground-only accent migration (59 exact mechanical files plus InviteJoin) retain accent fills/borders/brand colors and filled danger-control surfaces; light error borders follow the darker danger token. Local typecheck, 1326 unit tests, build and 208 browser cases pass (12 existing skips), including 104 new contrast cases with computed-theme assertions and negative controls at four widths/both themes; final hover-paint checks 24/24. Follow-up #48 `adf6d29`, merged as `b00db38`, adds Activity action/Movies select contrast; 256 local and hosted browser cases pass with 16 existing skips (§9), unpinned. Media/gradient incomplete results, other routes, assistive technology, light video OSD and full/cross-browser WCAG acceptance remain open |
 | T-M4-09 | Native userdata authentication and durable cross-device persistence (FR-PLAY-004, C-33) | **In progress (reviewed native drafts; Apple/provider gates pending)** — iOS `6bc13a5` (draft muxcore-ios #1, base `830d14d`) and tvOS `fe08722` (draft muxcore-tvos #1, base `a424ac6`) implement cookie-free BFF bearer requests, verified server/user/tenant binding, persisted pending edits, visible failure/retry, serialized writes and response guards. Independent Linux package tests/builds and real-loopback transport checks pass (§9); complete Apple app compilation and simulator journeys remain blocked by B-6. Neither draft is merged or pinned; FR-PLAY-004/FR-NAT-001 stay Part. Real BFF→provider persistence after app/BFF/provider restart, fresh-device/account isolation, failure/offline recovery and explicit Quick Connect limits remain required. S9b owns the canonical blob path/transport and still depends on blocked S9a publication. The backend blob-contract and tenant integration conditions below also remain open; BFF acknowledgment or portable cache-reload fixtures alone do not establish provider/device durability |
@@ -249,13 +249,14 @@ cases passing; both hosted workflows pass at that candidate (§9).
 `79cc826`, unpinned. This is separate from #44's completed identity hydration.
 
 Save before the initial GET resolves and out-of-order transport/cache
-acknowledgments remain separate residuals; this slice does not establish general
-concurrency or provider durability. Profiles/PIN (server identity, isolation and
+acknowledgments were residuals of #49; the preference-only #50 repair below
+addresses them within the document/session boundary. Neither slice establishes
+general concurrency or provider durability. Profiles/PIN (server identity, isolation and
 PIN grants), full settings migration (admin destination and manager access),
 other personal panes, parental controls and backend user-deletion fan-out retain
 their separate scope and gates.
 
-**T-M4-04 / T-M4-06 Display preference ordering — In progress (approved bounded plan, 2026-10-09):**
+**T-M4-04 / T-M4-06 Display preference ordering — Done (scoped source, merged/unpinned, 2026-10-09):**
 
 Test-only `1f1f8d2` on `codex/preference-ordering-20261009` reproduces both
 residuals in actual-client Chromium 151 fixtures. Its local base `ef4d284` has
@@ -263,24 +264,35 @@ tree `dac80e2a3bff9d2047c324ddd1353dd358533f4d`, exactly equal to merged
 main `79cc826`. Saving before the held initial GET sends default/empty values
 for unread preferences and unrelated blob data; the later GET replaces the
 saved Display draft. An older PUT acknowledgment also replaces a newer saved
-Display value. Root accepted the following preference-only repair after those
-failures; verification and source acceptance remain pending.
+Display value. The accepted preference-only repair implements the bounded
+plan registered after those failures:
 
 - Display drafts remain editable while loading, but Save requires a successful
-  GET for the current document/session. Show concise read failure with Retry;
-  retain drafts and focus, and never PUT merely because a read completed.
-- Track local preference edit revision, request order and pending-unacknowledged
-  preference edits separately. Reject stale GET/PUT preference and readiness
-  results. A GET must not overwrite pending saved edits; failed PUT keeps the
-  pending marker, and only a matching successful acknowledgment clears it.
-- Reuse the existing `sessionGeneration` boundary; introduce no new identity or
-  tenant model. Preserve raw unknown top-level/nested preference keys and the
-  existing preference normalizations and parental aliases.
-- Prove both regressions before/after plus read failure/retry, newer edits,
-  unknown fields and session-scope changes, then run applicable full consumer
-  gates and independent review. Non-preference blob ordering, backend compare-
-  and-swap/concurrent writes, provider/device durability and the other residuals
-  above remain outside this repair.
+  GET for the current document/session. A concise read error offers Retry;
+  drafts and focus persist, and read completion alone never issues a PUT.
+- Local preference edit revision, request order and pending-unacknowledged
+  preference edits are tracked separately. Stale GET/PUT preference and readiness
+  results are rejected. A GET cannot overwrite pending saved edits; failed PUT
+  keeps the marker, and only a matching successful acknowledgment clears it.
+- The existing `sessionGeneration` boundary is reused without a new identity or
+  tenant model. Raw unknown top-level/nested preference keys and existing
+  preference normalizations and parental aliases are preserved.
+- Before/after regressions, read failure/retry, newer edits, unknown fields and
+  existing session-generation changes pass full applicable consumer gates and
+  independent review (§9). Non-preference blob ordering, backend compare-and-swap/
+  concurrent writes, provider/device durability and the other residuals above
+  remain outside this repair.
+
+Accepted source `54585c68296378b74683e0702ee7cf91e7439fd4`,
+[PR #50](https://github.com/Muxcore-Media/media-ui-app/pull/50), passes full local,
+independent and exact-candidate hosted checks (§9); it merged as
+`ba68ada9458ce3b4ab6f639c9ac2716d2c9adbc0`, unpinned. Its Display Retry and
+explicit reload after session-generation changes are verified. Retry clears
+the pane's read error and restores correct
+Save readiness, but the application's separate mount-only progress-sync warning
+can remain visible after recovery. That global warning is an explicit UX
+residual, not a claim that the scoped retry failed or that provider persistence
+is established.
 
 **T-M4-09 remaining backend contract — Todo:** define and review consistent
 blob omission, deletion, unknown-field preservation, progress freshness and concurrent-write semantics
@@ -406,6 +418,21 @@ on `codex/admin-request-adapter-20261009`:
   `Cache-Control: no-store` and visible HTMX error handling; only upstream 2xx
   responses navigate to success. Preserve uncertain outcomes rather than
   claiming a rejected, redirected or failed request succeeded.
+- Bound each of those five complete routes to 12 seconds, with the wrapper
+  outside the unchanged `requireAuth` guard. Independent review found that the
+  server's 15-second `WriteTimeout` can expire after separate eight-second
+  Validate and Can checks plus a five-second mutation; those per-operation
+  limits cannot establish visible failure delivery. Carry the original caller
+  context only to final fixed error rendering, and bound form reads/close the
+  connection as in the accepted classification path. A completed form parse
+  clears its read deadline. A confirmed socket read timeout can cancel the
+  original `net/http` context: only the resulting pre-dispatch refusal may use
+  a one-second `WithoutCancel` rendering context; provider work never may.
+  Ordinary caller cancellation remains honored. Auth-budget expiry retains
+  the unchanged guard's plaintext 503; the new HTMX error-page visibility
+  covers post-auth adapter outcomes only. No other route or general
+  authorization middleware changes. Root approved these narrow plan additions
+  before deadline implementation; they are not implementation acceptance.
 - Keep global `admin.access`, session/revalidation guards, generic read clients
   and existing header behavior. No manager access, permission vocabulary,
   provider contract, parental boundary or policy-setting change is included.
@@ -413,7 +440,13 @@ on `codex/admin-request-adapter-20261009`:
 Required evidence includes the baseline failures passing after repair, typed
 TV/movie payloads and untyped/mismatched search results, all five mutations'
 visible failures, single-attempt redirects and ordinary/HTMX success behavior,
-plus applicable full Go race/build/vet/lint, interaction/accessibility gates,
+plus real `http.Server` tests with the 15-second `WriteTimeout`, combined
+auth/upstream delays, slow forms, read-deadline clearing and caller cancellation.
+Assert that the socket-timeout rendering exception cannot dispatch provider work,
+that ordinary cancellation stays canceled and that auth expiry retains the guard
+response. Include a negative control
+that proves the complete-route deadline matters. These run in addition to
+applicable full Go race/build/vet/lint, interaction/accessibility gates,
 independent review and exact-candidate hosted outcomes. Producer full/live
 acceptance and the paused permission-model work retain their separate gates.
 
@@ -670,6 +703,9 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-09 | T-M5-03 independent request/auth contract discovery | Canonical request-media default `master` and umbrella pin are `10483aaba5de6c3e6508020e0c218cb31d66be77`; divergent `main` `73eb28d` is obsolete. Exact-copy auth-local `55e9747` and auth-oidc `636780b` matcher fixtures at `/tmp/request-permissions-provider-review.JiiHQ6/provider_test.go` pass `GOWORK=off GOPROXY=off go test -mod=readonly -race -count=1 -v ./...`; the existing auth-local policy suite also passes. Default manager permits proposed `media` / `requests.*` actions but denies current producer `media.request` / create-list-approve-deny; exact dotted custom strings remain unexpressible because of first-dot parsing. Source inspection finds member list/status ownership absent, approval shared with request-policy administration and auto-approval, and a separate watchlist ownership/design gap; no exploit or live OIDC result is claimed. Producer full checks cannot run with uncached SQLite `v1.55.0` under B-3; no fetch or provider edit was attempted. Permission work is paused for a future producer semantics decision; ADR `0034` remains outline-only |
 
 | 2026-10-09 | T-M5-03 existing-admin request-adapter reproduction at `1a90d8c` | Test-only registered-route/provider fixtures in `handler/request_adapter_test.go` fail on three concrete behaviors; log `/tmp/admin-adapter-baseline.log` was inspected. `TestRequestAdapterCreateCanonicalMediaType` decodes a TV form as movie because the adapter sends `type`, not canonical `mediaType`. `TestRequestAdapterShowsProviderRejection` covers create plus request/approvals approve/deny: all five upstream 403 responses become empty 303 redirects without visible HTMX error/no-store behavior. `TestRequestAdapterDoesNotFollowMutationRedirect` sees two downstream attempts after 307, followed by 303. Canonical producer search asks for MOVIE and omits result type, so TV selection cannot establish a typed TV result. Root approved only the existing-admin repair in §6: safe unavailable TV feedback, canonical create key and visible single-attempt outcomes. No permission expansion or canonical end-to-end TV journey is accepted; production/full/reviewer/hosted gates remain pending |
+
+| 2026-10-09 | T-M4-04/T-M4-06 accepted preference-ordering source `54585c68296378b74683e0702ee7cf91e7439fd4`, [PR #50](https://github.com/Muxcore-Media/media-ui-app/pull/50) | Test-first `1f1f8d2` preserves both baseline browser failures. Exact-head local typecheck/build and 1394 unit tests across 185 files / 521 suites pass, zero failures/skips; full Chromium 151.0.7922.173 browser suite passes 292 cases with 16 existing skips (308 scheduled), zero failures. Logs `/tmp/preference-ordering-20261009/{typecheck,build,unit,browser}-54585c6.log` and unit JSON were inspected. Independent 18 scratch tests, 58 repository tests and 36 browser cases pass at the same head; nine applicable scratch regressions fail at the original base (nine other cases skipped there). Logs `/tmp/preference-ordering-review/{baseline-red,final-green,final-focused-unit,final-browser}.log` were inspected. Checks cover preference GET/PUT ordering, pending/failed edits, raw unknown preferences, retry and the existing session-generation boundary; they do not establish whole-blob ordering, cross-account/provider/device persistence or compare-and-swap semantics. The global mount-only progress-sync warning can outlive a successful Display Retry; pane error/Save readiness recover. Root inspected exact-candidate [CI 37865816772](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37865816772): actual typecheck, 1394 tests, build and output checks pass. [Browser fixtures 37865816783](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37865816783) passes 292 cases / 16 skips on Chromium 153.0.8010.12; local browser is 151.0.7922.173. Root accepts scoped source; #50 merged at expected head as `ba68ada9458ce3b4ab6f639c9ac2716d2c9adbc0`, with umbrella pin unchanged |
+| 2026-10-09 | T-M5-03 admin adapter complete-route deadline review and plan addition | Independent review found that the existing server `WriteTimeout` of 15 seconds can expire after separate Validate (up to eight seconds), Can (up to eight seconds) and mutation (five seconds) operations, so per-operation bounds alone cannot prove visible final errors. Root approved only a 12-second wrapper around the five request-mutation registrations before unchanged `requireAuth`, retaining the original caller context only for final fixed error rendering and bounding form reads/connection close as in classification. Required gates are real-server combined auth/upstream delays, slow forms, caller cancellation and a negative control. This records the plan before production and adds no implementation, general middleware, permission or other-route acceptance |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -981,10 +1017,17 @@ consumer owners inspect accepted module main, while the umbrella gitlinks and
 
 | Worker | Exclusive scope / discovery base | Current task and next gate |
 |--------|----------------------------------|----------------------------|
-| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009` from merged #69 `1a90d8c` | T-M5-03 existing-admin adapter repair is In progress under the approved §6 plan after actual registered-route/provider failures: canonical create key, safe TV search handling, redirect refusal and visible single-attempt failure outcomes. Permission expansion stays paused. Source acceptance awaits full applicable local/independent/hosted evidence |
+| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009` from merged #69 `1a90d8c` | T-M5-03 existing-admin adapter repair is In progress under the approved §6 plan after actual registered-route/provider failures: canonical create key, safe TV search handling, redirect refusal and visible single-attempt failure outcomes. The approved addition wraps only the five mutations before unchanged requireAuth in a 12-second total budget, with real-server timeout/slow-form/cancellation and negative-control gates. Permission expansion stays paused. Source acceptance awaits full applicable local/independent/hosted evidence |
 | `root/request_permissions_review` | Independent read-only review of admin-ui, canonical request-media `10483aa`, auth-local `55e9747` and auth-oidc `636780b` | Exact-copy matcher fixtures establish the downstream permission mismatch below. Further producer semantics require a decision and a runnable producer gate; no provider source or matcher change is approved |
-| `root/consumer_preference_ordering` | `media-ui-app`, `codex/preference-ordering-20261009`; local base `ef4d284`, tree identical to merged #49 `79cc826` | T-M4-04/T-M4-06 preference-only repair is In progress at frozen candidate `54585c68296378b74683e0702ee7cf91e7439fd4`. Test-only `1f1f8d2` preserves two actual-client Chromium 151 failures. Focused 202 unit / 36 browser checks and independent 18 scratch / 58 repository tests pass; full local and independent browser checks remain pending. No final source or hosted acceptance yet |
+| `root/consumer_preference_ordering` | `media-ui-app`, `codex/preference-ordering-20261009`; local base `ef4d284`, tree identical to merged #49 `79cc826` | T-M4-04/T-M4-06 preference-only repair is Done at accepted source `54585c68296378b74683e0702ee7cf91e7439fd4`. Test-only `1f1f8d2` preserves two actual-client Chromium 151 failures. Full local typecheck/build and 1394 unit tests pass; Chromium 151 browser suite passes 292 cases with 16 existing skips. Independent 18 scratch / 58 repository tests and 36 browser cases pass. [PR #50](https://github.com/Muxcore-Media/media-ui-app/pull/50) exact-candidate hosted CI/Browser checks pass (Chromium 153, 292 pass / 16 skips); root accepts scoped source, merged as `ba68ada`, unpinned. Global mount-only warning, whole-blob/backend concurrency and provider/device persistence remain residuals |
 | `root/permissions_preferences_docs` | Umbrella canonical documentation on this branch/base | Register both approved adapter/preference scopes and the separate permission pause before production; proposed ADR `0034` remains outline-only. Synchronize only exact source/review/CI evidence. Root owns commits, PRs and publication |
+
+The consumer owner and independent reviewer have released their source and
+processes. Root verified that reviewed `54585c6` and merged `ba68ada` share tree
+`3fbf65b14f9b3bb99370e6ad7af12d104d05b5f5`, then restored the clean canonical
+media-ui-app checkout `816abd65`. The accepted #50 branch/merge remain recoverable;
+that canonical checkout and unchanged gitlink do not contain the repair. Admin
+adapter work is still In progress under its exclusive owner.
 
 The request-only permission plan is **paused**. Canonical request-media uses
 default branch `master`, matching umbrella pin
