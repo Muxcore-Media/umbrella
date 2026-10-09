@@ -433,6 +433,12 @@ on `codex/admin-request-adapter-20261009`:
   covers post-auth adapter outcomes only. No other route or general
   authorization middleware changes. Root approved these narrow plan additions
   before deadline implementation; they are not implementation acceptance.
+- Refuse unsupported, absent or invalid request Content-Type before mutation
+  dispatch, after the unchanged guards. Independent real-TCP review of initial
+  candidate `c1349e5` found that `ParseForm` can return success without consuming
+  an `application/json` body; clearing the read deadline/connection-close state
+  then lets unread-body draining block the response. Root approved this narrow
+  refusal and JSON/absent/invalid-MIME TCP regressions before the follow-up fix.
 - Keep global `admin.access`, session/revalidation guards, generic read clients
   and existing header behavior. No manager access, permission vocabulary,
   provider contract, parental boundary or policy-setting change is included.
@@ -441,7 +447,8 @@ Required evidence includes the baseline failures passing after repair, typed
 TV/movie payloads and untyped/mismatched search results, all five mutations'
 visible failures, single-attempt redirects and ordinary/HTMX success behavior,
 plus real `http.Server` tests with the 15-second `WriteTimeout`, combined
-auth/upstream delays, slow forms, read-deadline clearing and caller cancellation.
+auth/upstream delays, slow forms, unsupported/absent/invalid Content-Type,
+read-deadline clearing and caller cancellation.
 Assert that the socket-timeout rendering exception cannot dispatch provider work,
 that ordinary cancellation stays canceled and that auth expiry retains the guard
 response. Include a negative control
@@ -706,6 +713,10 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 
 | 2026-10-09 | T-M4-04/T-M4-06 accepted preference-ordering source `54585c68296378b74683e0702ee7cf91e7439fd4`, [PR #50](https://github.com/Muxcore-Media/media-ui-app/pull/50) | Test-first `1f1f8d2` preserves both baseline browser failures. Exact-head local typecheck/build and 1394 unit tests across 185 files / 521 suites pass, zero failures/skips; full Chromium 151.0.7922.173 browser suite passes 292 cases with 16 existing skips (308 scheduled), zero failures. Logs `/tmp/preference-ordering-20261009/{typecheck,build,unit,browser}-54585c6.log` and unit JSON were inspected. Independent 18 scratch tests, 58 repository tests and 36 browser cases pass at the same head; nine applicable scratch regressions fail at the original base (nine other cases skipped there). Logs `/tmp/preference-ordering-review/{baseline-red,final-green,final-focused-unit,final-browser}.log` were inspected. Checks cover preference GET/PUT ordering, pending/failed edits, raw unknown preferences, retry and the existing session-generation boundary; they do not establish whole-blob ordering, cross-account/provider/device persistence or compare-and-swap semantics. The global mount-only progress-sync warning can outlive a successful Display Retry; pane error/Save readiness recover. Root inspected exact-candidate [CI 37865816772](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37865816772): actual typecheck, 1394 tests, build and output checks pass. [Browser fixtures 37865816783](https://github.com/Muxcore-Media/media-ui-app/actions/runs/37865816783) passes 292 cases / 16 skips on Chromium 153.0.8010.12; local browser is 151.0.7922.173. Root accepts scoped source; #50 merged at expected head as `ba68ada9458ce3b4ab6f639c9ac2716d2c9adbc0`, with umbrella pin unchanged |
 | 2026-10-09 | T-M5-03 admin adapter complete-route deadline review and plan addition | Independent review found that the existing server `WriteTimeout` of 15 seconds can expire after separate Validate (up to eight seconds), Can (up to eight seconds) and mutation (five seconds) operations, so per-operation bounds alone cannot prove visible final errors. Root approved only a 12-second wrapper around the five request-mutation registrations before unchanged `requireAuth`, retaining the original caller context only for final fixed error rendering and bounding form reads/connection close as in classification. Required gates are real-server combined auth/upstream delays, slow forms, caller cancellation and a negative control. This records the plan before production and adds no implementation, general middleware, permission or other-route acceptance |
+
+| 2026-10-09 | T-M5-03 initial admin adapter candidate `c1349e5d22323d58246fb923710473a3766fdfb9` (subsequently rejected for acceptance below), draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71), base `1a90d8c` | Focused registered-route and real-server deadline checks pass, including actual 12-second request budget under 15-second server WriteTimeout. Eight source mutation controls are detected and restored; HTMX selector/header negative controls pass. Exact-final vet, eight interaction tests and 41 accessibility checks across 37 rendered documents pass. These focused results preceded the full-local and independent failures below and do not accept this source. Initial hosted [CI 37867235323](https://github.com/Muxcore-Media/admin-ui/actions/runs/37867235323) / [Accessibility 37867235361](https://github.com/Muxcore-Media/admin-ui/actions/runs/37867235361) were pending at this checkpoint and cannot verify the follow-up source. This checkpoint is not source acceptance, merge, permission expansion or a provider/full TV-journey claim |
+
+| 2026-10-09 | T-M5-03 initial candidate `c1349e5` failed gates and approved narrow follow-up | Exact full `make ci` fails new `TestRequestMutationRouteBudgetCoversEveryPhase` at approvals-deny/Can: its intentionally stalled auth stub returns `Allowed: true` after context cancellation, creating a provider-dispatch race; author is changing the stub to gRPC `DeadlineExceeded`. Separately, independent `TestIndependentRequestMutationUnreadNonFormBody` sends partial JSON over real TCP to create and approvals-deny: each dispatches the provider once (403) and then fails to deliver a response, exceeding 150 ms request / 600 ms server budgets and timing out at approximately one second. Log `/tmp/request-adapter-independent-c1349e5/unread-body.log` was inspected. `ParseForm` succeeds without consuming the unsupported body, so clearing its read deadline and connection-close state permits blocked response draining. Root approved a pre-dispatch Content-Type refusal after unchanged guards, with JSON/absent/invalid-MIME TCP regressions. These are new adapter failures, not the external #70 body's unverified historical classification flakiness. #71 remains draft, no final accepted admin SHA; follow-up needs full local checks, independent re-review and exact-candidate hosted gates |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -1017,10 +1028,19 @@ consumer owners inspect accepted module main, while the umbrella gitlinks and
 
 | Worker | Exclusive scope / discovery base | Current task and next gate |
 |--------|----------------------------------|----------------------------|
-| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009` from merged #69 `1a90d8c` | T-M5-03 existing-admin adapter repair is In progress under the approved §6 plan after actual registered-route/provider failures: canonical create key, safe TV search handling, redirect refusal and visible single-attempt failure outcomes. The approved addition wraps only the five mutations before unchanged requireAuth in a 12-second total budget, with real-server timeout/slow-form/cancellation and negative-control gates. Permission expansion stays paused. Source acceptance awaits full applicable local/independent/hosted evidence |
+| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009` from merged #69 `1a90d8c`; draft [PR #71](https://github.com/Muxcore-Media/admin-ui/pull/71) | T-M5-03 existing-admin adapter repair remains In progress. Initial candidate `c1349e5` is not accepted: full make-ci found a deadline-fixture stub race, and independent real TCP reproduced a partial JSON unread-body hang after provider dispatch (§9). Narrow content-type refusal and fixture correction are underway under §6. No final SHA is accepted; full local/reviewer/hosted gates must run on the follow-up. Permission expansion stays paused |
 | `root/request_permissions_review` | Independent read-only review of admin-ui, canonical request-media `10483aa`, auth-local `55e9747` and auth-oidc `636780b` | Exact-copy matcher fixtures establish the downstream permission mismatch below. Further producer semantics require a decision and a runnable producer gate; no provider source or matcher change is approved |
 | `root/consumer_preference_ordering` | `media-ui-app`, `codex/preference-ordering-20261009`; local base `ef4d284`, tree identical to merged #49 `79cc826` | T-M4-04/T-M4-06 preference-only repair is Done at accepted source `54585c68296378b74683e0702ee7cf91e7439fd4`. Test-only `1f1f8d2` preserves two actual-client Chromium 151 failures. Full local typecheck/build and 1394 unit tests pass; Chromium 151 browser suite passes 292 cases with 16 existing skips. Independent 18 scratch / 58 repository tests and 36 browser cases pass. [PR #50](https://github.com/Muxcore-Media/media-ui-app/pull/50) exact-candidate hosted CI/Browser checks pass (Chromium 153, 292 pass / 16 skips); root accepts scoped source, merged as `ba68ada`, unpinned. Global mount-only warning, whole-blob/backend concurrency and provider/device persistence remain residuals |
 | `root/permissions_preferences_docs` | Umbrella canonical documentation on this branch/base | Register both approved adapter/preference scopes and the separate permission pause before production; proposed ADR `0034` remains outline-only. Synchronize only exact source/review/CI evidence. Root owns commits, PRs and publication |
+
+A separate external classification draft, [admin-ui PR #70](https://github.com/Muxcore-Media/admin-ui/pull/70),
+appeared at 00:51:50 UTC on 2026-10-09: `feat/content-rating-ui`, head
+`26015bc66c5f09be50f6cc4ab048935a92f8fc18`, based on `1a90d8c`. Root inspected
+only its metadata and file list. It is not recovered historical `4629312` or
+accepted source from this batch; no source review, verification, integration or
+PR change was performed. Its body reports earlier classification deadline-test
+flakiness, which this batch has not reproduced. Preserve that independent draft
+and its ownership separately from request-adapter #71.
 
 The consumer owner and independent reviewer have released their source and
 processes. Root verified that reviewed `54585c6` and merged `ba68ada` share tree
