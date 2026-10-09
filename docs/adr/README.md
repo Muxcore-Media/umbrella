@@ -49,3 +49,4 @@
 | [0031](0031-bff-enforcement-of-parental-policy.md) | The BFF is the single enforcement point for the authoritative parental policy | Accepted | Delegated (2026-10-08) |
 | [0032](0032-fail-closed-paginated-classification.md) | Reject inconsistent paginated classification responses; narrowly supersedes 0031 §2.1 for paginated results | Accepted | Delegated (2026-10-08) |
 | [0033](0033-userdata-http-mesh-transport.md) | Userdata HTTP authenticates both provider and calling module; narrowly supersedes 0016 Decision 2 for direct userdata HTTP | Accepted | Delegated (2026-10-08) |
+| [0035](0035-user-erasure-ledger.md) | User erasure is a durable identity-provider ledger reconciled by every personal-data owner (0034 is reserved for the request-only permission model) | Accepted | Delegated (2026-10-09) |
