@@ -39,13 +39,13 @@ CORE_MODS=(core core/pkg/contracts core/sdk/go/client core/sdk/go/module core/sd
 # ---------------------------------------------------------------------------
 init_submodules() {
   log "initialising submodules (best effort; some mirror pins are stale)"
-  cd "$WS"
+  cd "$WS" || return 1
   # Bulk attempt first (fast path). Never fatal.
   git submodule update --init --jobs 8 >/dev/null 2>&1 || true
   # Per-module retry for any left empty; fall back to the remote default branch
   local d n
   for d in $(git submodule status | awk '{print $2}'); do
-    n=$(ls -A "$d" 2>/dev/null | grep -v '^\.git$' | wc -l)
+    n=$(find "$d" -mindepth 1 -maxdepth 1 ! -name .git 2>/dev/null | wc -l)
     [ "$n" -ne 0 ] && continue
     git submodule update --init --force "$d" >/dev/null 2>&1 && continue
     # stale pin: take the remote default branch instead
@@ -69,12 +69,12 @@ apply_core_siblings() {
 apply_all_siblings() {
   [ -f go.mod ] || { log "  (apply_all_siblings: no go.mod in $PWD)"; return 1; }
   local p sub
-  for p in $(grep -oE 'github\.com/Muxcore-Media/[A-Za-z0-9._/-]+' go.mod | sed -E 's#\s.*##' | sort -u); do
+  while read -r p; do
     grep -qE "^module[[:space:]]+$p" go.mod && continue
     sub="${p#github.com/Muxcore-Media/}"
     if [ -f "$WS/$sub/go.mod" ]; then go mod edit -replace="$p=$WS/$sub"
     else go mod edit -dropreplace="$p" -droprequire="$p" 2>/dev/null || true; fi
-  done
+  done < <(grep -oE 'github\.com/Muxcore-Media/[A-Za-z0-9._/-]+' go.mod | sed -E 's#\s.*##' | sort -u)
 }
 
 # build_mod <module-dir> <cmd-path> <space-separated-tag-candidates> [core|all|pinned]
@@ -90,7 +90,7 @@ build_mod() {
     ( cd "$d" && git checkout -f -q "$t" 2>/dev/null ) || continue
     ( cd "$d" && rm -f go.sum
       case "$mode" in core) apply_core_siblings;; all) apply_all_siblings;; esac )
-    if ( cd "$d" && go build -ldflags="-s -w" -o "$out" "$cmd" ) >/tmp/cai-$m.log 2>&1; then
+    if ( cd "$d" && go build -ldflags="-s -w" -o "$out" "$cmd" ) >"/tmp/cai-$m.log" 2>&1; then
       log "built $m @ $t -> $(basename "$out")"; return 0
     fi
   done
@@ -166,13 +166,20 @@ build_mvp_helpers() {
   local h
   for h in gettoken listmodules addmovie addtvshow importscan listall; do
     [ -x "$BIN/$h" ] && continue
-    ( cd "$MVP" && go build -o "$BIN/$h" "./cmd/$h" ) >/tmp/cai-mvp-$h.log 2>&1 \
-      && log "built helper $h" || log "FAIL helper $h (see /tmp/cai-mvp-$h.log)"
+    if ( cd "$MVP" && go build -o "$BIN/$h" "./cmd/$h" ) >"/tmp/cai-mvp-$h.log" 2>&1; then
+      log "built helper $h"
+    else
+      log "FAIL helper $h (see /tmp/cai-mvp-$h.log)"
+    fi
   done
   # authctl lives in auth-local (built at the same tag as the module)
   if [ ! -x "$BIN/authctl" ]; then
-    ( cd "$WS/auth-local" && rm -f go.sum && apply_core_siblings && go build -o "$BIN/authctl" ./cmd/authctl ) \
-      >/tmp/cai-authctl.log 2>&1 && log "built helper authctl" || log "FAIL helper authctl (see /tmp/cai-authctl.log)"
+    if ( cd "$WS/auth-local" && rm -f go.sum && apply_core_siblings && go build -o "$BIN/authctl" ./cmd/authctl ) \
+      >/tmp/cai-authctl.log 2>&1; then
+      log "built helper authctl"
+    else
+      log "FAIL helper authctl (see /tmp/cai-authctl.log)"
+    fi
   fi
 }
 
@@ -184,9 +191,12 @@ build_spa() {
   local app="$WS/media-ui-app"
   [ -d "$app" ] || { log "skip SPA (no checkout)"; return 0; }
   [ -d "$app/dist-app" ] && { log "skip SPA (dist-app exists)"; return 0; }
-  ( cd "$app" && (npm ci >/tmp/cai-spa.log 2>&1 || npm install >/tmp/cai-spa.log 2>&1) \
-      && npx vite build >>/tmp/cai-spa.log 2>&1 ) \
-    && log "built SPA -> media-ui-app/dist-app" || log "SPA build skipped (see /tmp/cai-spa.log)"
+  if ( cd "$app" && (npm ci >/tmp/cai-spa.log 2>&1 || npm install >/tmp/cai-spa.log 2>&1) \
+      && npx vite build >>/tmp/cai-spa.log 2>&1 ); then
+    log "built SPA -> media-ui-app/dist-app"
+  else
+    log "SPA build skipped (see /tmp/cai-spa.log)"
+  fi
 }
 
 # ---------------------------------------------------------------------------
