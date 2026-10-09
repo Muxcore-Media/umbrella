@@ -254,6 +254,33 @@ PIN grants), full settings migration (admin destination and manager access),
 other personal panes, parental controls and backend user-deletion fan-out retain
 their separate scope and gates.
 
+**T-M4-04 / T-M4-06 Display preference ordering — In progress (approved bounded plan, 2026-10-09):**
+
+Test-only `1f1f8d2` on `codex/preference-ordering-20261009` reproduces both
+residuals in actual-client Chromium 151 fixtures. Its local base `ef4d284` has
+tree `dac80e2a3bff9d2047c324ddd1353dd358533f4d`, exactly equal to merged
+main `79cc826`. Saving before the held initial GET sends default/empty values
+for unread preferences and unrelated blob data; the later GET replaces the
+saved Display draft. An older PUT acknowledgment also replaces a newer saved
+Display value. Root accepted the following preference-only repair after those
+failures; verification and source acceptance remain pending.
+
+- Display drafts remain editable while loading, but Save requires a successful
+  GET for the current document/session. Show concise read failure with Retry;
+  retain drafts and focus, and never PUT merely because a read completed.
+- Track local preference edit revision, request order and pending-unacknowledged
+  preference edits separately. Reject stale GET/PUT preference and readiness
+  results. A GET must not overwrite pending saved edits; failed PUT keeps the
+  pending marker, and only a matching successful acknowledgment clears it.
+- Reuse the existing `sessionGeneration` boundary; introduce no new identity or
+  tenant model. Preserve raw unknown top-level/nested preference keys and the
+  existing preference normalizations and parental aliases.
+- Prove both regressions before/after plus read failure/retry, newer edits,
+  unknown fields and session-scope changes, then run applicable full consumer
+  gates and independent review. Non-preference blob ordering, backend compare-
+  and-swap/concurrent writes, provider/device durability and the other residuals
+  above remain outside this repair.
+
 **T-M4-09 remaining backend contract — Todo:** define and review consistent
 blob omission, deletion, unknown-field preservation, progress freshness and concurrent-write semantics
 before implementation. Source inspection of
@@ -337,7 +364,7 @@ restricted-account journey; FR-PLAY-007 remains Part.
 
 T-M5-01 indexer & downloader admin pages (FR-ADM-006) · T-M5-02 unified wanted across media (FR-ADM-002) · T-M5-03 per-page RBAC + OIDC-aware pages (FR-ADM-009, FR-AUTH-009) · T-M5-04 transcoder queue/pool profiles — issue #121 (FR-ADM-008, FR-TRN-001) · T-M5-05 migration depth + dry-run (FR-MIG-002/003) · T-M5-06 decision corpus + quality-tier cutoff (FR-ACQ-005/006, SM-3) · T-M5-07 explicit secrets-provider selection — issue #151 (FR-INS-008) · T-M5-08 downloader contract unification (FR-ACQ-011) · T-M5-09 subtitle providers beyond OpenSubtitles (FR-SUB-001) · T-M5-10 event-redelivery idempotency tests (NFR-REL-004).
 
-**T-M5-03 per-page RBAC + OIDC-aware pages — Part:** admin-ui `c06ae6c` handles actual AuthService `Unimplemented` on user, TOTP, token and invite operations with explanatory control-free states; genuine failures remain errors, and invites use existing RPCs with the caller context. Local focused/full race, rendered accessibility and keyboard checks pass. Direct passkey endpoints, live OIDC acceptance and per-page RBAC remain; the global `admin.access` guard is unchanged. **Next: proposed request-only slice (FR-ADM-009), read-only planning at admin-ui `c686129`.** Accept an ADR before code for the permission vocabulary, default `admin.access` fallback, entry/navigation behavior and unchanged parental boundaries. No ADR or implementation is accepted in this checkpoint; library access is deferred.
+**T-M5-03 per-page RBAC + OIDC-aware pages — Part:** admin-ui `c06ae6c` handles actual AuthService `Unimplemented` on user, TOTP, token and invite operations with explanatory control-free states; genuine failures remain errors, and invites use existing RPCs with the caller context. Local focused/full race, rendered accessibility and keyboard checks pass. Direct passkey endpoints, live OIDC acceptance and per-page RBAC remain; the global `admin.access` guard is unchanged. **Next: proposed request-only slice (FR-ADM-009), paused after 2026-10-09 discovery at accepted admin main `1a90d8c`.** The earlier plan at `c686129` below is not accepted: canonical request-media `10483aa` uses a dotted resource that current auth-local/OIDC policies cannot express for managers, and producer ownership/shared-permission semantics require a separate decision (§14). Its full verification is also blocked by unavailable SQLite source under B-3. Accept an ADR before permission code; proposed ADR `0034` remains outline-only. No authorization expansion is approved in this batch; library access is deferred.
 
 Exactly seven routes are proposed, using `Can` with resource `media`:
 
@@ -355,7 +382,39 @@ Default admin (`*`) and manager (`media.*`) policies should pass; user/viewer/mo
 
 Keep callback/login/brand redirects to `/`. At exact `/`, authenticate first: show the dashboard only with `admin.access`, otherwise send a `requests.read` caller to `/request`; deny others and retain 503 for indeterminate authorization. Navigation should use current, nonpersisted Can results: the existing full menu for `admin.access`, otherwise Request/Approvals only, with action-specific forms and HTMX sidebar refresh on role/policy changes. Reuse #67's exact bearer metadata, bounded checks, typed failures and binding guards.
 
-**Open verification:** registered-route tests with independent permission expectations, zero downstream calls for denied or forged writes, allowed-manager bearer metadata, fresh-login landing, custom permissions and current role/policy changes. Verify downstream `request-media` bearer-authorized manager behavior and surface upstream rejection: legacy `X-MuxCore-Roles` labels managers `user`, and decision handlers currently redirect after rejection; never relabel a manager as admin. `auth-oidc` source is unavailable in this checkout, so its policy behavior and live OIDC acceptance remain open checks.
+**Open verification:** registered-route tests with independent permission expectations, zero downstream calls for denied or forged writes, allowed-manager bearer metadata, fresh-login landing, custom permissions and current role/policy changes. Verify downstream `request-media` bearer-authorized manager behavior and surface upstream rejection: legacy `X-MuxCore-Roles` labels managers `user`, and decision handlers currently redirect after rejection; never relabel a manager as admin. Auth-local `55e9747` and connector-retrieved auth-oidc `636780b` first-dot matcher fixtures now establish the producer resource mismatch (§9/§14); this source evidence does not establish live OIDC validation or role propagation. Member read ownership, request-policy administration and approval/auto-approval semantics need a producer decision before this route plan can proceed.
+
+**T-M5-03 existing-admin request-adapter follow-up (FR-REQ-001/002/003) — In progress (approved bounded plan, 2026-10-09):**
+
+Registered-route/provider fixtures on accepted admin main `1a90d8c` reproduce
+three independent defects (§9): a TV create uses `type` instead of the canonical
+`mediaType` key and decodes as movie; all five create/approve/deny writes hide
+upstream 403 behind empty 303 navigation; an upstream 307 follows a second
+mutation attempt before reporting success. Root accepted this admin-only repair
+on `codex/admin-request-adapter-20261009`:
+
+- Send create JSON with the producer's existing `mediaType` key.
+- Preserve verified search-result type. Canonical request-media currently asks
+  the search provider for MOVIE and omits result type; never infer TV from the
+  selected search option. For a TV selection, omit untyped/movie results and
+  show fixed unavailable feedback without request controls. Explicitly typed TV
+  fixtures may verify the create contract, but do not establish a canonical
+  end-to-end TV search/request journey.
+- Use a redirect-refusing client only for the five request mutations: exactly
+  one POST, no implicit retry. Show fixed safe failure content/status with
+  `Cache-Control: no-store` and visible HTMX error handling; only upstream 2xx
+  responses navigate to success. Preserve uncertain outcomes rather than
+  claiming a rejected, redirected or failed request succeeded.
+- Keep global `admin.access`, session/revalidation guards, generic read clients
+  and existing header behavior. No manager access, permission vocabulary,
+  provider contract, parental boundary or policy-setting change is included.
+
+Required evidence includes the baseline failures passing after repair, typed
+TV/movie payloads and untyped/mismatched search results, all five mutations'
+visible failures, single-attempt redirects and ordinary/HTMX success behavior,
+plus applicable full Go race/build/vet/lint, interaction/accessibility gates,
+independent review and exact-candidate hosted outcomes. Producer full/live
+acceptance and the paused permission-model work retain their separate gates.
 
 **T-M5-07 explicit secrets-provider selection — Part:** `_mvp` `3ba1ec4` adds the last-applied compose overlay and host-runner selection in [ADR-0029](docs/adr/0029-secrets-provider-deployment-selection.md). Twenty-seven actual compose renders and host launcher/preflight/process fixtures pass locally, preserving default file behavior and unrelated reused PIDs. Operators explicitly stop the old provider and migrate secrets; external-provider connectivity and manual migration have not run. Requires `!reset` support; Docker Compose 2.40.3 verified, earlier versions and Podman Compose unverified.
 
@@ -606,6 +665,11 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-08 | Interim umbrella `ab66593529b63a5ab2bc19d9fc9e939c3a599506`, draft [PR #211](https://github.com/Muxcore-Media/umbrella/pull/211) | [CI 37861395437](https://github.com/Muxcore-Media/umbrella/actions/runs/37861395437) and [Commit lint 37861395486](https://github.com/Muxcore-Media/umbrella/actions/runs/37861395486) SUCCESS. Root inspected actual Docs and umbrella scripts steps and Secret scan: pass. Workspace (submodules) reports success, but its checkout/setup/build/vet/integration/MVP-script steps are skipped by the existing private-token gate (B-1); no workspace acceptance. This result belongs to the interim commit only; later final documentation requires its own hosted checks |
 | 2026-10-08 | Final follow-up source handoff and canonical documentation, after interim umbrella `ab66593` | `node scripts/check-docs.mjs` and `git diff --check` pass. Records accepted consumer #48 (`b00db38`), Display #49 (`79cc826`) and admin #69 (`1a90d8c`) source merges with exact local/independent/hosted evidence and retained residuals. Source owners released their checkouts/processes; root restored clean admin-ui `6d0eb55` and media-ui-app `816abd6`. Only roadmap/SRS/FRD differ; accepted ADRs, all gitlinks and release train remain unchanged. The interim hosted result above does not verify the next documentation head. FR-PLAY-004/007, FR-ADM-010 and broad accessibility/journey acceptance remain Part; no new provider transport, native Apple, deployment or household acceptance |
 
+| 2026-10-09 | T-M4-04/T-M4-06 preference-ordering reproduction, test-only `1f1f8d2` on `codex/preference-ordering-20261009` | Local base `ef4d284` has tree `dac80e2a3bff9d2047c324ddd1353dd358533f4d`, equal to accepted main `79cc826`. Fresh build passes; two actual-client desktop Chromium 151 fixtures fail with concrete values. Save before held initial GET sends dark theme / visible indicators / audio offset 0 / empty favorites / missing unknown preferences instead of the unread saved blob, then the GET replaces page size 127 with 96. Holding PUT1 for 127 until after PUT2 acknowledges 143 replaces displayed/cached 143 with 127. Logs: `/tmp/preference-ordering-20261009/{baseline-build,baseline-repro}.log`; JSON attachments, traces and screenshots remain in `baseline-report` / `baseline-results`. Root accepted only the preference repair in §6; production/full/independent/hosted verification remains pending |
+| 2026-10-09 | T-M5-03 independent request/auth contract discovery | Canonical request-media default `master` and umbrella pin are `10483aaba5de6c3e6508020e0c218cb31d66be77`; divergent `main` `73eb28d` is obsolete. Exact-copy auth-local `55e9747` and auth-oidc `636780b` matcher fixtures at `/tmp/request-permissions-provider-review.JiiHQ6/provider_test.go` pass `GOWORK=off GOPROXY=off go test -mod=readonly -race -count=1 -v ./...`; the existing auth-local policy suite also passes. Default manager permits proposed `media` / `requests.*` actions but denies current producer `media.request` / create-list-approve-deny; exact dotted custom strings remain unexpressible because of first-dot parsing. Source inspection finds member list/status ownership absent, approval shared with request-policy administration and auto-approval, and a separate watchlist ownership/design gap; no exploit or live OIDC result is claimed. Producer full checks cannot run with uncached SQLite `v1.55.0` under B-3; no fetch or provider edit was attempted. Permission work is paused for a future producer semantics decision; ADR `0034` remains outline-only |
+
+| 2026-10-09 | T-M5-03 existing-admin request-adapter reproduction at `1a90d8c` | Test-only registered-route/provider fixtures in `handler/request_adapter_test.go` fail on three concrete behaviors; log `/tmp/admin-adapter-baseline.log` was inspected. `TestRequestAdapterCreateCanonicalMediaType` decodes a TV form as movie because the adapter sends `type`, not canonical `mediaType`. `TestRequestAdapterShowsProviderRejection` covers create plus request/approvals approve/deny: all five upstream 403 responses become empty 303 redirects without visible HTMX error/no-store behavior. `TestRequestAdapterDoesNotFollowMutationRedirect` sees two downstream attempts after 307, followed by 303. Canonical producer search asks for MOVIE and omits result type, so TV selection cannot establish a typed TV result. Root approved only the existing-admin repair in §6: safe unavailable TV feedback, canonical create key and visible single-attempt outcomes. No permission expansion or canonical end-to-end TV journey is accepted; production/full/reviewer/hosted gates remain pending |
+
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
 Historical checkpoint, preserved for context. The current checkpoint is §14.
@@ -780,7 +844,7 @@ The household/dev smoke, restore, external secrets backend and all-device
 acceptance limits from §12 remain. No new household train or runtime deployment
 is established by independent producer publication.
 
-## 14. Current integration and authority work (2026-10-08)
+## 14. Current integration and authority work (2026-10-09)
 
 The session/transport batch started from umbrella `af8ea20` (merged PR #207) and
 landed through [PR #208](https://github.com/Muxcore-Media/umbrella/pull/208) as
@@ -904,3 +968,74 @@ Apple/provider gates and integration/deployment remain separately blocked or
 pending. Umbrella [PR #211](https://github.com/Muxcore-Media/umbrella/pull/211)
 contains the recoverable documentation checkpoints; final publication remains
 root-owned and requires checks for its final head.
+
+### Permissions and preference-ordering checkpoint (2026-10-09)
+
+This batch starts from umbrella `93b45403555315037ff5290ccd09c8425b861fb5`
+on `codex/permissions-and-preferences-20261009`. Root verified that no prior
+worker or repository process was active before assigning the scopes below.
+Existing source merges and integration pins remain distinct: the admin and
+consumer owners inspect accepted module main, while the umbrella gitlinks and
+`release-train.env` stay unchanged.
+
+| Worker | Exclusive scope / discovery base | Current task and next gate |
+|--------|----------------------------------|----------------------------|
+| `root/admin_request_permissions` | `admin-ui`, `codex/admin-request-adapter-20261009` from merged #69 `1a90d8c` | T-M5-03 existing-admin adapter repair is In progress under the approved §6 plan after actual registered-route/provider failures: canonical create key, safe TV search handling, redirect refusal and visible single-attempt failure outcomes. Permission expansion stays paused. Source acceptance awaits full applicable local/independent/hosted evidence |
+| `root/request_permissions_review` | Independent read-only review of admin-ui, canonical request-media `10483aa`, auth-local `55e9747` and auth-oidc `636780b` | Exact-copy matcher fixtures establish the downstream permission mismatch below. Further producer semantics require a decision and a runnable producer gate; no provider source or matcher change is approved |
+| `root/consumer_preference_ordering` | `media-ui-app`, `codex/preference-ordering-20261009`; local base `ef4d284`, tree identical to merged #49 `79cc826` | T-M4-04/T-M4-06 preference-only repair is In progress under the approved §6 plan. Test-only `1f1f8d2` preserves two actual-client Chromium 151 failures. Source acceptance awaits before/after and full applicable local/independent/hosted evidence |
+| `root/permissions_preferences_docs` | Umbrella canonical documentation on this branch/base | Register both approved adapter/preference scopes and the separate permission pause before production; proposed ADR `0034` remains outline-only. Synchronize only exact source/review/CI evidence. Root owns commits, PRs and publication |
+
+The request-only permission plan is **paused**. Canonical request-media uses
+default branch `master`, matching umbrella pin
+`10483aaba5de6c3e6508020e0c218cb31d66be77`; its divergent `main` `73eb28d`
+is an obsolete source for this decision. Canonical request authorization passes
+resource `media.request` with actions `create`/`list`/`approve`/`deny`, whereas
+auth-local and auth-oidc split policy strings at the first dot and require an
+exact resource match. The default manager `media.*` therefore cannot express
+the producer permission even though it permits the proposed admin-side
+resource `media` / `requests.*` checks. Exact-copy matcher fixtures reproduce
+this mismatch; an admin-only change would not make manager requests work.
+
+Producer semantics also need an explicit decision: list/status lack enforced
+member ownership filtering, and approve permission is shared with request-policy
+administration. Mapping list to `media.view` or simply broadening matcher
+behavior would change authority beyond the seven admin routes. Preserve verified
+bearer identity and the existing allowlisted module list/deny exception; no
+producer policy change is selected here. The canonical producer is initialized,
+but required SQLite `v1.55.0` source/ZIP is absent locally and the existing B-3
+excluded-host restriction blocks its full gate. No dependency fetch was attempted.
+
+ADR number `0034` is reserved for the request-only permission-model decision, with
+`Decided by: Delegated` under the standing project authority. Its proposed
+outline covers the exact seven-route permission table and vocabulary, default
+`admin.access` fallback, authenticated entry and current navigation, preserved
+session/bearer binding and error semantics, downstream request-media authority,
+alternatives and independent route/provider verification. It must preserve the
+accepted identity and parental decisions; library, classification, parental,
+PIN, migration, roots, settings, user and credential routes remain outside the
+request exception. The outline must resolve the producer mismatch and shared
+permission uses before acceptance. No new ADR or permission implementation is
+accepted by this registration.
+
+The consumer gates require separate before/after evidence for initial-read/save
+ordering and stale acknowledgments, including retained unrelated preferences,
+newer edits, failure/retry and scope changes. No backend concurrency design,
+provider/device durability, other personal pane migration or parental/PIN
+acceptance follows from a browser-local ordering fix. FR-PLAY-004 and FR-ADM-010
+remain Part; FR-ADM-009 remains Plan until verified source supports a narrower
+status update.
+
+Both workstreams require root acceptance of the bounded plan, targeted
+regressions, the module's applicable full local checks, independent review and
+an exact-candidate hosted outcome before source acceptance/publication is
+recorded. An unavailable or path-filtered hosted check must be named as such;
+earlier candidates' results do not verify the final source.
+
+The managed environment is running with current observations and an enforced
+restricted network policy; it has no configured secrets, runtime variables or
+outbound identities. Existing B-1/B-3/B-4/B-5/B-6, blocked S9a and its dependent
+transport work, native Apple/provider gates and T-M3-10 remain unchanged. This
+batch does not investigate or retry subtitle work, publish versions, alter
+integration pins or the release train, or establish deployment/household
+acceptance. Acquisition checks remain fixture-only and GitHub remains the sole
+origin, tracker and CI host.
