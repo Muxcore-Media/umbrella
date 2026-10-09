@@ -57,11 +57,23 @@ in the current visit hydrate from returned preferences; sparse per-field drafts
 preserve edits, focus and an unsaved theme choice. Saving remains explicit,
 preserves unrelated cached preferences, and clears submitted drafts without
 erasing newer edits. Fixtures cover actual PUT payloads, applied theme and
-remount behavior. Save before the initial GET resolves and out-of-order
-transport/cache acknowledgments remain residuals; this does not define general
-concurrency or provider/device durability. Other personal panes, parental/PIN
-behavior and backend persistence contracts are outside the slice → FR-PLAY-004,
-FR-ADM-010.
+remount behavior. Accepted follow-up #50 `54585c6` (merged as `ba68ada`,
+unpinned) keeps Display drafts editable while loading and permits Save only
+after a successful GET for the current document/session. A failed read offers
+explicit Retry; session-generation invalidation offers explicit reload. Neither
+read completion nor retry submits preferences automatically. Drafts and focus
+are retained. Preference edit revision, request order and a pending marker
+prevent stale GET/PUT results from replacing saved edits or readiness; failed
+PUT retains the marker, and only a matching successful acknowledgment clears
+it. Raw unknown preference keys and existing normalization/parental aliases
+are preserved. Local, independent and hosted checks pass (roadmap §9).
+
+Display Retry clears its pane error and restores correct Save readiness, but
+the application's separate mount-only progress-sync warning can remain visible
+after recovery. That warning, non-preference blob ordering, backend concurrent
+writes and provider/device durability remain residuals. Other personal panes,
+parental/PIN behavior and backend persistence contracts are outside the slice
+→ FR-PLAY-004, FR-ADM-010.
 
 ## 2. Workflows
 
@@ -125,7 +137,33 @@ stateDiagram-v2
 - **RULE-REQ-2** — Only a `pending` request can be approved or denied; only a `watchlisted` record can be promoted. *(Current.)*
 - **RULE-REQ-3** — A "ready" notification is sent at most once per request (`request_ready_notified`). *(Current.)*
 - **RULE-REQ-4** — `request-media` derives the end-user caller from a validated bearer. BFF/admin-ui forward the bearer and strip client identity headers; module identity uses the mesh certificate rather than an untrusted end-user header ([ADR-0019](../adr/0019-end-user-identity-propagation.md), [ADR-0020](../adr/0020-module-principal-allowlists.md)) → `NFR-SEC-007`.
+- **Known permission mismatch (C-34):** canonical request-media `10483aa` checks resource `media.request` with separate create/list/approve/deny actions. Current auth-local/OIDC policies split at the first dot, so default user `media.request` and manager `media.*` do not authorize that resource. Existing lifecycle/guard fixtures remain evidence for their own behavior; they do not establish a working member/manager request journey. A producer correction and member-ownership/shared-policy decision remain planned and blocked; no live journey rejection or permission-model change is asserted → `FR-REQ-001`, `FR-ADM-009`.
 - **Gap:** music/book/comic/audiobook requests: `media.music.requested` is defined but has no subscriber in `media-automation` → `FR-MM-002`.
+
+Accepted admin request-adapter source `b747861` (#71, merged as `aa2b904`,
+unpinned) uses the producer's existing `mediaType` create key. TV search does not infer type from the selected option:
+untyped/movie results are omitted with an unavailable explanation and no request
+controls. Canonical producer search still requests MOVIE and omits result type;
+typed TV fixtures verify the adapter contract only, not a canonical TV journey.
+
+The five existing-admin create/approve/deny writes make at most one upstream
+POST without following redirects. Only 2xx navigates to success; post-auth
+adapter failures return fixed safe no-store error content with HTMX error
+selection. A 12-second total request budget starts before unchanged auth guards,
+and form reads are bounded. Nonempty bodies with unsupported/absent/invalid
+Content-Type are refused before dispatch; valid URL-encoded forms with charset
+and existing empty-body handling remain. A completed form parse clears its read
+deadline. Only a confirmed socket-read-timeout refusal before dispatch may use
+a one-second detached rendering context; provider work never does, and ordinary
+caller cancellation stays honored. Auth-budget expiry retains the guard's
+plaintext 503. Global `admin.access`, session guards, read clients and authority
+remain unchanged; this is not manager access or a provider permission correction.
+
+Exact-head local, independent and hosted Go/TCP, interaction and rendered
+accessibility checks pass (roadmap §9). Go-rendered templates, jsdom/axe and
+synthetic HTMX selection/status handling do not establish full browser XHR/navigation, visual
+contrast or live provider acceptance. The external bulk-classification feature
+preserved by the merge is outside this adapter review's full feature scope.
 
 ### WF-05 Acquisition: wanted → search → score → grab → download → import (J-03, J-04)
 
