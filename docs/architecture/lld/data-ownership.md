@@ -34,7 +34,7 @@
 
 ## 3. User deletion (NFR-DATA-003, Planned)
 
-Deleting a user in auth-local publishes `identity.user.deleted {user_id}` (new event in `contracts-media/events` → move to a `contracts-identity` package if more identity events follow). Subscribers: `userdata-local` (delete blob), `request-media` (anonymise `requested_by` → `deleted-user`), `playback-monitor` / `playback-guard` (delete or anonymise per-user rows), BFF/admin-ui (drop sessions). Verification: cross-module fixture test in `integration/`.
+Decided in [ADR-0035](../../adr/0035-user-erasure-ledger.md). A plain `identity.user.deleted` bus event cannot meet the requirement: core's event bus is at-most-once (a full subscriber channel drops the event and `Publish` still succeeds; no ack, retry or catch-up), the event `Source` is publisher-supplied and unchecked, the default publish policy denies `auth-local` outside `auth.*`, and a module that is down misses the deletion for good. Instead the identity provider records a **tombstone ledger** in the same transaction that deletes the user and revokes every session and credential; each personal-data owner **pulls** the ledger at startup and on a timer, erases or anonymises in one local transaction that also records the application, verifies the post-condition and acknowledges. The per-owner disposition table, backup/restore rules (the tombstone wins), completeness definition and required negative tests are in the ADR; the earlier event-based draft PRs (#187–#192) are superseded.
 
 ## 4. Parental policy authority (accepted target, implementation in progress)
 
