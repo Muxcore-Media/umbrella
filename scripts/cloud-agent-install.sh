@@ -84,7 +84,7 @@ build_mod() {
   [ "$m" = core ] && out="$BIN/muxcored"
   if [ -x "$out" ]; then log "skip $m (already built)"; return 0; fi
   [ -d "$d" ] || { log "MISS $m (no checkout)"; return 1; }
-  ( cd "$d" && git fetch origin --tags -q >/dev/null 2>&1 || true )
+  ( cd "$d" && { git fetch origin --tags -q >/dev/null 2>&1 || true; } )
   local t
   for t in $tags; do
     ( cd "$d" && git checkout -f -q "$t" 2>/dev/null ) || continue
@@ -144,7 +144,7 @@ package main
 import "time"
 func main() { for { time.Sleep(time.Hour) } }
 GO
-  ( cd "$stub_src" && go mod init stub >/dev/null 2>&1 || true; go build -o "$BIN/_stub" . )
+  ( cd "$stub_src" && { go mod init stub >/dev/null 2>&1 || true; }; go build -o "$BIN/_stub" . )
   local s
   for s in metadata-musicbrainz media-music; do
     [ -x "$BIN/$s" ] || cp "$BIN/_stub" "$BIN/$s"
