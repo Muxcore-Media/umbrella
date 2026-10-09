@@ -32,6 +32,10 @@ This checkout is an **umbrella repo**: the root git tracks the roadmap, specs, A
 
 Clone/recurse/bump workflow: [`README-UMBRELLA.md`](README-UMBRELLA.md). Agent skills: [`.cursor/skills/README.md`](.cursor/skills/README.md). Commit conventions: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
+### Agent authorization
+
+All agents are authorized to commit, push, and create pull requests (PRs) for their changes to anything they work on; there is no need to ask permission.
+
 ## Subagent routing and orchestration
 
 The primary agent acts as an **orchestrator**, coordinating work through context-scoped subagents rather than performing coding and edits directly. This division of labor optimizes reasoning effort and keeps the main conversation focused on coordination and decision-making.
