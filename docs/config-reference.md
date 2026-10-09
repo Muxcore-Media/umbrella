@@ -676,6 +676,7 @@ Variables read by active modules that are not described in the sections above. M
 | `SMOKE_JELLYFIN_WEBHOOK` | _mvp | — | Smoke jellyfin webhook. |
 | `SMOKE_MEDIA_UI_URL` | _mvp | — | Smoke media ui url. |
 | `SMOKE_PARENTAL_UNCONFIGURED_USER` | _mvp | `smoke-no-policy` | Username of the throwaway account `smoke.sh` creates to prove an account without a parental policy is denied playback (`403 parental.policy_unconfigured`, ADR-0031); deleted afterwards. |
+| `SMOKE_USERDATA_TLS` | _mvp | auto | Forces how `smoke.sh` seeds the parental policy: `1`/`true`/`yes` = household mTLS provider (seed through `SMOKE_PARENTAL_SEED_CMD`), `0`/`false`/`no` = plaintext dev provider (curl). Auto decides from an `https://`/`http://` `SMOKE_USERDATA_URL`, then the running core's profile (registry mode), then `MUXCORE_PROFILE`/`MUXCORE_REQUIRE_TLS` (host runner). |
 | `SMOKE_USERDATA_URL` | _mvp | `http://127.0.0.1:${USERDATA_LOCAL_PORT:-9672}` | userdata-local HTTP URL `smoke.sh` uses to seed the explicit `unrestricted` parental policy before stream steps (ADR-0030/0031). |
 | `SUBTITLES_GRPC_CLIENT_ADDR` | _mvp | `127.0.0.1:9520` | gRPC address the BFF dials for this module. |
 | `SUBTITLES_HTTP_URL` | _mvp | `http://127.0.0.1:9521` | HTTP base URL of the module. |
