@@ -41,8 +41,27 @@ approver decisions retain their existing behavior. A fresh pending identity
 with no roles hides operator controls; cached privileged roles can remain
 visible during pending/transient refresh. A completed downgrade, clear or
 cross-tab correction removes the controls and their open dialogs. These are
-cosmetic controls; the BFF authorizes each request. Settings migration remains
-open (FR-ADM-010).
+cosmetic controls; the BFF authorizes each request. Reviewed follow-up #48
+`adf6d29` (merged as `b00db38`, unpinned; local/hosted gates pass) adds typed denial
+feedback across the covered operator surfaces. In rename and series-override
+forms, fixed safe denial feedback remains visible after the session refresh
+removes privileged controls. Those fixtures perform one attempted mutation and
+one session read, without retrying the mutation or retaining unauthorized
+controls. Add-to-wanted feedback can still disappear, and session Stop polling
+can clear its feedback; general denial-message retention is not established.
+Settings migration remains open (FR-ADM-010).
+
+Personal Display preferences in reviewed #49 `ef4d284` (merged as `79cc826`,
+unpinned) follow cache updates through a revision subscription. Fields untouched
+in the current visit hydrate from returned preferences; sparse per-field drafts
+preserve edits, focus and an unsaved theme choice. Saving remains explicit,
+preserves unrelated cached preferences, and clears submitted drafts without
+erasing newer edits. Fixtures cover actual PUT payloads, applied theme and
+remount behavior. Save before the initial GET resolves and out-of-order
+transport/cache acknowledgments remain residuals; this does not define general
+concurrency or provider/device durability. Other personal panes, parental/PIN
+behavior and backend persistence contracts are outside the slice → FR-PLAY-004,
+FR-ADM-010.
 
 ## 2. Workflows
 
@@ -164,6 +183,7 @@ History status values: `sent` → `completed` | `failed` | `stalled` | `import_f
 - **Failure:** transcoder unavailable → resolve returns direct-only; incompatible codec shows an error with a Jellyfin handoff option when available.
 - **Locally verified S5b behavior:** paginated movie/TV lists request the owning module's narrowing filter and recheck every row; an inconsistent page returns generic no-store `503 parental.classification_unavailable` with no rows or total ([ADR-0032](../adr/0032-fail-closed-paginated-classification.md)). Collections expose visible counts; companion libraries require complete bounded enumeration and deterministic ordering before local totals/pagination, otherwise the same 503. Item/detail/PATCH fields are freshly checked. Genuine gRPC NotFound is blocked (403); legacy missing-item Unknown remains generic 503. External search and the other C-DENY routes stay denied for restricted principals.
 - **Reviewed operator source** (admin-ui `154d74b`, PR #68 merged as `f14e50b`; unpinned): movie/series content-rating pages read the owning module and save only with the current admin role plus bound provider bearer, then verify readback before confirmation. Explicit NR and clearing/unavailable are distinct, TV episodes inherit the series rating, and the UI explains the privileged-account limitation. These fixtures do not establish live restricted-account enforcement.
+- **Reviewed operator follow-up** (T-M4-01 F1/F3, `FR-PLAY-007`; admin-ui `dfdaa2f`, #69 merged as `1a90d8c`, unpinned): a shared 12 s content-rating budget starts before fresh session/admin revalidation and provider work; body reads are bounded and timeout refusal retains a separate render-only response window. After dispatch, emit one sanitized confirmed/refused/uncertain audit outcome through the existing best-effort sink; durable delivery is not newly guaranteed. A timeout or failed readback does not report success or automatically retry the write. The loaded/empty/error distinctions in #68 remain; read-only review established no new F2 state gap. Local gates, independent review and exact-head hosted build/vet/race/lint pass; accessibility is local only because the hosted workflow did not trigger.
 - **Gap / Target:** source fixtures do not establish the integrated/deployed behavior, authenticated policy transport (S9; [ADR-0033](../adr/0033-userdata-http-mesh-transport.md) is Accepted/Delegated and requires provider identity plus caller admission while retaining fresh bearer checks; source implementation remains pending), a live restricted-account journey, profiles/PIN, public-image protection or native-client acceptance → `FR-PLAY-007`. Playback does not trust caller classification or blob preferences and has no provider-failure local fallback. T-M3-10 subtitle confinement remains separately blocked. Unsupported Cast/AirPlay controls are hidden; Remote Playback API support does not provide a Cast SDK implementation → `FR-PLAY-009`.
 
 ### WF-08 Operator triage (J-04, J-09)
