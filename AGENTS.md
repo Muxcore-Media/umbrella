@@ -32,9 +32,13 @@ This checkout is an **umbrella repo**: the root git tracks the roadmap, specs, A
 
 Clone/recurse/bump workflow: [`README-UMBRELLA.md`](README-UMBRELLA.md). Agent skills: [`.cursor/skills/README.md`](.cursor/skills/README.md). Commit conventions: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-### Agent authorization
+### Agent authorization, PRs, and operations
 
-All agents are authorized to commit, push, and create pull requests (PRs) for their changes to anything they work on; there is no need to ask permission.
+All agents have permissive authorization across this repository:
+- **Commits, Pushes & PRs:** All agents are authorized to commit, push, and create pull requests (PRs) for their changes to anything they work on (both root umbrella and submodules); there is no need to ask permission.
+- **Auto-merge & Squash:** Agents are explicitly authorized to self-merge and squash-merge their own PRs (`gh pr merge --squash --delete-branch`) as soon as checks pass. No human approval is needed.
+- **Git Worktrees:** Use `git worktree add` for isolating concurrent or multi-step work to avoid colliding with uncommitted submodule or roadmap changes.
+- **Builds & Stack Operations:** Agents are pre-authorized to execute builds, test runs, and local stack management (`./run-host.sh restart <module>`) without needing owner authorization.
 
 ## Subagent routing and orchestration
 
