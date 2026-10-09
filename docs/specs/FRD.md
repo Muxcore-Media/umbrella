@@ -125,6 +125,7 @@ stateDiagram-v2
 - **RULE-REQ-2** — Only a `pending` request can be approved or denied; only a `watchlisted` record can be promoted. *(Current.)*
 - **RULE-REQ-3** — A "ready" notification is sent at most once per request (`request_ready_notified`). *(Current.)*
 - **RULE-REQ-4** — `request-media` derives the end-user caller from a validated bearer. BFF/admin-ui forward the bearer and strip client identity headers; module identity uses the mesh certificate rather than an untrusted end-user header ([ADR-0019](../adr/0019-end-user-identity-propagation.md), [ADR-0020](../adr/0020-module-principal-allowlists.md)) → `NFR-SEC-007`.
+- **Known permission mismatch (C-34):** canonical request-media `10483aa` checks resource `media.request` with separate create/list/approve/deny actions. Current auth-local/OIDC policies split at the first dot, so default user `media.request` and manager `media.*` do not authorize that resource. Existing lifecycle/guard fixtures remain evidence for their own behavior; they do not establish a working member/manager request journey. A producer correction and member-ownership/shared-policy decision remain planned and blocked; no live journey rejection or permission-model change is asserted → `FR-REQ-001`, `FR-ADM-009`.
 - **Gap:** music/book/comic/audiobook requests: `media.music.requested` is defined but has no subscriber in `media-automation` → `FR-MM-002`.
 
 ### WF-05 Acquisition: wanted → search → score → grab → download → import (J-03, J-04)
