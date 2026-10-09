@@ -10,7 +10,7 @@ MVP="$WS/_mvp"
 export GOTOOLCHAIN=go1.26.6 GOFLAGS=-mod=mod GOPRIVATE='github.com/Muxcore-Media/*'
 export MUXCORE_INSECURE_DISABLE_TLS=true
 
-cd "$MVP"
+cd "$MVP" || exit 1
 
 echo "==> starting MuxCore host stack (run-host.sh up)"
 ./run-host.sh up || true
