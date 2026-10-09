@@ -447,16 +447,18 @@ Consumer SPA backend (`_mvp/cmd/mediauiprox`).
 | `USERDATA_LOCAL_URL` | media-ui | — | Userdata-local mesh URL. |
 | `USERDATA_PREFER_MESH` | media-ui | `true` | `0`: prefer direct URL over mesh. |
 | `ADMIN_UI_PLAYBACK_FILE` | media-ui | — | Shared playback policy file with admin-ui. |
+| `AUTH_GRPC_CLIENT_ADDR` | media-ui | `127.0.0.1:9403` | Auth-provider gRPC endpoint for linked-session revalidation (`-auth-grpc` overrides it). |
 
-**Merged source, pending integration:** T-M5-11 BFF source `1cff996` (PR #104,
-merged as `214484f`) adds `AUTH_GRPC_CLIENT_ADDR`, default `127.0.0.1:9403`;
+**Integrated source (umbrella `_mvp` pin `e9fbf38`, 2026-10-09; not deployed):** T-M5-11
+BFF source `1cff996` (PR #104, merged as `214484f`) adds `AUTH_GRPC_CLIENT_ADDR`,
+default `127.0.0.1:9403`;
 `-auth-grpc` overrides it. Compose/Helm/kustomize use `auth-local:9403`, and the
 host runner passes the overridable loopback default. This is the auth-provider
 endpoint for linked-session revalidation, using existing mesh TLS without
 provider discovery. Missing/unsupported/unavailable validation fails closed with
-retryable `503 auth.unavailable`, retaining the local session. The canonical
-`_mvp` pin `3c16074` does not read this variable yet; see roadmap T-M5-11 for
-source verification and integration status.
+retryable `503 auth.unavailable`, retaining the local session. The previous `_mvp`
+pin `3c16074` did not read this variable; see roadmap T-M5-11 for source
+verification and live-propagation status.
 
 ---
 
