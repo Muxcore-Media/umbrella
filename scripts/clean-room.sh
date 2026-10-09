@@ -363,6 +363,19 @@ smoke_env=(
   MUXCORE_SMOKE_ID_DIR="$WORK/smoke-id"
 )
 [[ "$DEV" -eq 1 ]] && smoke_env+=(MUXCORE_COMPOSE_EXTRA_FILES=docker-compose.dev.yml)
+# Household: userdata-local is mTLS-only and admits policy writes only from
+# admin-ui's identity (ADR-0033), so the smoke seeds the admin's unrestricted
+# parental policy through admin-ui's packaged helper (`<module> parental-seed`,
+# bearer on stdin, target user appended). Dev keeps its plaintext curl seed.
+if [[ "$DEV" -eq 0 && -z "${SMOKE_PARENTAL_SEED_CMD:-}" ]]; then
+  # The container NAME (not its id) survives the restore drill recreating it.
+  admin_ui_cid="$(compose ps -q admin-ui | head -n1)"
+  [[ -n "$admin_ui_cid" ]] || die "admin-ui container not found for the parental seed helper"
+  admin_ui_name="$("$RT" inspect -f '{{.Name}}' "$admin_ui_cid")"
+  admin_ui_name="${admin_ui_name#/}"
+  [[ -n "$admin_ui_name" ]] || die "admin-ui container name not resolved for the parental seed helper"
+  smoke_env+=("SMOKE_PARENTAL_SEED_CMD=$RT exec -i $admin_ui_name /app/module parental-seed --bearer-file - --user")
+fi
 log "smoke: ${smoke_env[*]:0:2} _mvp/smoke.sh"
 t0=$SECONDS
 env "${smoke_env[@]}" "$MVP/smoke.sh" 2>&1 | tee "$LOG_DIR/smoke.log" || die "smoke.sh failed (log: $LOG_DIR/smoke.log)"
