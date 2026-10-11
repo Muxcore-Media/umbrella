@@ -1145,7 +1145,9 @@ root-approved test-only registration, 2026-10-11:** read-only review at
 remaining source paths: `AddWantedButton.tsx` records a 403 message but returns
 null when refreshed roles remove its button; `Sessions.tsx` clears the shared
 Stop-error state when its eight-second timer or SSE refresh reloads the list.
-Runtime reproduction remains pending. Sole source writer
+The unchanged production base now has three expected failing unit cases and
+21 passing controls (24 total, zero pending); browser baseline and frozen test
+commit remain pending (§9). Sole source writer
 `root/consumer_feedback_discovery` uses `/workspace/media-ui-feedback-20261011`,
 branch `codex/consumer-action-feedback-20261011`, from that exact base.
 
@@ -1157,14 +1159,15 @@ finish timer/SSE list refreshes with changed rows before asserting that Stop
 feedback remains; Open stays usable and Stop disappears after downgrade. A
 separate list-load failure followed by successful refresh must still clear its
 fetch error. Existing authorization, client and backend behavior are unchanged.
-Record measured baseline outcomes before seeking source acceptance; there is no
-production implementation authority in this registration.
+Root approves the following bounded production scope contingent on freezing the
+test baseline first and receiving the root release message; the writer must wait
+for both before implementation.
 
-Proposed production follow-up, subject to root release after baseline evidence,
-is limited to `src/components/media/AddWantedButton.tsx` and
+The approved production follow-up is limited to `src/components/media/AddWantedButton.tsx` and
 `src/pages/Sessions.tsx`: render recognized fixed denial feedback outside the
 button's role gate, and separate Stop feedback from list-fetch errors, clearing
-Stop feedback on a new explicit Stop action or unmount. Later acceptance needs
+Stop feedback on a new explicit Stop action or unmount. Preserve Plex handling,
+fetch-error clearing and successful actions; no identity/backend change. Later acceptance needs
 focused regressions, full typecheck/unit/build/browser gates and independent
 review. This UI task is separate from platform-blocked E7; it adds no admin or
 erasure test execution, permission change, backend change or deployment claim.
@@ -1173,7 +1176,26 @@ erasure test execution, permission change, backend change or deployment claim.
 
 *Verification (§9):* two review rounds, latest accepted; the reviewer re-ran only the focused race set (77 tests/subtests) and did not run mutations. The author ran the mutations (the seven initial mutations, and at `0d2683b` removal of the principal-refusal guard) and the other checks. Author at `a872e34`: `go build`, `go vet`, `go test -race`, golangci-lint and the script tests passed after one unexplained script-test failure that passed on a full rerun plus three isolated mock tests. At `0d2683b`: full affected-package test, vet, build and lint passed (author logs `/tmp/t513-r1-*`); removing the guard fails 20 tests, and the seven initial mutations each fail. Hosted `Script tests` passed; hosted `Build, vet, test` and `Lint` failed on both inspected PR #101 runs ([37830453994](https://github.com/Muxcore-Media/mvp/actions/runs/37830453994) at `a872e34`, [37832754368](https://github.com/Muxcore-Media/mvp/actions/runs/37832754368) at `0d2683b`) with B-1 (private module fetch, `could not read Username`, in the `go build ./...` step), so no hosted Go result exists; other recent `_mvp` runs were not individually inspected here. No full-package race run at `0d2683b` (focused race plus the base-commit full race only). No live vault run; vault SSH preflight and direct SSH timed out, so the change is **not deployed**.
 
-*Upgrade note:* the monitor key changes, so a native session active during the upgrade continues under a new row, and an operator stop (kick) issued just before the upgrade may not reach that player once. The old row is left active only until it is expired: by source inspection of the pinned playback-monitor (`bf14e0c`, not runtime-tested), stale `playing`/`paused` rows are marked stopped only when active sessions are listed (`expireStaleActiveSessions`), once `last_progress_at` is older than `PLAYBACK_MONITOR_ACTIVE_TIMEOUT` (default 15 minutes; a zero or negative value falls back to 15 minutes in that code, although `_mvp` docs say expiry can be disabled — a discrepancy not resolved here). Until a listing runs after the timeout, the old row stays active until an operator stops it. Tracked discrepancy: `_mvp/BFF-API.md` (T-M5-13 section) says the expiry "can be disabled", which the pinned source does not support; correcting it needs an `_mvp` edit, outside this docs-only change.
+*Upgrade note:* the monitor key changes, so a native session active during the upgrade continues under a new row, and an operator stop (kick) issued just before the upgrade may not reach that player once. The old row is left active only until it is expired: by source inspection of the pinned playback-monitor (`bf14e0c`, not runtime-tested), stale `playing`/`paused` rows are marked stopped only when active sessions are listed (`expireStaleActiveSessions`), once `last_progress_at` is older than `PLAYBACK_MONITOR_ACTIVE_TIMEOUT` (default 15 minutes; a zero or negative value falls back to 15 minutes in that code, although `_mvp` docs say expiry can be disabled — a discrepancy not resolved here). Until a listing runs after the timeout, the old row stays active until an operator stops it. Tracked discrepancy: `_mvp/BFF-API.md` (T-M5-13 section) says the expiry "can be disabled", which the pinned source does not support; the one-file correction is now registered below and remains pending publication.
+
+**T-M5-13 expiry documentation correction — root-approved one-file scope,
+2026-10-11:** root and independent read-only review confirm the same expiry
+behavior in accepted playback-monitor `af7168e`: the constructor defaults to
+15 minutes, `envDurationDefault` trims/parses and defaults unset, blank or invalid
+values, and `configuredActiveTimeout` maps zero or negative values to 15 minutes.
+Positive Go durations configure the timeout. Stale `playing`/`paused` rows with
+nonempty last-progress timestamps expire during a qualifying active-session
+listing, not on a timer; an operator stop can also end an old row.
+
+Sole `_mvp` writer `root/monitor_erasure_20261011` may use a fresh branch from
+accepted merge `64fbd755149dc19b1d968168279012be97dbe1d9` to correct only the
+T-M5-13 upgrade paragraph in `BFF-API.md` (currently line 542), removing the
+unsupported disable claim and describing the configuration/defaults and listing
+trigger above. Scope includes no runtime, code, dependency or pin changes, and
+requires source-to-text review and a clean one-file diff, not new runtime tests.
+Both module workflows ignore Markdown-only changes; no new Go/Script execution
+is expected or claimed. This documentation correction is independent of blocked
+E7 and the ongoing T-M5-12 test baseline.
 
 **T-M5-14 BFF credential-resolution audit for own-user routes (security follow-up) — Todo:** T-M5-13 showed that the BFF session gate (`withAuth`) accepts either a `session` cookie or a bearer/`X-MuxCore-Session` credential, while `sessionPrincipal` reads the cookie first, so a stale cookie with a valid bearer passes the gate but resolves no principal (source inspection plus the T-M5-13 test; not yet reproduced beyond that route). Audit every route that derives user identity (the `cSelf` own-user class and any handler that calls `sessionPrincipal` or defaults to a shared identity) for the same gate/identity mismatch. No vulnerability beyond T-M5-13 is asserted until a per-route reproduction exists. The fix architecture is deliberately not presupposed: audit and reproduce first, then choose a solution consistent with the accepted ADRs (for example, a shared resolver is one candidate, not a decision), and prove it with route-table tests across the route-class table.
 
@@ -1512,6 +1534,10 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | Umbrella checkpoint published as `ea01a54997665d566d38db6d1fe8e7f24f76e196` | Root publishes exact tree `ff2e38275c1a59a8ab075d161ca90a823ee8d76c`, equal to authored `6d9b1acf5816a340f2dea4052d72cb60d8da3a9b` preserved on `codex/recovery-erasure-gates-20261011`; canonical commit import/hash and clean branch/tracking alignment are verified. Root reviews the stat and docs; docs/diff and the correct eleven-commit lint range pass. This records the accepted adapter draft selection and blocked E7 scope, with no canonical main merge |
 | 2026-10-11 | Exact umbrella `ea01a549` hosted result | [Commit lint 38183416335](https://github.com/Muxcore-Media/umbrella/actions/runs/38183416335) job 114600581357 and [CI 38183416348](https://github.com/Muxcore-Media/umbrella/actions/runs/38183416348) secret job 114600581500, docs job 114600581617 and workspace job 114600581648 all fail with null steps. No actual check execution or cause is inferred; no unchanged-head retry |
 | 2026-10-11 | T-M5-12 UI action-feedback test-only registration | Root approves the three test files and exact `1e95d22` baseline in §6 before source edits. Read-only findings are source-confirmed; runtime reproduction is pending. Isolated worktree/branch ownership is recorded in §14. The two-component production proposal is not yet authorized; blocked E7 work remains untouched |
+| 2026-10-11 | UI scope checkpoint published as `d86d2d6019783b25f0e44d0f4be08bb4d2feaefb` | Root publishes exact tree `48e2436c46f7d0000fd1a135a9490e59a237206b`, equal to authored `61126d9` preserved on `codex/recovery-ui-feedback-scope-20261011`; canonical hash/import and branch/tracking alignment are verified. Docs and correct twelve-commit lint range pass. Test-only source owner is released after registration; measured baseline remains in progress with no result yet |
+| 2026-10-11 | Exact umbrella `d86d2d6` hosted result | [CI 38183636216](https://github.com/Muxcore-Media/umbrella/actions/runs/38183636216) docs job 114601231684, workspace job 114601231773 and secret job 114601231804, plus [Commit lint 38183636248](https://github.com/Muxcore-Media/umbrella/actions/runs/38183636248) job 114601231644, all fail with null steps. No actual check execution or cause is inferred; no unchanged-head retry |
+| 2026-10-11 | T-M5-12 measured unit baseline on unchanged production `1e95d22` | Root inspects `/tmp/consumer-action-feedback-20261011/baseline-unit.json` and the test diff: three expected failures, 21 passes, 24 total, zero pending. Add-to-wanted loses the fixed note after confirmed viewer downgrade; Stop loses its operator notice after completed timer and SSE refreshes with changed Arrival row. Exact call-count assertions and list-fetch recovery control pass. Browser baseline/build and test-baseline commit remain pending. Root approves only the bounded two-component repair contingent on freezing the baseline first and its separate release message (§6) |
+| 2026-10-11 | T-M5-13 expiry paragraph source review and registration | Root/independent read-only review at playback-monitor `af7168e` confirms positive-duration configuration, 15-minute fallback for unset/blank/invalid/zero/negative values, and expiry during active-session listing. A one-file `_mvp/BFF-API.md` correction is registered before edits (§6); no runtime tests, source behavior change or new hosted Go/Script result is claimed |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1735,14 +1761,15 @@ correction and repeated exact full gates; it is selected only in the prepared
 draft, untagged. The provider-read adapter is accepted/merged as `64fbd75` after exact hosted
 gates; its draft pin is selected after registration and does not expand full E12 acceptance. Ordinary Git authentication is now
 blocked (B-7); supported connector Git operations remain available. Latest root
-`ea01a549` hosted jobs fail with null steps (§9), with cause unknown; the shell
+`d86d2d6` hosted jobs fail with null steps (§9), with cause unknown; the shell
 authentication failure is not evidence of that cause.
 
 **Active source recovery handoff (2026-10-11):**
 
 | Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
 |---------------|---------------------|---------------------------------------|
-| T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | `/workspace/media-ui-feedback-20261011`, `codex/consumer-action-feedback-20261011`, exact base `1e95d2237286909e3601c9b2c3c2e13eed51f5ba`; prepared clean before registration | Root-approved test-only scope names three files in §6. Actual-client denial and completed timer/SSE refresh baselines are pending; only after measured failures may root release the separate two-component production proposal. No admin/erasure or backend changes authorized |
+| T-M5-13 expiry paragraph — `root/monitor_erasure_20261011` | Fresh `_mvp` branch from accepted `64fbd755149dc19b1d968168279012be97dbe1d9`; existing module worktree owner | Only `BFF-API.md` upgrade paragraph is authorized (§6). Source behavior is independently confirmed at monitor `af7168e`; text correction/review/publication remain pending. No runtime/code/dependency/pin changes or new Go/Script gate claim |
+| T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | `/workspace/media-ui-feedback-20261011`, `codex/consumer-action-feedback-20261011`, exact base `1e95d2237286909e3601c9b2c3c2e13eed51f5ba`; prepared clean before registration | Root-approved test-only scope names three files in §6. Actual-client denial and completed timer/SSE unit baselines fail as expected (three failures, 21 passing controls); browser baseline and frozen test commit are pending. Root approves the two-component production scope contingent on the frozen baseline and explicit release. No admin/erasure or backend changes authorized |
 | E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | Reviewed `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, accepted after exact hosted Go/Script gates and merged as `197784572f599fc0d7facd68582751c139087456` in [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); signed commit/tree identity verified through the connector. Snapshot helper is retained by the later prepared draft `_mvp` `64fbd75`; its separately recorded proto/pin checks do not establish real-provider or E12 acceptance |
 | E7 admin-local baselines — `root/e12_integration_plan_20261011` | Reviewed baseline `dd71c7f22078766df9b707b43aeb4176cd8fee11`; execution base `728c5d0682b190adf4e705330f11b94622964939` has metadata-only changes. Root confirms clean admin worktree and no additional test worktree | Preserved approved first-batch scope names only `handler/erasure_late_write_test.go` and root `erasure_regression_test.go` (§6): PIN, key fallback and delayed exchange. Execution/source edits are blocked by platform agent failure (B-8), with no source/runtime results and no replacement/rephrase/retry authorized. All five findings are unreproduced; session/reset races stay deferred. No production or simultaneous `_mvp` shared-reset edits authorized |
 | E12b provider-read adapter — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, fresh `codex/mvp-erasure-provider-20261011` from `1977845`; remote base branch created through the connector | Exact five-file read-only adapter scope registered before edits (§6); authored `015aeae` is published as `6f79c55d2b1daacf480878f0e337686ec560a6ec` in [mvp #113](https://github.com/Muxcore-Media/mvp/pull/113), accepted after root/independent review and exact local/hosted Go/Script gates, then merged as `64fbd755149dc19b1d968168279012be97dbe1d9`; signed canonical commit/tree identity verified. Authored source is retained on `codex/recovery-mvp-provider-authored-20261011` and worktree/tracking align to the published commit. Existing verifier is unchanged; draft-only pin `1977845`→`64fbd75` is selected after registration with new proto/pin checks. No live-provider, purge or restore acceptance |
