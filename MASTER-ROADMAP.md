@@ -346,6 +346,26 @@ compatible BFF/provider/client fixtures, including unknown-field preservation,
 concurrent writes, deletion after restart and on a second device. S9b transport/path
 repair alone cannot close these gaps or FR-PLAY-004.
 
+**T-M4-09 design-only discovery/handoff (2026-10-11):** read-only review of
+current userdata `25de169` confirms its code is identical to accepted `33dceaf1`
+(the intervening change is metadata only). A stored revision exists, but no
+network expected-revision precondition; omitted-section defaults, typed unknown
+field loss, the later `Store.Put` freshness overwrite and absent favorite-removal
+semantics remain. No tests, runtime reproduction or source edits accompany this
+review.
+
+The smallest recommended future contract under review is versioned conditional
+mutations using the existing revision, explicit idempotent favorite removal and
+a presence-aware raw patch, with comparison, merge, persistence and revision
+increment in one atomic operation. A conflict must not trigger a blind full-blob
+retry. Unrestricted legacy full-map PUT can resurrect a removed favorite, so any
+additive v2 guarantee remains conditional until every writer, fallback and
+migration path enforces the new contract. BFF typed blobs, fallback merging and
+migration replay plus SPA full-map writes require coordinated consumer migration
+without silent downgrade. This is a design proposal awaiting independent review
+and a later architectural decision, not an accepted ADR or implementation scope.
+FR-PLAY-004 remains Part; blocked E7 is unchanged.
+
 **T-M4-09 tenant integration condition:** canonical BFF `e9fbf38` (source re-read
 2026-10-09; behavior unchanged from `3c16074`, where the line ranges were
 `session_auth.go:32–57`) `session_auth.go:32–53` returns the session tenant through
@@ -1137,48 +1157,52 @@ work retain their separate gates.
 
 Consumer source `0ef06f3`, [PR #47](https://github.com/Muxcore-Media/media-ui-app/pull/47), merged as `517ba0a` after both hosted workflows passed, mirrors that boundary for active UI callers across library/file deletion, refresh, monitoring/quality, root assignment, series overrides/rename, wanted/release/acquisition/import/blocklist actions, missing/upcoming/upgrades, session stop, LiveTV timers, debrid add and player subtitle download. Root assignment stays admin-only; reads, playback, personal state and approver decisions are retained. The complete 43-route caller inventory was reviewed; local typecheck/build, 1347 unit tests and 244 Chromium fixtures pass (12 existing skips), including role-change/open-dialog behavior. Root and independent review approve; a widened-root-permission mutation fails two tests and the restored role matrix passes 16/16 (§9). Follow-up [PR #48](https://github.com/Muxcore-Media/media-ui-app/pull/48) now has reviewed head `adf6d29` on `feat/operator-denial-followup`, based on `517ba0a`: typed stale-role denial feedback, Activity add-to-wanted contrast, explicit theme foreground on Movies genre/sort selects, and rename/series-override denial messages that remain visible after current roles remove their privileged forms. Final local typecheck/build, 1371 unit tests and 256 Chromium fixtures pass (16 existing skips); independent source review and focused fixtures pass. Both exact-candidate hosted workflows pass; #48 merged as `b00db38`, the pinned `media-ui-app` (§9/§14).
 
-The controls remain cosmetic: fresh pending identity without roles hides them, while cached privileged roles can remain visible during pending/transient refresh under #44's existing behavior. Completed downgrade, clear and cross-tab corrections remove controls and open dialogs; the reviewed #48 follow-up retains fixed safe denial feedback outside removed rename/series-override forms, with one rejected mutation and one session refresh and no automatic retry. Add-to-wanted feedback disappearance and session Stop feedback cleared by polling remain residuals. The BFF remains the authorization boundary. Source is pinned (`media-ui-app` `b00db38`) and no deployment, live backend or settings-migration acceptance is established. `POST /api/import` remains privileged; restricted managers still pass through the parental gate (ADR-0031 §2.7).
+The controls remain cosmetic: fresh pending identity without roles hides them, while cached privileged roles can remain visible during pending/transient refresh under #44's existing behavior. Completed downgrade, clear and cross-tab corrections remove controls and open dialogs; the reviewed #48 follow-up retains fixed safe denial feedback outside removed rename/series-override forms, with one rejected mutation and one session refresh and no automatic retry. Add-to-wanted feedback disappearance and session Stop feedback cleared by polling are repaired in accepted #52 below; canonical main still carries the older UI pin. The BFF remains the authorization boundary. Source is pinned (`media-ui-app` `b00db38`) and no deployment, live backend or settings-migration acceptance is established. `POST /api/import` remains privileged; restricted managers still pass through the parental gate (ADR-0031 §2.7).
 
 **T-M5-12 action-feedback follow-up (FR-ADM-010, NFR-A11Y-002) —
-root-approved test-only registration, 2026-10-11:** read-only review at
-`media-ui-app` `1e95d2237286909e3601c9b2c3c2e13eed51f5ba` confirms two
-remaining source paths: `AddWantedButton.tsx` records a 403 message but returns
-null when refreshed roles remove its button; `Sessions.tsx` clears the shared
-Stop-error state when its eight-second timer or SSE refresh reloads the list.
-The unchanged production base now has three expected failing unit cases and
-21 passing controls (24 total, zero pending); browser baseline and frozen test
-commit remain pending (§9). Sole source writer
-`root/consumer_feedback_discovery` uses `/workspace/media-ui-feedback-20261011`,
-branch `codex/consumer-action-feedback-20261011`, from that exact base.
+Done at scoped frontend source level, 2026-10-11:** [media-ui-app #52](https://github.com/Muxcore-Media/media-ui-app/pull/52)
+merges as `fdfa25ff7d74fceeef7cf25591c292076691be6e`, with signed canonical
+commit/hash and tree `da0e24bfc26416a701005cc06524a34676d82d79` equal to reviewed
+published head `7354e4308de6b4db80b089c97c0a0a22f577d732` (authored `21a4d2f`).
+Sole source writer `root/consumer_feedback_discovery` uses
+`/workspace/media-ui-feedback-20261011`, branch
+`codex/consumer-action-feedback-20261011`, from exact base
+`1e95d2237286909e3601c9b2c3c2e13eed51f5ba`.
 
-The first batch may edit only `src/components/operator/OperatorDenial.test.tsx`,
-`src/pages/Sessions.test.tsx` and `e2e/operator-denial.spec.ts`. It must exercise
-the actual client with a late 403, exactly one mutation POST and one session GET,
-and fixed sanitized feedback retained after downgrade. Sessions fixtures must
-finish timer/SSE list refreshes with changed rows before asserting that Stop
-feedback remains; Open stays usable and Stop disappears after downgrade. A
-separate list-load failure followed by successful refresh must still clear its
-fetch error. Existing authorization, client and backend behavior are unchanged.
-Root approves the following bounded production scope contingent on freezing the
-test baseline first and receiving the root release message; the writer must wait
-for both before implementation.
+Root registered the three test files before edits:
+`src/components/operator/OperatorDenial.test.tsx`,
+`src/pages/Sessions.test.tsx` and `e2e/operator-denial.spec.ts`. Frozen baseline
+`6f9c0446557e19b85e920a9e3cfe928cba6ff8a1` has three expected unit failures and
+21 passes; browser fixtures have four expected failures and two passes at
+375/1280 px, with six intentional width skips. Actual-client assertions cover a
+late 403, exactly one mutation POST and one session GET, sanitized feedback after
+downgrade, completed timer/SSE refreshes with changed rows, usable Open and removed
+Stop, and list-fetch error recovery. Root inspected the baseline/build evidence
+and released the registered two-component correction only after that freeze.
 
-The approved production follow-up is limited to `src/components/media/AddWantedButton.tsx` and
-`src/pages/Sessions.tsx`: render recognized fixed denial feedback outside the
-button's role gate, and separate Stop feedback from list-fetch errors, clearing
-Stop feedback on a new explicit Stop action or unmount. Preserve Plex handling,
-fetch-error clearing and successful actions; no identity/backend change. Later acceptance needs
-focused regressions, full typecheck/unit/build/browser gates and independent
-review. This UI task is separate from platform-blocked E7; it adds no admin or
-erasure test execution, permission change, backend change or deployment claim.
+`src/components/media/AddWantedButton.tsx` retains recognized fixed denial
+feedback outside the button's role gate. `src/pages/Sessions.tsx` separates Stop
+feedback from list-fetch errors, preserving it across refreshes and clearing it
+on a new explicit Stop or unmount. Plex handling, fetch-error clearing and
+successful actions remain covered. Independent review found the intermediate
+`d132adb` also hid the empty-list state when Stop feedback persisted; a focused
+regression failed before the minimal guard removal and passes afterward, without
+weakening the original baseline (§9).
+
+Final local typecheck/build, 1,413 units across 186 files and 298 browser cases
+with 18 intentional skips pass; independent review accepts. Actual hosted CI and
+Browser jobs pass with the same counts on synthetic merge `e9f0363` of reviewed
+`7354e43` into `1e95d22` (§9). This accepts bounded frontend behavior; full
+FR-ADM-010, FR-PLAY-004 and accessibility requirements remain Part. No backend,
+identity, permission, deployment, blocked E7 or erasure-test change is included.
 
 **T-M5-13 playback-session ownership (security) — Done (merged, not deployed):** `_mvp` [PR #101](https://github.com/Muxcore-Media/mvp/pull/101) merged as `3c16074` (squash; its tree equals reviewed source `0d2683b`). Independent reproduction before the fix: `POST /api/playback/session` forwarded the client-chosen `session_id` as playback-monitor's `ExternalSessionID`, which keys native sessions by `(server_id, external_session_id)`. With a second member's `session_id` a `started` event rewrote the first member's record (`user_id`, `user_name`, item, title), `progress` injected position and title, and `stopped`/`paused` closed it (seven events reproduced). The BFF now sends `native:<tenant>:<user id>:<session_id>` (tenant and user query-escaped, taken from the verified session), fixed `ServerID=muxcore-native`; an explicit `session_id` must be at most 256 bytes of printable text (else `400 playback.session_id_invalid`, nothing forwarded); a blank one becomes `media:<media_id>` inside the caller's namespace. The binding is derived, not stored, so it is bounded in memory and stable across BFF restarts. Follow-up `0d2683b` returns `401 api.unauthorized` before parsing when auth is required and no principal (or a blank user id) resolves, which closes a stale `session` cookie sent with a valid bearer being attributed to a shared `anonymous` namespace; the dev `MEDIA_UI_REQUIRE_AUTH=0` behavior is unchanged. `POST /api/sessions/{id}/stop` keeps its admin/manager gate (T-M5-12) because Jellyfin/Plex ownership is still unprovable.
 
 *Verification (§9):* two review rounds, latest accepted; the reviewer re-ran only the focused race set (77 tests/subtests) and did not run mutations. The author ran the mutations (the seven initial mutations, and at `0d2683b` removal of the principal-refusal guard) and the other checks. Author at `a872e34`: `go build`, `go vet`, `go test -race`, golangci-lint and the script tests passed after one unexplained script-test failure that passed on a full rerun plus three isolated mock tests. At `0d2683b`: full affected-package test, vet, build and lint passed (author logs `/tmp/t513-r1-*`); removing the guard fails 20 tests, and the seven initial mutations each fail. Hosted `Script tests` passed; hosted `Build, vet, test` and `Lint` failed on both inspected PR #101 runs ([37830453994](https://github.com/Muxcore-Media/mvp/actions/runs/37830453994) at `a872e34`, [37832754368](https://github.com/Muxcore-Media/mvp/actions/runs/37832754368) at `0d2683b`) with B-1 (private module fetch, `could not read Username`, in the `go build ./...` step), so no hosted Go result exists; other recent `_mvp` runs were not individually inspected here. No full-package race run at `0d2683b` (focused race plus the base-commit full race only). No live vault run; vault SSH preflight and direct SSH timed out, so the change is **not deployed**.
 
-*Upgrade note:* the monitor key changes, so a native session active during the upgrade continues under a new row, and an operator stop (kick) issued just before the upgrade may not reach that player once. The old row is left active only until it is expired: by source inspection of the pinned playback-monitor (`bf14e0c`, not runtime-tested), stale `playing`/`paused` rows are marked stopped only when active sessions are listed (`expireStaleActiveSessions`), once `last_progress_at` is older than `PLAYBACK_MONITOR_ACTIVE_TIMEOUT` (default 15 minutes; a zero or negative value falls back to 15 minutes in that code, although `_mvp` docs say expiry can be disabled — a discrepancy not resolved here). Until a listing runs after the timeout, the old row stays active until an operator stops it. Tracked discrepancy: `_mvp/BFF-API.md` (T-M5-13 section) says the expiry "can be disabled", which the pinned source does not support; the one-file correction is now registered below and remains pending publication.
+*Upgrade note:* the monitor key changes, so a native session active during the upgrade continues under a new row, and an operator stop (kick) issued just before the upgrade may not reach that player once. The old row is left active only until it is expired: by source inspection of the pinned playback-monitor (`bf14e0c`, not runtime-tested), stale `playing`/`paused` rows are marked stopped only when active sessions are listed (`expireStaleActiveSessions`), once `last_progress_at` is older than `PLAYBACK_MONITOR_ACTIVE_TIMEOUT` (default 15 minutes; a zero or negative value falls back to 15 minutes in that code, although older `_mvp` docs said expiry could be disabled — corrected in #114 below). Until a listing runs after the timeout, the old row stays active until an operator stops it. The tracked `_mvp/BFF-API.md` disable claim is corrected in accepted documentation-only #114 below; this changes no runtime behavior.
 
-**T-M5-13 expiry documentation correction — root-approved one-file scope,
+**T-M5-13 expiry documentation correction — Done at scoped documentation level,
 2026-10-11:** root and independent read-only review confirm the same expiry
 behavior in accepted playback-monitor `af7168e`: the constructor defaults to
 15 minutes, `envDurationDefault` trims/parses and defaults unset, blank or invalid
@@ -1187,15 +1211,28 @@ Positive Go durations configure the timeout. Stale `playing`/`paused` rows with
 nonempty last-progress timestamps expire during a qualifying active-session
 listing, not on a timer; an operator stop can also end an old row.
 
-Sole `_mvp` writer `root/monitor_erasure_20261011` may use a fresh branch from
-accepted merge `64fbd755149dc19b1d968168279012be97dbe1d9` to correct only the
-T-M5-13 upgrade paragraph in `BFF-API.md` (currently line 542), removing the
-unsupported disable claim and describing the configuration/defaults and listing
-trigger above. Scope includes no runtime, code, dependency or pin changes, and
-requires source-to-text review and a clean one-file diff, not new runtime tests.
-Both module workflows ignore Markdown-only changes; no new Go/Script execution
-is expected or claimed. This documentation correction is independent of blocked
-E7 and the ongoing T-M5-12 test baseline.
+The registered one-line `BFF-API.md` upgrade-paragraph correction is accepted
+and merged in [mvp #114](https://github.com/Muxcore-Media/mvp/pull/114) as
+`e98c46ba5300eacadf689c90f6b990abbc391d9c`. Reviewed authored `5aee3d4`, published
+`95653eddd124db8d2c4aae0944f2b8b8453e96ae` and the signed/hash-verified merge have
+the same tree `9792fc38…`. Source-to-text/independent review and the one-file diff
+pass. Both workflows ignore Markdown-only changes; the exact workflow-runs
+query returns an empty list, with no new Go/Script pass or runtime-test claim.
+Sole `_mvp` writer `root/monitor_erasure_20261011` used
+`codex/mvp-expiry-docs-20261011` from accepted `64fbd75`; authored source is
+preserved on `codex/recovery-mvp-expiry-docs-20261011`. No code, dependency or
+runtime behavior changed.
+
+**Draft-only source selection registration (2026-10-11, before checkout):**
+root approves advancing `media-ui-app` from `1e95d2237286909e3601c9b2c3c2e13eed51f5ba`
+to accepted UI #52 merge `fdfa25ff7d74fceeef7cf25591c292076691be6e`, and `_mvp`
+from `64fbd755149dc19b1d968168279012be97dbe1d9` to documentation-only #114 merge
+`e98c46ba5300eacadf689c90f6b990abbc391d9c`. Root owns checkout and merge-tree
+verification. Both selections are now checked out after registration; fresh
+`check-pins` passes with the same five known missing-path warnings and proto drift
+passes (§9). All other selections, tags and
+the train remain unchanged. These are updates to unmerged umbrella draft #223;
+canonical main, deployment and full E11/E12 acceptance do not advance.
 
 **T-M5-14 BFF credential-resolution audit for own-user routes (security follow-up) — Todo:** T-M5-13 showed that the BFF session gate (`withAuth`) accepts either a `session` cookie or a bearer/`X-MuxCore-Session` credential, while `sessionPrincipal` reads the cookie first, so a stale cookie with a valid bearer passes the gate but resolves no principal (source inspection plus the T-M5-13 test; not yet reproduced beyond that route). Audit every route that derives user identity (the `cSelf` own-user class and any handler that calls `sessionPrincipal` or defaults to a shared identity) for the same gate/identity mismatch. No vulnerability beyond T-M5-13 is asserted until a per-route reproduction exists. The fix architecture is deliberately not presupposed: audit and reproduce first, then choose a solution consistent with the accepted ADRs (for example, a shared resolver is one candidate, not a decision), and prove it with route-table tests across the route-class table.
 
@@ -1538,6 +1575,14 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | Exact umbrella `d86d2d6` hosted result | [CI 38183636216](https://github.com/Muxcore-Media/umbrella/actions/runs/38183636216) docs job 114601231684, workspace job 114601231773 and secret job 114601231804, plus [Commit lint 38183636248](https://github.com/Muxcore-Media/umbrella/actions/runs/38183636248) job 114601231644, all fail with null steps. No actual check execution or cause is inferred; no unchanged-head retry |
 | 2026-10-11 | T-M5-12 measured unit baseline on unchanged production `1e95d22` | Root inspects `/tmp/consumer-action-feedback-20261011/baseline-unit.json` and the test diff: three expected failures, 21 passes, 24 total, zero pending. Add-to-wanted loses the fixed note after confirmed viewer downgrade; Stop loses its operator notice after completed timer and SSE refreshes with changed Arrival row. Exact call-count assertions and list-fetch recovery control pass. Browser baseline/build and test-baseline commit remain pending. Root approves only the bounded two-component repair contingent on freezing the baseline first and its separate release message (§6) |
 | 2026-10-11 | T-M5-13 expiry paragraph source review and registration | Root/independent read-only review at playback-monitor `af7168e` confirms positive-duration configuration, 15-minute fallback for unset/blank/invalid/zero/negative values, and expiry during active-session listing. A one-file `_mvp/BFF-API.md` correction is registered before edits (§6); no runtime tests, source behavior change or new hosted Go/Script result is claimed |
+| 2026-10-11 | Scope checkpoint published as `187ad3ab47c789ac02f7de394b558b116bc59ddb` | Root publishes exact tree `738d51a3b3e9392e010863dcdc171b9505013495`, equal to authored `aa969b9` preserved on `codex/recovery-expiry-ui-scope-20261011`; canonical import/hash and clean branch/tracking alignment verified |
+| 2026-10-11 | Exact umbrella `187ad3a` hosted result | [Commit lint 38183866518](https://github.com/Muxcore-Media/umbrella/actions/runs/38183866518) job 114601935350 and [CI 38183866532](https://github.com/Muxcore-Media/umbrella/actions/runs/38183866532) docs job 114601935610, secret job 114601935709 and workspace job 114601935763 all fail with null steps. Cause remains unknown; no execution or retry claim |
+| 2026-10-11 | T-M5-12 frozen baseline `6f9c0446557e19b85e920a9e3cfe928cba6ff8a1` | Unchanged production `1e95d22`: 21 unit passes/three expected failures, browser two passes/four expected failures at 375/1280 px and six intentional width skips. Root inspects test diff, logs and build, then releases the registered two-component production scope |
+| 2026-10-11 | T-M5-12 intermediate empty-state review correction | `d132adb` passes typecheck/build and 1,412 units but also hides a successful empty list when Stop feedback persists. New focused regression `b883402` fails before the minimal guard removal; final focused set passes 26 tests. Original baseline assertions remain unchanged. Author stops the superseded full browser run (exit 130, 110 passes/two interrupted/204 unrun); no full-browser acceptance for that candidate |
+| 2026-10-11 | T-M5-12 source accepted/merged, authored `21a4d2f` → published `7354e4308de6b4db80b089c97c0a0a22f577d732` → `fdfa25ff7d74fceeef7cf25591c292076691be6e`, [media-ui-app #52](https://github.com/Muxcore-Media/media-ui-app/pull/52) | Final local typecheck/build, 1,413 units/186 files and 298 browser cases/18 intentional skips pass (Chromium 151.0.7922.173; full suite at four widths, new denial regressions at 375/1280). Independent review accepts; root inspects `/tmp/consumer-action-feedback-20261011/final-evidence.json` and logs. Actual hosted [CI 38184262286](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38184262286) job 114603114102 and [Browser 38184262220](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38184262220) job 114603113619 pass with the same counts on synthetic merge `e9f0363` of `7354e43` into `1e95d22`. Signed canonical merge import/hash and tree `da0e24bfc26416a701005cc06524a34676d82d79` equality verified; authored history preserved on `codex/recovery-ui-feedback-authored-20261011`. HTTP fixtures do not establish backend, full accessibility or deployment acceptance |
+| 2026-10-11 | T-M5-13 documentation-only source accepted/merged, `5aee3d4` → `95653eddd124db8d2c4aae0944f2b8b8453e96ae` → `e98c46ba5300eacadf689c90f6b990abbc391d9c`, [mvp #114](https://github.com/Muxcore-Media/mvp/pull/114) | Exactly one `BFF-API.md` line corrects expiry defaults/configuration and active-listing trigger. Source/independent review and diff checks pass; signed canonical import/hash and tree `9792fc38…` equality verified. Exact workflow-runs query returns no runs under both Markdown path filters. No new runtime test, Go/Script pass or behavior change claimed |
+| 2026-10-11 | Registered UI #52 / mvp #114 draft selections | After visible scope registration, root checks out clean `media-ui-app` `fdfa25ff` and `_mvp` `e98c46ba`. Actual `bash scripts/check-pins.sh` passes with the same five known missing-path warnings, and `bash scripts/check-proto-drift.sh` passes; logs `/tmp/umbrella-ui52-expiry114-{pins,proto}-20261011.log`. No other pin/tag/train or canonical main change; no fresh full-stack, live or deployment claim |
+| 2026-10-11 | T-M4-09 design-only backend contract discovery | Read-only source review of userdata `25de169` (metadata-only successor of `33dceaf1`) confirms remaining omission/deletion/unknown-field/freshness/concurrency limits. Conditional mutation/removal/raw-patch proposal and legacy-writer migration limitation are recorded in §6 for independent design review. No tests/runtime/source edits, accepted ADR or production authority |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1726,10 +1771,10 @@ release gates now pass; canonical pin and household integration remain pending.
 | Scope | Current source state and acceptance boundary |
 |-------|---------------------------------------------|
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
-| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `1e95d22`, `_mvp` `64fbd75` and userdata-local `33dceaf1`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). Umbrella #223 remains unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
+| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `fdfa25ff`, `_mvp` `e98c46ba` and userdata-local `33dceaf1`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. Umbrella #223 remains unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
 | ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 normalized/stored-ID and last-seen-ledger gaps are reproduced in #11 baseline tests; corrected source is accepted after exact full hosted gates, merged as `33dceaf1` and selected only in the prepared draft. Metadata-only #12 is accepted/merged as `25de169`, but its v0.1.8 tag remains unpublished; draft userdata stays `33dceaf1`. E7 admin now has five source-backed, unreproduced findings with root-approved test-only scope registered before source edits, now blocked by platform agent failure (B-8) without runtime results (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
-| Other accepted source | Consumer Display/preference changes #49/#50 and the scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) are accepted source included in draft #223, not canonical. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
+| Other accepted source | Consumer Display/preference changes #49/#50, scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) and action-feedback #52 (`7354e43`, merged `fdfa25ff`) are accepted source included in draft #223, not canonical. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
 | Verification limits | Existing §9 results belong to their named source and environment. #221 reports local race verification; its hosted CI/commitlint jobs failed with zero steps. This documentation reconciliation does not claim a new source suite, current-tip full-stack clean-room, deployment, or complete household acceptance |
 | Release and operating constraints | `train-2026.10.3`, core/images `v0.6.15`, spool `2.7.0` are unchanged. Acquisition stays fixture-only. No T-M3-10 investigation/probe/retry, paid service, billing change or network-policy bypass |
 
@@ -1761,16 +1806,16 @@ correction and repeated exact full gates; it is selected only in the prepared
 draft, untagged. The provider-read adapter is accepted/merged as `64fbd75` after exact hosted
 gates; its draft pin is selected after registration and does not expand full E12 acceptance. Ordinary Git authentication is now
 blocked (B-7); supported connector Git operations remain available. Latest root
-`d86d2d6` hosted jobs fail with null steps (§9), with cause unknown; the shell
+`187ad3a` hosted jobs fail with null steps (§9), with cause unknown; the shell
 authentication failure is not evidence of that cause.
 
 **Active source recovery handoff (2026-10-11):**
 
 | Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
 |---------------|---------------------|---------------------------------------|
-| T-M5-13 expiry paragraph — `root/monitor_erasure_20261011` | Fresh `_mvp` branch from accepted `64fbd755149dc19b1d968168279012be97dbe1d9`; existing module worktree owner | Only `BFF-API.md` upgrade paragraph is authorized (§6). Source behavior is independently confirmed at monitor `af7168e`; text correction/review/publication remain pending. No runtime/code/dependency/pin changes or new Go/Script gate claim |
-| T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | `/workspace/media-ui-feedback-20261011`, `codex/consumer-action-feedback-20261011`, exact base `1e95d2237286909e3601c9b2c3c2e13eed51f5ba`; prepared clean before registration | Root-approved test-only scope names three files in §6. Actual-client denial and completed timer/SSE unit baselines fail as expected (three failures, 21 passing controls); browser baseline and frozen test commit are pending. Root approves the two-component production scope contingent on the frozen baseline and explicit release. No admin/erasure or backend changes authorized |
-| E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | Reviewed `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, accepted after exact hosted Go/Script gates and merged as `197784572f599fc0d7facd68582751c139087456` in [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); signed commit/tree identity verified through the connector. Snapshot helper is retained by the later prepared draft `_mvp` `64fbd75`; its separately recorded proto/pin checks do not establish real-provider or E12 acceptance |
+| T-M5-13 expiry paragraph — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-expiry-docs-20261011` from `64fbd75`, aligned to published `95653ed` | One-line `BFF-API.md` correction accepted/merged as `e98c46ba` (#114), exact tree `9792fc38…`; authored `5aee3d4` saved on `codex/recovery-mvp-expiry-docs-20261011`. Draft-only pin advance is selected after registration with fresh proto/pin checks. Markdown workflows filter the change; no runtime test or new Go/Script pass claimed |
+| T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | `/workspace/media-ui-feedback-20261011`, `codex/consumer-action-feedback-20261011`, base `1e95d22`, clean at published `7354e4308de6b4db80b089c97c0a0a22f577d732` | Accepted/merged #52 `fdfa25ff`, signed canonical tree `da0e24bf…` equals reviewed source. Local/hosted gates and independent review pass (§9). Recovery `codex/recovery-ui-feedback-authored-20261011` preserves authored `21a4d2f` and complete baseline/fix history. Draft-only pin advance is selected after registration with fresh proto/pin checks; no backend or deployment acceptance |
+| E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | Reviewed `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, accepted after exact hosted Go/Script gates and merged as `197784572f599fc0d7facd68582751c139087456` in [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); signed commit/tree identity verified through the connector. Snapshot helper is retained by the later prepared draft `_mvp` `e98c46ba`; its separately recorded proto/pin checks do not establish real-provider or E12 acceptance |
 | E7 admin-local baselines — `root/e12_integration_plan_20261011` | Reviewed baseline `dd71c7f22078766df9b707b43aeb4176cd8fee11`; execution base `728c5d0682b190adf4e705330f11b94622964939` has metadata-only changes. Root confirms clean admin worktree and no additional test worktree | Preserved approved first-batch scope names only `handler/erasure_late_write_test.go` and root `erasure_regression_test.go` (§6): PIN, key fallback and delayed exchange. Execution/source edits are blocked by platform agent failure (B-8), with no source/runtime results and no replacement/rephrase/retry authorized. All five findings are unreproduced; session/reset races stay deferred. No production or simultaneous `_mvp` shared-reset edits authorized |
 | E12b provider-read adapter — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, fresh `codex/mvp-erasure-provider-20261011` from `1977845`; remote base branch created through the connector | Exact five-file read-only adapter scope registered before edits (§6); authored `015aeae` is published as `6f79c55d2b1daacf480878f0e337686ec560a6ec` in [mvp #113](https://github.com/Muxcore-Media/mvp/pull/113), accepted after root/independent review and exact local/hosted Go/Script gates, then merged as `64fbd755149dc19b1d968168279012be97dbe1d9`; signed canonical commit/tree identity verified. Authored source is retained on `codex/recovery-mvp-provider-authored-20261011` and worktree/tracking align to the published commit. Existing verifier is unchanged; draft-only pin `1977845`→`64fbd75` is selected after registration with new proto/pin checks. No live-provider, purge or restore acceptance |
 | E3 userdata metadata — root-coordinated release preparation | `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-local-v0.1.8-20261011`, clean at published `bc8d77de17ae0590213069867e7f5fe3346e1287` | Two-file metadata source accepted after exact full hosted gates; #12 merges as `25de1692878de189b3ab8151c1ff58508f6d07fb`, tree `6312afac…`. Authored `ad1758a` preserved on `codex/recovery-userdata-release-20261011`. Tag unpublished/blocked; prepared draft pin remains code-fix `33dceaf1`, no consumer dependency edits |
