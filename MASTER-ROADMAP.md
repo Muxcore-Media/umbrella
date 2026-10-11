@@ -228,7 +228,7 @@ The original nine items from [TDD §8](docs/architecture/TDD.md#8-security-harde
 | T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — admin-only indexer mutation controls retain admin/manager Acquisition access. Fresh direct-Settings role hydration is fixed in source `881bfb1`, merged as `ab429bc` (#44), included in earlier UI pin `816abd6` and the current pin `b00db38`, with delayed identity, current-role correction, expiry, sign-out and cross-tab fixtures. T-M5-12 source `0ef06f3` adds verified operator-action controls, merged as `517ba0a` (#47) after both hosted workflows passed; carried by the `b00db38` pin. Display preference hydration source `ef4d284` (#49), merged as `79cc826`, and preference-ordering source `54585c6` (#50), merged as `ba68ada`, are locally/independently/hosted verified and remain unpinned after `b00db38` (details below). Settings migration, an admin destination and manager page access remain open |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
 | T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, carried by the `b00db38` pin. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
-| T-M4-07 | User deletion fan-out (NFR-DATA-003) | **Part (2026-10-11)** — [ADR-0035](docs/adr/0035-user-erasure-ledger.md). E1/E3 and E7–E10 have recorded source pins; current E2 auth-local `71c66d8` lacks the reported ledger implementation and is under bounded pin-reconciliation review (C-40). E4/E5 bounded source follow-ups are accepted and merged, unreleased/unpinned; E6 released source is reviewed, with its pin deferred. E11 is merged in [umbrella #221](https://github.com/Muxcore-Media/umbrella/pull/221), with reported local mTLS stopped-consumer catch-up verification (§9). E2 reconciliation, E4/E5 publication, E4–E6 integration/pins, E12 household deletion plus pre-deletion restore drill, and E13 requirement closure remain. NFR-DATA-003 stays Plan; no deployment |
+| T-M4-07 | User deletion fan-out (NFR-DATA-003) | **Part (2026-10-11)** — [ADR-0035](docs/adr/0035-user-erasure-ledger.md). E1/E3 and E7–E10 have recorded source pins; current E2 auth-local `71c66d8` lacks the reported ledger implementation and is under bounded pin-reconciliation review (C-40). E4/E5 bounded source follow-ups are accepted and published as `v0.3.9`/`v0.1.8`, unpinned; E6 released source is reviewed, with its pin deferred. E11 is merged in [umbrella #221](https://github.com/Muxcore-Media/umbrella/pull/221), with reported local mTLS stopped-consumer catch-up verification (§9). E2 reconciliation, E4–E6 integration/pins, E12 household deletion plus pre-deletion restore drill, and E13 requirement closure remain. NFR-DATA-003 stays Plan; no deployment |
 | T-M4-08 | Consumer theme contrast and a rendered browser gate (NFR-A11Y-001, NFR-A11Y-002, NFR-MNT-002, ADR-0025) | Done (selected fixture scope) — source `690442b`, [PR #46](https://github.com/Muxcore-Media/media-ui-app/pull/46), merged as `7a45f33` after hosted CI/Browser success, carried by the `b00db38` pin. Anchor layering, theme-aware tertiary/danger/success text and foreground-only accent migration (59 exact mechanical files plus InviteJoin) retain accent fills/borders/brand colors and filled danger-control surfaces; light error borders follow the darker danger token. Local typecheck, 1326 unit tests, build and 208 browser cases pass (12 existing skips), including 104 new contrast cases with computed-theme assertions and negative controls at four widths/both themes; final hover-paint checks 24/24. Follow-up #48 `adf6d29`, merged as `b00db38`, adds Activity action/Movies select contrast; 256 local and hosted browser cases pass with 16 existing skips (§9); it is the pinned `media-ui-app` (`b00db38`, tree identical to the reviewed head). The earlier `d39156c` baseline Movies contrast failure was fixed at `26a594e` and is no longer pending. Media/gradient incomplete results, other routes, assistive technology, light video OSD and full/cross-browser WCAG acceptance remain open |
 | T-M4-09 | Native userdata authentication and durable cross-device persistence (FR-PLAY-004, C-33) | **In progress (reviewed native drafts; Apple/provider gates pending)** — iOS `6bc13a5` (draft muxcore-ios #1, base `830d14d`) and tvOS `fe08722` (draft muxcore-tvos #1, base `a424ac6`) implement cookie-free BFF bearer requests, verified server/user/tenant binding, persisted pending edits, visible failure/retry, serialized writes and response guards. Independent Linux package tests/builds and real-loopback transport checks pass (§9); complete Apple app compilation and simulator journeys remain blocked by B-6. Neither draft is merged or pinned; FR-PLAY-004/FR-NAT-001 stay Part. Real BFF→provider persistence after app/BFF/provider restart, fresh-device/account isolation, failure/offline recovery and explicit Quick Connect limits remain required. S9a–e are merged and integrated at fixture level, including the canonical blob-path correction and authenticated transport (`_mvp` #106, admin-ui #72, umbrella #217). Ordinary blob fallback still does not prove provider persistence. The backend blob-contract and tenant integration conditions below also remain open; BFF acknowledgment or portable cache-reload fixtures alone do not establish provider/device durability |
 
@@ -446,13 +446,13 @@ restricted-account journey; FR-PLAY-007 remains Part.
 |-------|----------------------------|----------------|
 | E0 | Done — accepted ADR, LLD §3 and C-35…C-39; stale drafts #187–#192 superseded | — |
 | E1 / E3 | Source pins recorded by [umbrella #220](https://github.com/Muxcore-Media/umbrella/pull/220): core `81d2ac4` (`v0.6.17`, SDK `v0.6.7`), userdata-local `65264f7` | E2 discrepancy prevents accepting the reported E1–E3 set as integrated; full deletion/restore acceptance remains E12 |
-| E2 auth-local | **Integration blocked (C-40)** — #220 reported `71c66d8` as E2, but current pin lacks `internal/store/erasure.go` and `internal/server/erasure.go` and restores retired-origin/self-hosted CI content. GitHub default `master`/tag `v0.1.20` resolve to `6d8723e9f4e6ae5e45284c3be0e0a5d45c81e925`, which includes E2 `ca0daf3` | Bounded source/tree/CI and E11 published-dependency review below; no new pin or E2 acceptance yet |
-| E4 request-media | Merged [#20](https://github.com/Muxcore-Media/request-media/pull/20), released [#21](https://github.com/Muxcore-Media/request-media/pull/21) as `v0.3.8` (`9aa2cc5`); umbrella still pins pre-erasure `10483aa` | Bounded follow-up accepted/merged as `63a3804` (#22), unreleased/unpinned; preserves pending cleanup counts and repairs completed-record startup recovery. Provider/integration gates remain open |
-| E5 playback-monitor | Merged [#2](https://github.com/Muxcore-Media/playback-monitor/pull/2), fixture follow-up [#3](https://github.com/Muxcore-Media/playback-monitor/pull/3), released [#4](https://github.com/Muxcore-Media/playback-monitor/pull/4) as `v0.1.7` (`39cb244`); umbrella still pins pre-erasure `bf14e0c`, while E11 consumes `v0.1.7` | Bounded follow-up accepted/merged as `959ceb2` (#5), unreleased/unpinned; erasure-aware identity merges verified. E11 still consumes the older published `v0.1.7`; integration remains open |
+| E2 auth-local | **Integration blocked (C-40)** — #220 reported `71c66d8` as E2, but current pin lacks `internal/store/erasure.go` and `internal/server/erasure.go` and restores retired-origin/self-hosted CI content. GitHub default `master`/tag `v0.1.20` resolve to `6d8723e9f4e6ae5e45284c3be0e0a5d45c81e925`, which includes E2 `ca0daf3` | Bounded invite correction accepted/merged as `a3c3420` (#46), unreleased/unpinned; reviewed/merge trees match. `v0.1.21` publication and E11 dependency/integration gates remain before pin repair |
+| E4 request-media | Merged [#20](https://github.com/Muxcore-Media/request-media/pull/20), released [#21](https://github.com/Muxcore-Media/request-media/pull/21) as `v0.3.8` (`9aa2cc5`); umbrella still pins pre-erasure `10483aa` | Bounded follow-up #22 is published as `v0.3.9` at `4446d31` (#23), unpinned; preserves pending cleanup counts and repairs completed-record startup recovery. Provider/integration gates remain open |
+| E5 playback-monitor | Merged [#2](https://github.com/Muxcore-Media/playback-monitor/pull/2), fixture follow-up [#3](https://github.com/Muxcore-Media/playback-monitor/pull/3), released [#4](https://github.com/Muxcore-Media/playback-monitor/pull/4) as `v0.1.7` (`39cb244`); umbrella still pins pre-erasure `bf14e0c`, while E11 consumes `v0.1.7` | Bounded follow-up #5 is published as `v0.1.8` at `af7168e` (#6), unpinned; erasure-aware identity merges verified. E11 still consumes the older published `v0.1.7`; integration remains open |
 | E6 playback-guard | Merged [#1](https://github.com/Muxcore-Media/playback-guard/pull/1), released [#2](https://github.com/Muxcore-Media/playback-guard/pull/2) as `v0.1.3` (`b7bdb8c`); umbrella still pins pre-erasure `845a10a` | Independent source review and exact-release hosted build/vet/race/lint/proto pass (§9); root pin decision remains separate. Optional enabled owner must still be in the required consumer set |
 | E7–E10 | Merged and pinned by #220: admin-ui #74 `dd71c7f`, `_mvp` #109 `609a834`, muxcorectl-cli #5 `2df8953`, jellyfin #22 `dfb6349`, media-library-maintainer #2 `992caab`; `_mvp` advances to #110 `721af60` through umbrella #222 for the maintainer consumer manifest | E12 verifies the enabled owner set and end-to-end dispositions |
 | E11 | Merged [umbrella #221](https://github.com/Muxcore-Media/umbrella/pull/221), `91cdb20`: real household core/auth-local mTLS, stopped playback-monitor catch-up, bystander preservation and replay; PR-reported local race gates in §9 | Hosted jobs failed without executing steps; no new managed-workspace run or E12 substitute |
-| E12 | Todo — household clean-room deletion reaches complete for every required owner, owner APIs/stores contain no remaining user rows, pre-deletion archive restore does not resurrect the user | All enabled owner implementations/verification and the correct manifest/consumer set |
+| E12 | Plan — E12a packaging/orchestration prerequisites are registered below; the complete household deletion and pre-deletion restore journey is unimplemented/unrun | All enabled owner implementations/verification, exact manifest/consumer set, and E12b/c gates below; NFR-DATA-003 stays Plan |
 | E13 | Todo — reconcile NFR-DATA-003 only after all ADR-0035 §5 gates pass | NFR-DATA-003 stays Plan; E11 alone does not close it |
 
 **T-M4-07 E2 / T-M0 pin-reconciliation review (NFR-DATA-003, NFR-MNT-005/006; registered 2026-10-11 before any pin change) — In progress:**
@@ -476,7 +476,7 @@ E2 statement is preserved as reported history, not root acceptance of the curren
 pin. E4–E6 reviews and E12/E13 cannot substitute for this provider reconciliation.
 
 **E2 invite correction (FR-AUTH-003, NFR-DATA-003; registered before production,
-2026-10-11) — Accepted decision, source implementation pending:**
+2026-10-11) — Done at scoped source level, merged/unreleased/unpinned:**
 Current-default source review found marker-named creator cleanup and invite/create
 versus erasure gaps. [ADR-0036](docs/adr/0036-invite-creator-authority-and-erasure.md)
 is Accepted/Delegated after root review on 2026-10-11; accepted ADR-0035 is
@@ -487,16 +487,27 @@ exemption. It preserves absent-bearer module behavior, existing storage/schema,
 proto and dependencies. The ADR owns the detailed rule and required negative,
 ordering, rollback and startup-restore fixtures. Legacy creator-label ambiguity
 remains explicit; no broad orphan purge or exact same-text preservation is claimed.
-Root accepted the decision before production edits. Source acceptance still
-needs independent review and exact candidate verification; no auth-local pin
-repair is accepted before that follow-up passes.
+Root accepted the decision before production edits, then accepted bounded source
+`8e6987e471580584353c23dcf19b6f0e751126d3` after independent/root review and exact
+hosted build/vet/full race/lint success (§9). [Auth-local #46](https://github.com/Muxcore-Media/auth-local/pull/46)
+merged at the expected head as `a3c342066b08dd8a62e4d592cbb17bb21673f137`;
+root verified that its tree equals the tested source. The correction is unreleased/unpinned; the
+canonical `71c66d8` discrepancy and full integration remain open.
 
 Task acceptance also requires a deterministic resolved-admin-demoted-before-store
 fixture: after successful initial creator resolution, remove admin authority
 before `CreateInviteForUser` enters its write transaction, then assert refusal
 and no invite insertion. This checks the ADR's existing current-admin rule.
 
-**T-M4-07 E4 request-policy follow-up (NFR-DATA-003; registered 2026-10-11 before production edits) — Done at scoped source level, merged/unreleased/unpinned:**
+**E2 published-version prerequisite (registered 2026-10-11 before release edits) — In progress:**
+Prepare auth-local `v0.1.21` from the accepted #46 merge with manifest version and
+CHANGELOG edits only. Candidate `2547a4d4b502a1dec47c6cb91daf1d2fc7be8158`
+is prepared for root review; publication and hosted gates remain pending. Root verifies the exact candidate and its hosted gates
+before merge/tag publication. No schema, proto, dependency or additional behavior
+change is in this step. A verified source tag enables a later published integration
+dependency update; it does not itself repair the current E2 gitlink or accept E12.
+
+**T-M4-07 E4 request-policy follow-up (NFR-DATA-003; registered 2026-10-11 before production edits) — Done at scoped source level, published/unpinned:**
 `root/request_erasure_audit_20261011` exclusively owns `request-media` from release
 `9aa2cc573fe137f65dec6f39b3c1c2f53065a966` (`v0.3.8`). Independent static review
 found `setQuotaPolicy` checks `UserErased` before taking `cfgMu`; a policy save
@@ -514,8 +525,8 @@ independent review and exact new hosted full module gates before acceptance.
 Root accepted final source `daa1c99` after independent review and exact hosted
 build/vet/full race/lint/proto success (§9); [request-media #22](https://github.com/Muxcore-Media/request-media/pull/22)
 merged as `63a3804d4f0f33a86917e0a921433aef83aea96b`, with the merge tree equal to
-the reviewed source. It is unreleased/unpinned; E2 and household integration
-remain separate gates.
+the reviewed source. It is now published in source tag `v0.3.9` (`4446d31`,
+#23), unpinned; E2 and household integration remain separate gates.
 
 Candidate `2abf276` passed hosted build/vet/lint/proto checks but failed the
 existing `TestErasureCrashBetweenPhases`: startup cleanup consumed the pending
@@ -542,14 +553,14 @@ the real store. Accordingly, that baseline combines tests with mechanical
 extraction and must not be described as test-only. The previously registered
 independent review and exact new hosted module gates remain required.
 
-**T-M4-07 E5 identity-merge follow-up (NFR-DATA-003; registered 2026-10-11 before production edits) — Done at scoped source level, merged/unreleased/unpinned:**
+**T-M4-07 E5 identity-merge follow-up (NFR-DATA-003; registered 2026-10-11 before production edits) — Done at scoped source level, published/unpinned:**
 `root/monitor_erasure_20261011` exclusively owns `playback-monitor` from release
 `39cb2440126fb556624dd202b7d7f5dbcadeeced` (`v0.1.7`). Independent source review
 and an extracted-production-SQL reproduction show that `mergeUserIdentities` can
 reintroduce an erased native user ID after the tombstone is applied and
 acknowledged; the SDK then skips that tombstone. This is SQL/source evidence,
 not a live exploit claim. The later test-only baseline `598b1e26` now reproduces
-the defect in hosted Go tests (§9); repair acceptance remains pending.
+the defect in hosted Go tests (§9), before the accepted correction recorded below.
 
 Root accepted a bounded repair: hold exclusive `erasureMu` across merge before
 lookup/fallback creation through commit, and reject both endpoint IDs plus linked
@@ -571,18 +582,66 @@ lint for a shadowed error variable. The variable-only correction `74c63ac` passe
 hosted full build/vet/race/lint/proto gates (§9). Root accepted the bounded source
 and [playback-monitor #5](https://github.com/Muxcore-Media/playback-monitor/pull/5)
 merged at that head as `959ceb2f7eac9c8f054647fad4d9a38ba64bc66c`; merge/source
-trees match. It is unreleased/unpinned. Root restored the canonical `bf14e0c`
+trees match. It is now published in source tag `v0.1.8` (`af7168e`, #6),
+unpinned. Root restored the canonical `bf14e0c`
 checkout; E12 and NFR-DATA-003 closure remain open.
 
-**E4/E5 published-version prerequisite (registered 2026-10-11 before release edits) — In progress:**
-Prepare patch releases request-media `v0.3.9` from accepted merge `63a3804` and
-playback-monitor `v0.1.8` from accepted merge `959ceb2`. Each repository owner is
-limited to manifest version and CHANGELOG release edits; no source behavior,
-contract, dependency or schema change is part of this step. Root reviews the
-exact release candidate and its executed hosted gates before merging and tagging.
-Only the verified immutable tags unlock published `integration/` dependency
-updates under ADR-0011. No tag/publication is claimed yet. This prerequisite does
-not accept E2, all enabled erasure owners, E12/E13, an umbrella pin or deployment.
+**E4/E5 published-version prerequisite (registered 2026-10-11 before release edits) — Done, source tags published:**
+Root reviewed the manifest/CHANGELOG-only patch releases and actual exact-head
+hosted build/vet/full race/lint/proto checks (§9). Request-media #23 merged at
+`4446d315df52917538289458594b3fb8c2642372`; playback-monitor #6 merged at
+`af7168eb1566458a6062f34033702930987ee73f`. Both merge trees equal the reviewed
+candidates. Remote annotated tags are verified: request-media `v0.3.9` resolves
+to `4446d31`, playback-monitor `v0.1.8` to `af7168e`.
+
+This publishes source versions for future `integration/` dependency updates under
+ADR-0011. GitHub Release assets, images, deployment and umbrella pin changes are
+not established; E2, all-owner integration and E12/E13 remain open.
+
+
+**T-M4-07 E12a prerequisites (NFR-DATA-003; registered 2026-10-11 before source edits) — In progress:**
+Root authorizes two isolated source scopes under [ADR-0035](docs/adr/0035-user-erasure-ledger.md):
+
+| Repository / owner scope | Bounded change | Required evidence |
+|--------------------------|----------------|-------------------|
+| Umbrella `scripts/clean-room.sh` and focused orchestration fixture | **Accepted bounded source, publication pending** — existing generator generation/check uses the exact final profile list before runtime/configuration; manifest-derived host gates are neutralized only in the generator child environment | Five real-generator fixtures, independent review, complete umbrella shell fixtures, shellcheck and Node script-stem checks pass (§9); final umbrella-head hosted outcome remains pending. No real container/image/restore acceptance |
+| `_mvp` host prebuilt and module Dockerfile auth packaging, with focused packaging fixture | Include existing `cmd/authctl` in both auth packaging paths; auth-specific completeness checking refuses stale prebuilt artifacts missing the CLI | Both packaging paths include the existing CLI, stale/missing CLI is refused, normal complete artifacts remain usable; applicable module script/build gates and independent review |
+
+These prerequisites change no dependencies or auth source, perform no restore or
+delete operation, and add no all-owner harness. The umbrella source half now has
+scoped local/review acceptance; `_mvp` packaging remains pending its full gates and
+root acceptance. Neither establishes image/runtime, E12 or requirement acceptance.
+Source owners keep repository scopes separate; root coordinates publication/integration.
+
+**E12a packaging failure-propagation extension (registered before the fix, 2026-10-11):**
+Root review and owner reproduction at `_mvp` `e0f2e57` show that an unguarded
+shared daemon `build_go` call inside an `if` can ignore compilation failure:
+with a stale daemon artifact present, fake Go exits 19 for the daemon, authctl
+build succeeds, and the copied publisher exits 0 and attempts an image build
+(`/tmp/mvp-authctl-daemon-failure-repro.py` and `.log`). Root authorizes the
+one-line shared-daemon failure propagation (`|| return`) and a regression that
+refuses these stale auth artifacts. Preserve normal non-auth behavior; add no
+restore, schema or dependency scope. The final packaging candidate still needs
+independent review and its applicable full gates before acceptance.
+
+**E12b/E12c continuation — planned only, no source authorization:**
+E12b adds one reusable `_mvp` fixture helper under ADR-0035 §§3/5. Seed a victim
+and bystander in every enabled personal-data owner, then verify the specified
+API/store disposition and an exact set of configured required-owner OK
+acknowledgments. The default four consumers are admin-ui, media-ui, request-media
+and userdata-local; enabled playback-monitor, playback-guard, Jellyfin and
+media-library-maintainer extend the matrix to eight. Include provider credential
+and invite revocation within ADR-0036's scope; retain ADR-0035's unlinked-external
+and audit/archive limits. Do not infer all-owner success from one consumer's ack.
+
+E12c applies ADR-0035 §§4/5 in this order: seed → create a real pre-deletion
+archive → delete and reach complete → stop writers and export the live ledger
+before any wipe → restore the old archive → import the ledger before startup →
+start, reach complete, and repeat API/store negatives plus bystander checks.
+Assert the archive is unchanged, export failure prevents wiping, and import
+failure prevents startup. These matrix/restore steps need their own accepted
+source scope and implementation/verification before work begins. E12 and
+NFR-DATA-003 remain Plan; no new ADR or broad acceptance is implied.
 
 Source/tag discovery is distinct from acceptance. No deployment is claimed; the
 release train remains unchanged. The 2026-10-11 current checkpoint is in §14.
@@ -972,6 +1031,17 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | Root umbrella script verification | `node --test scripts/*.test.mjs` passes 69 tests in 20 suites, zero failures/skips; script ESLint and shellcheck pass. Logs `/tmp/umbrella-script-tests-20261011.log`, `/tmp/umbrella-script-lint-20261011.log` and `/tmp/umbrella-shellcheck-20261011.log` record the completed runs. These are current script gates, not source-module/integration/household acceptance |
 | 2026-10-11 | E5 final source accepted and merged, `74c63ac42eae22271a777681d317f3648396aa1a` → `959ceb2f7eac9c8f054647fad4d9a38ba64bc66c`, [playback-monitor #5](https://github.com/Muxcore-Media/playback-monitor/pull/5) | Independent review accepts the bounded merge/erasure correction. Root inspected exact [CI 38177206612](https://github.com/Muxcore-Media/playback-monitor/actions/runs/38177206612): actual build/vet/full race pass (job 114581998040; internal 23.362 s, integsupport 1.487 s), lint job 114581998018 and proto job 114581997917 pass. Root reviewed source and merged at the expected head, then verified merge/source tree equality and restored canonical checkout `bf14e0c`. Earlier baseline failures and intermediate lint failure remain above. Scoped follow-up Done, unreleased/unpinned; no E12/deployment or NFR-DATA-003 advancement |
 | 2026-10-11 | E4 final source accepted and merged, `daa1c99c70014a910fe8f0b8974871256f298421` → `63a3804d4f0f33a86917e0a921433aef83aea96b`, [request-media #22](https://github.com/Muxcore-Media/request-media/pull/22) | Root reviewed the final pending-phase correction and exact [CI 38177289123](https://github.com/Muxcore-Media/request-media/actions/runs/38177289123): actual build/vet/full race pass (job 114582247782; internal 4.165 s, reqstore 2.118 s), lint job 114582247649 and proto job 114582247821 pass. Independent source/diff review accepts the final pending/completed startup distinction and safe lock ordering (reviewer did not run runtime checks); exact hosted gates support root's bounded source acceptance. #22 merged at the expected head with verified merge/source tree equality. Earlier crash-between-phases count failure remains above. Scoped follow-up Done, unreleased/unpinned; local dependency block, E2 reconciliation and E12/full erasure acceptance remain separate |
+| 2026-10-11 | E2 invite test-only baseline `22d56f8`, [auth-local #46](https://github.com/Muxcore-Media/auth-local/pull/46) | Root inspected actual [CI 38177697330](https://github.com/Muxcore-Media/auth-local/actions/runs/38177697330) test job 114583464784: build/vet and lint pass; race execution fails the marker-named creator case and two HTTP deleted-creator regressions. This supplies before-fix evidence only, with no credential/token values recorded and no final source acceptance |
+| 2026-10-11 | E4/E5 release candidates, [request-media #23](https://github.com/Muxcore-Media/request-media/pull/23) `a02d9f5` and [playback-monitor #6](https://github.com/Muxcore-Media/playback-monitor/pull/6) `2f906e2` | Manifest/CHANGELOG-only patch release candidates for `v0.3.9`/`v0.1.8`; hosted CI is running at this checkpoint. No tag, publication, integration dependency update or pin acceptance is claimed yet |
+| 2026-10-11 | Documentation checkpoint `71425795d284e4504f8e6e52b958083b0c40a3ec`, [umbrella #223](https://github.com/Muxcore-Media/umbrella/pull/223) | Root committed/pushed accepted-source evidence and ADR-0036. Exact [CI 38177841083](https://github.com/Muxcore-Media/umbrella/actions/runs/38177841083) and [Commit lint 38177841086](https://github.com/Muxcore-Media/umbrella/actions/runs/38177841086) fail: CI jobs 114583902592/114583902676/114583902702 and commitlint job 114583902585 all return null steps. Cause remains unknown and no executed hosted validation is inferred. Root local commit lint passes all three new commits; no unchanged-head rerun is planned |
+| 2026-10-11 | E5 patch source release, [playback-monitor #6](https://github.com/Muxcore-Media/playback-monitor/pull/6), reviewed `2f906e2` → `af7168eb1566458a6062f34033702930987ee73f` (`v0.1.8`) | Root reviewed the two metadata files and exact [CI 38177878262](https://github.com/Muxcore-Media/playback-monitor/actions/runs/38177878262): actual build/vet/full race job 114584015659 passes (internal 23.445 s, integsupport 1.563 s), lint 114584015669 and proto 114584015484 pass. Merged at the expected head with identical reviewed/merge trees. Annotated remote tag object `bf721aa27cccf85995664dad6d363797e118af2c` peels to `af7168e` via `git ls-remote`; source-tag publication verified. No GitHub Release assets, image, deployment or gitlink update is claimed |
+| 2026-10-11 | E4 patch source release, [request-media #23](https://github.com/Muxcore-Media/request-media/pull/23), reviewed `a02d9f5` → `4446d315df52917538289458594b3fb8c2642372` (`v0.3.9`) | Root reviewed the two metadata files and exact [CI 38177880204](https://github.com/Muxcore-Media/request-media/actions/runs/38177880204): actual build/vet/full race job 114584020819 passes (internal 5.003 s, reqstore 2.628 s), lint 114584021032 and proto 114584021029 pass. Merged at the expected head with identical reviewed/merge trees. Annotated remote tag object `60ebaf808bc15a0dc60a51486850edfa77416b9a` peels to `4446d31` via `git ls-remote`; source-tag publication verified. No GitHub Release assets, image, deployment or gitlink update is claimed |
+| 2026-10-11 | E12a umbrella orchestration source, `scripts/clean-room.sh` / `scripts/clean-room_test.sh`, accepted working candidate before publication | Root accepts the bounded change after independent request-owner review. Initial source incorrectly allowed inherited host gates to require inactive owners; the added regression failed before correction. Final source neutralizes only manifest-derived gate variables in generator subprocesses and passes the exact final profiles. Five fixtures use actual yq 4.47.1, generator and repository YAML: default four owners; inherited enabled host gates/stale profiles still four; explicit optional profiles/disabled host gates produce eight (including restore-added backup profile); generation failure; stale-set check failure. Failure cases stop before runtime/configuration; success uses fake enrollment/container/curl and stops at first compose configuration. A root-only checkout without `_mvp` explicitly skips the fixture. These are offline orchestration checks, not a running household/image/restore test |
+| 2026-10-11 | Root E12a umbrella verification | Every `scripts/*_test.sh` completes with exit 0, including the five clean-room cases (`/tmp/umbrella-shell-tests-e12a-20261011.log`); `shellcheck scripts/*.sh` exits 0 (`/tmp/umbrella-shellcheck-e12a-20261011.log`). Node script-stem tests pass 12 tests in four suites with zero skips. Independent review accepts final source; final umbrella-head hosted outcome is pending. E12/NFR-DATA-003 remain Plan |
+| 2026-10-11 | E12a `_mvp` packaging candidate `e0f2e57` | Independent review reports ten focused cases pass; full module script checks are running and root is checking an additional daemon-build failure case. Candidate is not accepted yet; no packaging/runtime or full E12 acceptance follows from the focused result |
+| 2026-10-11 | E2 invite candidate `8e6987e471580584353c23dcf19b6f0e751126d3`, [auth-local #46](https://github.com/Muxcore-Media/auth-local/pull/46) | [CI 38178310326](https://github.com/Muxcore-Media/auth-local/actions/runs/38178310326) is in progress: build/vet/lint pass, full race remains pending at this checkpoint. No final source or pin acceptance; test-only failures and ADR-0036's legacy provenance limits remain recorded |
+| 2026-10-11 | E2 invite source accepted and merged, `8e6987e471580584353c23dcf19b6f0e751126d3` → `a3c342066b08dd8a62e4d592cbb17bb21673f137`, [auth-local #46](https://github.com/Muxcore-Media/auth-local/pull/46) | Root accepts the bounded ADR-0036 source after review. Exact [CI 38178310326](https://github.com/Muxcore-Media/auth-local/actions/runs/38178310326) executes and passes build/vet/full race (job 114585298562; store 23.589 s, server 10.511 s, webapp 6.762 s, authctl 1.422 s) and lint (job 114585298279). #46 merged at the expected source head; root fetched and verified identical reviewed/merge trees. No credential/token values are recorded. Correction is unreleased/unpinned; legacy provenance, E2 gitlink discrepancy and E12/full erasure acceptance remain open |
+| 2026-10-11 | E12a `_mvp` stale-daemon artifact reproduction at `e0f2e57` | Root review and owner reproduction run the actual copied build/publish scripts with fake Go: daemon compile fails with exit 19, an old module artifact remains, authctl succeeds, then publisher exits 0 and calls image build. Logs/scripts `/tmp/mvp-authctl-daemon-failure-repro.{py,log}`. This is a packaging-orchestration regression, not a real image build. Root registered the one-line shared-daemon failure propagation plus stale-auth-artifact refusal regression before implementation; candidate remains unaccepted |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1161,7 +1231,7 @@ still pending.
 |-------|---------------------------------------------|
 | Canonical source pins | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
-| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 reconciliation is pending; #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.8`, E5 playback-monitor `v0.1.7` and E6 playback-guard `v0.1.3` are released but their gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted/merged (`63a3804`/`959ceb2`), unreleased/unpinned; E6 independent source/hosted review passes. E2 and complete integration remain pending. #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
+| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`), unreleased/unpinned; source publication and pin reconciliation are pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`), unpinned; E6 independent source/hosted review passes. E2 and complete integration remain pending. #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50 and the scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) are accepted source, unpinned. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
 | Verification limits | Existing §9 results belong to their named source and environment. #221 reports local race verification; its hosted CI/commitlint jobs failed with zero steps. This documentation reconciliation does not claim a new source suite, current-tip clean-room, deployment, or complete household acceptance |
 | Release and operating constraints | `train-2026.10.3`, core/images `v0.6.15`, spool `2.7.0` are unchanged. Acquisition stays fixture-only. No T-M3-10 investigation/probe/retry, paid service, billing change or network-policy bypass |
@@ -1170,15 +1240,14 @@ Current batch publication is [umbrella #223](https://github.com/Muxcore-Media/um
 Source work is isolated in [playback-monitor #5](https://github.com/Muxcore-Media/playback-monitor/pull/5),
 [request-media #22](https://github.com/Muxcore-Media/request-media/pull/22), and
 [media-ui-app #51](https://github.com/Muxcore-Media/media-ui-app/pull/51). UI #51
-is accepted and merged as `1e95d22`, unpinned; E4 #22 and E5 #5 are accepted and merged (`63a3804`/`959ceb2`),
-unreleased/unpinned. The E2 provider correction and integration remain pending. Exact local/reviewer/hosted UI evidence and hosted
+is accepted and merged as `1e95d22`, unpinned; E4 #22 and E5 #5 are accepted and published through request-media `v0.3.9`
+and playback-monitor `v0.1.8`, unpinned. The E2 invite correction #46 is accepted/merged, unreleased/unpinned; source publication and provider integration remain pending. Exact local/reviewer/hosted UI evidence and hosted
 monitor baseline failures are recorded in §9. E6 has source verification, but its
 pin decision is deferred with the wider integration gate. All module pins and
 the release train remain unchanged by this batch.
 
-Request-media `v0.3.9` and playback-monitor `v0.1.8` release preparation is
-registered in §6 as manifest/CHANGELOG-only work; exact review/hosted gates precede
-merge/tag publication and any published integration dependency update.
+Request-media `v0.3.9` and playback-monitor `v0.1.8` are verified source tags
+(§6/§9); published integration dependency updates remain separate work.
 
 ### Historical session, transport and native checkpoint (2026-10-08–09)
 

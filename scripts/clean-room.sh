@@ -93,7 +93,7 @@ COMPOSE_FILES=(-f "$ROOT/docker-compose.yml")
 # shellcheck disable=SC2086 # COMPOSE is a command line
 compose() { $COMPOSE "${COMPOSE_FILES[@]}" "$@"; }
 
-for t in go npm jq python3 curl openssl tar; do
+for t in go npm jq yq python3 curl openssl tar; do
   command -v "$t" >/dev/null 2>&1 || die "$t not on PATH"
 done
 # shellcheck disable=SC2086
@@ -172,6 +172,20 @@ EOF
 # Mesh enrollment (ADR-0017): MUXCORE_ENROLL_SECRET + one single-use token per
 # module ID of the registry compose, appended to the same 0600 file.
 "$MVP/scripts/gen-enrollment.sh" --env-file "$ENV_FILE" >/dev/null || die "gen-enrollment.sh failed"
+# ADR-0035: use the same final profiles as compose (including restore's backup
+# profile) so every enabled personal-data consumer is required for completion.
+erasure_args=(--manifest "$MVP/household-manifest.yaml" --compose "$MVP/docker-compose.registry.yml"
+  --env-file "$ENV_FILE" "${profile_args[@]}")
+# The shared generator also supports run-host's enable flags. Those do not
+# activate compose services, so omit them from these two invocations only.
+erasure_gates="$(yq -r '.optional_env_gated[] | .env // ""' "$MVP/household-manifest.yaml")" \
+  || die "cannot read erasure host gates from the household manifest"
+erasure_env=(env)
+while IFS= read -r gate; do
+  [[ -z "$gate" ]] || erasure_env+=(-u "$gate")
+done <<<"$erasure_gates"
+"${erasure_env[@]}" "$MVP/scripts/gen-erasure-set.sh" "${erasure_args[@]}" >/dev/null || die "gen-erasure-set.sh failed"
+"${erasure_env[@]}" "$MVP/scripts/gen-erasure-set.sh" "${erasure_args[@]}" --check >/dev/null || die "gen-erasure-set.sh --check failed"
 set -a
 # shellcheck disable=SC1090
 source "$ENV_FILE"
