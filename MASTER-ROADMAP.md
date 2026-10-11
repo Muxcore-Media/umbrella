@@ -445,7 +445,7 @@ restricted-account journey; FR-PLAY-007 remains Part.
 | Slice | Source / integration state | Remaining gate |
 |-------|----------------------------|----------------|
 | E0 | Done — accepted ADR, LLD §3 and C-35…C-39; stale drafts #187–#192 superseded | — |
-| E1 / E3 | Source pins recorded by [umbrella #220](https://github.com/Muxcore-Media/umbrella/pull/220): core `81d2ac4` (`v0.6.17`, SDK `v0.6.7`), userdata-local `65264f7`. E3 review findings are reproduced by exact hosted baseline #11; bounded production correction is registered below and remains unverified | Canonical E2 discrepancy and unresolved E3 findings prevent accepting the reported E1–E3 set as integrated; full deletion/restore acceptance remains E12 |
+| E1 / E3 | Source pins recorded by [umbrella #220](https://github.com/Muxcore-Media/umbrella/pull/220): core `81d2ac4` (`v0.6.17`, SDK `v0.6.7`), userdata-local `65264f7`. E3 findings were reproduced by exact hosted baseline #11; bounded correction is accepted/merged as `33dceaf1` and selected only in draft #223, without a new release tag | Canonical E2/E3 baseline discrepancies and unverified corrected-set integration prevent accepting the reported E1–E3 set as integrated; full deletion/restore acceptance remains E12 |
 | E2 auth-local | **Integration blocked (C-40)** — #220 reported `71c66d8` as E2, but canonical baseline pin lacks `internal/store/erasure.go` and `internal/server/erasure.go` and restores retired-origin/self-hosted CI content. Reviewed source tag `v0.1.20` resolves to `6d8723e9f4e6ae5e45284c3be0e0a5d45c81e925`, which includes E2 `ca0daf3` | Bounded invite correction accepted/merged as `a3c3420` (#46), published in verified source tag `v0.1.21` at `9f9ec32` (#47); selected in draft #223, not canonical. Reviewed/merge trees match. Draft pin preparation is registered below; E11 dependency/integration gates remain |
 | E4 request-media | Merged [#20](https://github.com/Muxcore-Media/request-media/pull/20), released [#21](https://github.com/Muxcore-Media/request-media/pull/21) as `v0.3.8` (`9aa2cc5`); canonical baseline still pins pre-erasure `10483aa` | Bounded follow-up #22 is published as `v0.3.9` at `4446d31` (#23), selected in draft #223, not canonical; preserves pending cleanup counts and repairs completed-record startup recovery. Provider/integration gates remain open |
 | E5 playback-monitor | Merged [#2](https://github.com/Muxcore-Media/playback-monitor/pull/2), fixture follow-up [#3](https://github.com/Muxcore-Media/playback-monitor/pull/3), released [#4](https://github.com/Muxcore-Media/playback-monitor/pull/4) as `v0.1.7` (`39cb244`); canonical baseline still pins pre-erasure `bf14e0c`, while E11 consumes `v0.1.7` | Bounded follow-up #5 is published as `v0.1.8` at `af7168e` (#6), selected in draft #223, not canonical; erasure-aware identity merges verified. E11 still consumes the older published `v0.1.7`; integration remains open |
@@ -557,7 +557,7 @@ fixture, seen state was true, applied rows zero and acknowledgment `FAILED`, yet
 a later exact-victim mesh put returned nil and advanced blob revision 1 to 2.
 These are deterministic fixture reproductions, not a live deployment claim.
 
-**E3 bounded production follow-up (registered before production edits, 2026-10-11) — Reviewed candidate published; hosted fixture correction pending:**
+**E3 bounded production follow-up (registered before production edits, 2026-10-11) — Done at bounded source level, merged/untagged; selected only in draft:**
 Root accepts the planner's bounded correction after the hosted baseline. The
 same exclusive userdata owner continues; retain the baseline regression file
 and its contract assertions without weakening them.
@@ -585,7 +585,7 @@ NFR-DATA-003 stays Plan. This authorizes only the registered E3 source correctio
 not C-34 permission changes, T-M3-10 work, provider/runtime readiness claims or
 all-owner deletion/restore acceptance.
 
-**E3 candidate checkpoint — published; exact hosted run failed, fixture correction pending:**
+**E3 initial candidate checkpoint — historical failed head `a253a32`:**
 Authored `31d198c2b74ce137a76ca0baff313f1acbb8e308` has tree
 `bea49f4fd4fdd1b3b03137da94c2f8915957acb0`. Independent parent and root review
 accept the bounded ten-file diff for verification; the baseline regression file
@@ -608,7 +608,53 @@ package passes (6.150 s), but this internal panic prevents whole-module acceptan
 Root assigns the same writer only the minimal real-store fixture precondition
 correction, with independent review; the original baseline and runtime callback
 must remain unweakened. Source/fix acceptance, release and userdata pin changes
-remain pending corrected-source actual gates and final review.
+were pending corrected-source gates at that checkpoint; final acceptance follows below.
+
+**E3 final source acceptance — merged/untagged, no full erasure acceptance:**
+The only correction after `a253a32` supplies the real store required by the
+existing configuration-test fixture; the original regression baseline and runtime
+callback remain unchanged. Authored `8421068` and published
+`fe9572698f9b6765bcecaac0a99f03879c3afcf8` have identical tree
+`b4a917c62a51951aa800389decbc5b10920bc64f`. Independent/root review and exact
+hosted full build/vet/race/lint/proto gates pass (§9), so root accepts the bounded
+source. [Userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11)
+merges as `33dceaf1ebd540b6a76bf1e6f55b631787408e31`; connector metadata verifies
+its signed commit and the same reviewed tree. No `v0.1.8` tag/release, real
+household deletion or restore acceptance is claimed.
+
+**E3 accepted-source draft pin extension (registered before gitlink checkout, 2026-10-11) — Selected in the prepared draft:**
+After the corrected candidate passes actual full hosted gates and final review
+(§9), root advances the unmerged draft #223 userdata-local selection from
+`65264f7772b33e73340ee3e4200896796c73f1b3` to accepted #11 merge
+`33dceaf1ebd540b6a76bf1e6f55b631787408e31`. Root must import/verify the canonical
+merge identity/tree and run applicable proto/pin checks. Published `go.mod`
+versions remain unchanged and module metadata remains `v0.1.7`; this is a source
+pin, not a `v0.1.8` release/tag. A new tag remains pending (no supported tag
+callable and ordinary Git authentication blocked by B-7). Canonical main stays
+`4403e97`; full E11/E12/runtime, release and deployment acceptance remain separate.
+After visible registration, root imports/verifies the canonical signed merge,
+checks out `33dceaf1`, verifies no tree diff from `fe957269`, and passes proto/pin
+checks with the same five known warnings. This is the seventh draft source
+selection, separate from canonical main and full erasure acceptance.
+
+**E3 `v0.1.8` metadata preparation (registered before edits, 2026-10-11) — Approved, tag publication blocked:**
+Root prepares fresh `codex/userdata-local-v0.1.8-20261011` in the existing
+userdata worktree from accepted `33dceaf1`. Only `CHANGELOG.md` and `muxcore.json`
+may change: manifest `0.1.7` → `0.1.8`, plus three Fixed entries for canonical IDs
+and legacy blob aliases, startup repair preserving recorded erasure history, and
+last-seen refusal for blob/policy targets and actors. Add no behavior, dependency,
+proto or test changes. Require parse/version-diff checks, independent review and
+exact metadata-head hosted CI because the manifest controls the embedded reported
+version. Metadata preparation alone publishes no tag, release or deployment.
+
+New-tag publication is blocked: ordinary Git HTTPS authentication fails under
+B-7, and the available connector has no tag/release write API. Do not claim
+`v0.1.8` until an actual tag is created and verified. Current `_mvp/go.mod` and
+`admin-ui/go.mod` require userdata `v0.1.6`; E11 integration has no direct userdata
+dependency. The `_mvp` tool declarations for `cmd/module`/`userdata-health` and
+its real-provider fixture build the published module, so a future version bump
+requires that new tag. Checkout/`go.work` builds use the draft gitlink separately.
+No consumer dependency edits or broader publication scope are authorized here.
 
 **T-M4-07 E4 request-policy follow-up (NFR-DATA-003; registered 2026-10-11 before production edits) — Done at scoped source level, published; draft-selected, not canonical:**
 `root/request_erasure_audit_20261011` exclusively owns `request-media` from release
@@ -731,7 +777,8 @@ independent/root review and its applicable exact hosted gates, merged as
 
 **T-M4-07 / T-M0 draft source-pin preparation (registered 2026-10-11 before gitlink edits) — In progress, unmerged candidate:**
 Auth-local #47 now passes its exact hosted gates and the `v0.1.21` source tag
-is verified (§9). Root has checked out all six registered reviewed-source selections
+is verified (§9). Root has checked out the original six plus the separately
+registered E3 userdata source selection
 below in draft [umbrella #223](https://github.com/Muxcore-Media/umbrella/pull/223):
 
 | Module | Canonical baseline at `4403e97` | Registered draft candidate |
@@ -742,6 +789,7 @@ below in draft [umbrella #223](https://github.com/Muxcore-Media/umbrella/pull/22
 | playback-guard | `845a10a` | `b7bdb8cd0197e07e51db2d6222b8d589069d25be` (`v0.1.3`) |
 | media-ui-app | `b00db38` | `1e95d2237286909e3601c9b2c3c2e13eed51f5ba` (#51, carrying prior accepted UI fixes) |
 | `_mvp` | `721af60` | `197784572f599fc0d7facd68582751c139087456` (#112 snapshot verifier, carrying #111 packaging; registered before checkout, selected in the prepared draft) |
+| userdata-local | `65264f7` | `33dceaf1ebd540b6a76bf1e6f55b631787408e31` (#11 bounded E3 correction, untagged; registered before checkout, selected in the prepared draft) |
 
 Read-only compatibility review finds no static contract blocker: Go dependencies,
 protos and schema are unchanged from the proper auth-local `v0.1.20` source, and
@@ -826,6 +874,58 @@ payload/signature and confirms its SHA-1 identity; no successful Git fetch is
 claimed. The pin extension is selected in the prepared draft.
 Supplied snapshots establish neither provider provenance nor current/live
 erasure or restore success; full E12 remains Plan.
+
+**E12b provider-read adapter (registered before source changes, 2026-10-11) — Approved implementation, unverified:**
+`root/monitor_erasure_20261011` exclusively owns `_mvp`, reusing its worktree on
+a fresh branch from accepted `197784572f599fc0d7facd68582751c139087456`. Change
+only `cmd/erasurecheck/main.go`, `main_test.go`, `README.md`, plus new
+`acquire.go` and `acquire_test.go` in that directory. Existing `Check` and verifier
+files remain unchanged. Independent design review accepts the following bounded
+read adapter under ADR-0035 and the existing mesh identity rules.
+
+- Add `-from-provider` with mandatory `-admin-bearer-file`, mutually exclusive
+  with `-tombstone-file`. Read a raw existing admin session from a regular file
+  bounded to 8 KiB: refuse nonregular paths before opening, recheck the opened
+  file, and read at most limit+1 to detect growth. Add no literal/environment
+  token, provider-address or provider-CN override flags.
+- Require existing caller-ID/core-address configuration and reject all three
+  mesh TLS insecure flags. Use the existing explicit certificate/key pair, or
+  `TLS_DIR` fallback only when both are absent; CA fallback is independent when
+  CA configuration is absent. Refuse partial pairs and load failures. Perform
+  no enrollment or credential writes and change no authority allowlist.
+- Use `ProviderDialer.TLSConfig` with `muxcored`/caller identity for core
+  discovery, then dial the verified exclusive identity provider. Fresh outgoing
+  metadata contexts carry no bearer on discovery or `ListUserErasures`, and
+  exactly one `x-auth-token` on status for the explicit erasure ID, with no
+  pending-only filter. Require an existing allowlisted consumer identity plus
+  an admin session; `mvp-smoke` is not an admitted ledger reader.
+- Share one 30-second context across discovery, all ledger pages and status.
+  This bounds RPC time, not local file I/O. Limit traversal to 100 pages of
+  requested 100 rows, reject responses with more than 100 rows, and enforce
+  1 MiB decode bounds through core default call options and each List/Status
+  call. Bound continuation tokens to 4,096 bytes, detect cycles, and refuse nil or
+  malformed responses and empty continuing pages.
+- Validate the entire page containing the target and its continuation before
+  stopping: duplicate/conflicting target rows after the match and cyclic or
+  oversized next tokens still fail. Refuse any observed wrong user/tenant for the requested erasure ID or
+  duplicate target. The unvisited-page limit relies on the contract's unique,
+  immutable erasure ID; do not claim a complete-ledger scan after early stop.
+  Pass the paired acquired snapshots to unchanged `Check`. Reads are sequential,
+  not atomic. Fixed sanitized success reports a provider acknowledgment check,
+  never proof of purge or complete deletion.
+
+| Required adapter fixture group | Acceptance evidence |
+|--------------------------------|---------------------|
+| Real transport/admission | Actual loopback mTLS with production admission; positive allowed consumer/admin flow; wrong CN with correct SAN, wrong CA/caller, all insecure flags, partial/failing certificate loads and exact explicit/fallback precedence |
+| Authority and requests | Ambiguous/missing identity-provider discovery refused; fresh metadata has no discovery/List bearer and exactly one Status token; target-specific status has no pending filter; verify zero Authenticate/Ack/Delete calls and no enrollment/write behavior |
+| Traversal and bounds | Full found-page validation, after-target duplicate/conflict rows, wrong target binding, empty continuation, nil/malformed responses, over-100 returned rows, page/token/cycle bounds and one shared RPC deadline. Oversize responses must fail through actual gRPC decode limits, not only post-decode checks |
+| CLI/files/output | Mode exclusivity, missing/invalid admin session input, nonregular/replaced/growing/oversized file behavior, valid token handling, sanitized errors and fixed success wording without token/identity/raw-response leaks |
+| Final verification | Root/independent source review and actual applicable full Go/Script gates. The cached SDK graph's lack of SQLite establishes compilation feasibility only; it is not runtime or acceptance evidence |
+
+No new dependencies, proto/schema, packaging, provider authority, purge, restore
+or full E12 scope is authorized. Actual invocation requires the existing admitted
+identity/session; packaging and live-provider acceptance remain later work.
+NFR-DATA-003 stays Plan.
 
 **E12b full matrix / E12c continuation — planned only, no source authorization:**
 E12b adds one reusable `_mvp` fixture helper under ADR-0035 §§3/5. Seed a victim
@@ -1274,6 +1374,10 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | Registered `_mvp` draft selection advanced to `197784572f599fc0d7facd68582751c139087456` | After visible registration, root checks out only the approved snapshot-helper merge; `git diff a23ab3d…1977845` exits 0 and the commit object SHA is verified. Proto drift passes (`/tmp/umbrella-snapshot-pin-proto-20261011.log`); pin checks exit 0 with the same five missing-path warnings (`/tmp/umbrella-snapshot-pin-checks-20261011.log`). This selection is in the prepared draft and does not change canonical main, the release train or runtime; only the new snapshot command source advances |
 | 2026-10-11 | E3 reviewed candidate published, authored `31d198c2b74ce137a76ca0baff313f1acbb8e308` → connector commit `a253a32cb43edf3af3a85e001326c146a4f9df42`, [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11) | Independent parent and root review accept the bounded ten-file candidate for verification; baseline regression file is byte-identical, dependencies/proto/public fallback unchanged. Author/independent auth race checks pass in 1.014/1.015 s; formatting/diff checks pass, no unavailable-SQLite retry or full local SQLite pass. Connector creates exact tree `bea49f4fd4fdd1b3b03137da94c2f8915957acb0` with parent `037fae665`, publishes through a leased non-force branch update, and root imports/verifies the exact remote commit SHA. Authored source is retained on `codex/recovery-userdata-authored-20261011`; working branch/tracking align cleanly to `a253a32`. [CI 38181446443](https://github.com/Muxcore-Media/userdata-local/actions/runs/38181446443) was in progress at this publication checkpoint; its completed failure is recorded below and source/fix acceptance remains pending corrected gates |
 | 2026-10-11 | E3 exact candidate `a253a32` completed hosted failure, [CI 38181446443](https://github.com/Muxcore-Media/userdata-local/actions/runs/38181446443) | Actual build/vet pass in job 114594685991; the full race run panics in existing `TestSetupErasureConfiguration/interval_from_environment` at `internal/erasure_test.go:586`, which calls `setupErasure` without a store and reaches the new `SetErasureLookup` nil receiver. `internal/store` passes (6.150 s), as do other listed packages, but the internal panic prevents whole-module acceptance. Actual lint job 114594685994 and proto job 114594685867 pass. Root assigns the same writer the minimal real-store fixture precondition correction with independent review, retaining the original baseline and runtime callback unweakened; corrected-head verification and source acceptance remain pending |
+| 2026-10-11 | Umbrella exact-tree publication `7ac8ca1b472a352abf5ed3576be0286bbc7e71d3` | Root publishes exact tree `a64cebc` through supported Git APIs, preserving authored local `e05c77f` on `codex/recovery-roadmap-authored-20261011`. Root branch/tracking align cleanly to the published commit. Docs/diff checks and the correct nine-commit lint range pass; this publishes the prior documentation and snapshot-helper draft pin, without a canonical main merge |
+| 2026-10-11 | Exact umbrella `7ac8ca1` hosted result | [Commit lint 38181730372](https://github.com/Muxcore-Media/umbrella/actions/runs/38181730372) job 114595537463 and [CI 38181730475](https://github.com/Muxcore-Media/umbrella/actions/runs/38181730475) docs job 114595537985, workspace job 114595538102 and secret job 114595538237 all fail with null steps. Allowed commit check-run reads return four failures with null title/summary/text and two annotations each; annotation reads for Docs and Commitlint are unsupported by the connector (HTTP 400). No actual validation or cause is inferred, including billing/permission cause; no retry or bypass |
+| 2026-10-11 | E3 corrected source accepted/merged, authored `8421068` → published `fe9572698f9b6765bcecaac0a99f03879c3afcf8` → merge `33dceaf1ebd540b6a76bf1e6f55b631787408e31`, [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11) | The only follow-up changes the configuration-test real-store precondition; original baseline and runtime callback remain unweakened. Actual [CI 38181708067](https://github.com/Muxcore-Media/userdata-local/actions/runs/38181708067) build/vet/full race job 114595469480 passes (internal 8.197 s, store 7.025 s); lint 114595469589 and proto 114595469634 pass. Independent/root review accepts bounded source, and connector Git commit metadata verifies signed merge tree `b4a917c62a51951aa800389decbc5b10920bc64f`, equal to reviewed final source. No `v0.1.8` tag/release or runtime/full E12 acceptance |
+| 2026-10-11 | Registered userdata-local seventh draft source selection `33dceaf1` | After visible scope registration, root imports/hash-verifies the canonical signed merge and checks out `33dceaf1`; `git diff fe957269…33dceaf1` exits 0. New proto-drift checks pass and pin checks exit 0 with the same five known missing-path warnings. Only the prepared draft selection advances; existing published Go dependencies, canonical main and release train remain unchanged, and no `v0.1.8` tag exists |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1462,9 +1566,9 @@ release gates now pass; canonical pin and household integration remain pending.
 | Scope | Current source state and acceptance boundary |
 |-------|---------------------------------------------|
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
-| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `1e95d22` and `_mvp` `1977845`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update is selected in the prepared draft with proto/pin checks passing (§6/§9). Umbrella #223 remains unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
+| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `1e95d22`, `_mvp` `1977845` and userdata-local `33dceaf1`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is selected in the prepared draft (§6/§9). Umbrella #223 remains unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
-| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 userdata normalized/stored-ID and last-seen-ledger gaps are reproduced in exact hosted #11 tests; bounded correction is approved but unverified (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
+| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 normalized/stored-ID and last-seen-ledger gaps are reproduced in #11 baseline tests; corrected source is accepted after exact full hosted gates, merged as `33dceaf1` and selected only in the prepared draft, without a new release tag (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50 and the scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) are accepted source included in draft #223, not canonical. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
 | Verification limits | Existing §9 results belong to their named source and environment. #221 reports local race verification; its hosted CI/commitlint jobs failed with zero steps. This documentation reconciliation does not claim a new source suite, current-tip full-stack clean-room, deployment, or complete household acceptance |
 | Release and operating constraints | `train-2026.10.3`, core/images `v0.6.15`, spool `2.7.0` are unchanged. Acquisition stays fixture-only. No T-M3-10 investigation/probe/retry, paid service, billing change or network-policy bypass |
@@ -1476,7 +1580,7 @@ Source work is isolated in [playback-monitor #5](https://github.com/Muxcore-Medi
 is accepted and merged as `1e95d22`, selected in draft #223; E4 #22 and E5 #5 are accepted and published through request-media `v0.3.9`
 and playback-monitor `v0.1.8`, selected in draft #223. The E2 invite correction #46 is accepted/merged and published in verified source tag `v0.1.21` at `9f9ec32` (#47), selected in draft #223; provider integration remains pending. Exact local/reviewer/hosted UI evidence and hosted
 monitor baseline failures are recorded in §9. E6 has source verification, but its
-pin is part of the registered draft scope. Root has checked out all six reviewed
+pin is part of the registered draft scope. Root has checked out seven reviewed
 source selections in draft #223 (§6). Full origin/no-replace/proto-drift checks
 and five clean-room orchestration fixtures passed on `bcbcd475` with `_mvp`
 `9174b2b`. The subsequent `1977845` extension has fresh proto/pin checks only,
@@ -1492,11 +1596,12 @@ Auth-local `v0.1.21`, request-media `v0.3.9` and playback-monitor `v0.1.8` are v
 
 E12b's pure snapshot verifier is accepted/merged in mvp #112 (`1977845`);
 the draft-only `_mvp` pin extension is selected after registration (§6). E3
-userdata source is reviewed and published as `a253a32`; its full hosted run
-fails on an existing nil-store configuration fixture. The minimal fixture
-correction, repeated exact gates and final acceptance remain pending. Ordinary Git authentication is now
+userdata source is accepted/merged as `33dceaf1` after the minimal fixture
+correction and repeated exact full gates; it is selected only in the prepared
+draft, untagged. The registered provider-read adapter is now approved but
+unverified and does not expand full E12 acceptance. Ordinary Git authentication is now
 blocked (B-7); supported connector Git operations remain available. Latest root
-`738b3bb` hosted jobs fail with null steps (§9), with cause unknown; the shell
+`7ac8ca1` hosted jobs fail with null steps (§9), with cause unknown; the shell
 authentication failure is not evidence of that cause.
 
 **Active source recovery handoff (2026-10-11):**
@@ -1504,7 +1609,8 @@ authentication failure is not evidence of that cause.
 | Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
 |---------------|---------------------|---------------------------------------|
 | E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | Reviewed `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, accepted after exact hosted Go/Script gates and merged as `197784572f599fc0d7facd68582751c139087456` in [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); signed commit/tree identity verified through the connector. Prepared draft `_mvp` selects `1977845`; proto/pin checks pass, no real-provider or E12 acceptance |
-| E3 userdata correction — `root/e12_integration_plan_20261011/restore_seams` | `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-erasure-regressions-20261011` | Published reviewed candidate `a253a32cb43edf3af3a85e001326c146a4f9df42`, draft [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11), exact tree equal to authored `31d198c2b74ce137a76ca0baff313f1acbb8e308` preserved on `codex/recovery-userdata-authored-20261011`; branch/tracking aligned to `a253a32` and clean at checkpoint. Original baseline `037fae665` reproduces both defects; exact hosted CI 38181446443 fails on the nil-store configuration fixture; minimal real-store fixture correction and new exact gates/final acceptance pending. Umbrella userdata pin remains `65264f7` |
+| E12b provider-read adapter — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, fresh `codex/mvp-erasure-provider-20261011` from `1977845`; remote base branch created through the connector | Exact five-file read-only adapter scope registered before edits (§6); implementation/review/actual Go/Script gates pending. Existing verifier and prepared draft `_mvp` `1977845` remain the accepted baseline; no live-provider, purge or restore acceptance |
+| E3 userdata correction — `root/e12_integration_plan_20261011/restore_seams` | `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-erasure-regressions-20261011` | Reviewed final `fe9572698f9b6765bcecaac0a99f03879c3afcf8`, tree `b4a917c…`, passes exact full hosted gates and merges as `33dceaf1ebd540b6a76bf1e6f55b631787408e31` in [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11). Earlier authored `31d198c` remains preserved on `codex/recovery-userdata-authored-20261011`; original baseline and failed intermediate history remain in §9. Prepared draft userdata selects `33dceaf1`; no `v0.1.8` tag/release or full E12 acceptance |
 
 ### Historical session, transport and native checkpoint (2026-10-08–09)
 
