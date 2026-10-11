@@ -445,7 +445,7 @@ restricted-account journey; FR-PLAY-007 remains Part.
 | Slice | Source / integration state | Remaining gate |
 |-------|----------------------------|----------------|
 | E0 | Done — accepted ADR, LLD §3 and C-35…C-39; stale drafts #187–#192 superseded | — |
-| E1 / E3 | Source pins recorded by [umbrella #220](https://github.com/Muxcore-Media/umbrella/pull/220): core `81d2ac4` (`v0.6.17`, SDK `v0.6.7`), userdata-local `65264f7` | E2 discrepancy prevents accepting the reported E1–E3 set as integrated; full deletion/restore acceptance remains E12 |
+| E1 / E3 | Source pins recorded by [umbrella #220](https://github.com/Muxcore-Media/umbrella/pull/220): core `81d2ac4` (`v0.6.17`, SDK `v0.6.7`), userdata-local `65264f7`. E3 review identifies two bounded source gaps; test-only reproduction is registered below, with runtime evidence pending | Canonical E2 discrepancy and unresolved E3 findings prevent accepting the reported E1–E3 set as integrated; full deletion/restore acceptance remains E12 |
 | E2 auth-local | **Integration blocked (C-40)** — #220 reported `71c66d8` as E2, but canonical baseline pin lacks `internal/store/erasure.go` and `internal/server/erasure.go` and restores retired-origin/self-hosted CI content. Reviewed source tag `v0.1.20` resolves to `6d8723e9f4e6ae5e45284c3be0e0a5d45c81e925`, which includes E2 `ca0daf3` | Bounded invite correction accepted/merged as `a3c3420` (#46), published in verified source tag `v0.1.21` at `9f9ec32` (#47); selected in draft #223, not canonical. Reviewed/merge trees match. Draft pin preparation is registered below; E11 dependency/integration gates remain |
 | E4 request-media | Merged [#20](https://github.com/Muxcore-Media/request-media/pull/20), released [#21](https://github.com/Muxcore-Media/request-media/pull/21) as `v0.3.8` (`9aa2cc5`); canonical baseline still pins pre-erasure `10483aa` | Bounded follow-up #22 is published as `v0.3.9` at `4446d31` (#23), selected in draft #223, not canonical; preserves pending cleanup counts and repairs completed-record startup recovery. Provider/integration gates remain open |
 | E5 playback-monitor | Merged [#2](https://github.com/Muxcore-Media/playback-monitor/pull/2), fixture follow-up [#3](https://github.com/Muxcore-Media/playback-monitor/pull/3), released [#4](https://github.com/Muxcore-Media/playback-monitor/pull/4) as `v0.1.7` (`39cb244`); canonical baseline still pins pre-erasure `bf14e0c`, while E11 consumes `v0.1.7` | Bounded follow-up #5 is published as `v0.1.8` at `af7168e` (#6), selected in draft #223, not canonical; erasure-aware identity merges verified. E11 still consumes the older published `v0.1.7`; integration remains open |
@@ -509,6 +509,35 @@ The annotated remote tag `v0.1.21` is verified at that commit. This publishes a
 source version for later integration dependency updates; GitHub Release assets,
 images, runtime deployment, canonical E2 pin repair and E12 acceptance are not
 established.
+
+**T-M4-07 E3 userdata regression baseline (NFR-DATA-003; registered before test edits, 2026-10-11) — Test-only reproduction authorized:**
+`root/e12_integration_plan_20261011/restore_seams` exclusively owns the
+`userdata-local` test-only baseline from pinned
+`65264f7772b33e73340ee3e4200896796c73f1b3`. Independent source review identifies
+two gaps against accepted ADR-0035; neither has executed runtime reproduction
+at registration:
+
+1. `Guard.AuthorizeGRPC` trims the target user ID internally, while `Server.Put`
+   stores the raw request ID. A padded ID can therefore be authorized as the
+   bearer principal but use a different stored key from exact-ID `EraseUser` and
+   the applied-record late-write check. The test must deterministically exercise
+   authenticated padded-ID write, exact-ID erasure and post-erasure refusal.
+2. The SDK reconciler records an ID in its seen ledger before `Apply`, but
+   userdata never consults that last-seen state. Source review indicates that
+   after an injected local apply rollback and `FAILED` acknowledgment, a verified
+   mesh `Put` without a user bearer can still succeed. ADR-0035 §3 explicitly
+   requires these writers to refuse IDs in the last-seen ledger. The test must
+   observe seen state, failed apply/rollback and acknowledgment, then exercise
+   the actual server write path deterministically.
+
+Only existing or new Go `_test.go` files and test fixtures are authorized; no
+production edit, dependency, proto or schema change. Require contract-expecting
+regressions with actual before-fix results, preserved bystanders and no false OK
+acknowledgment. Record setup/dependency failures separately from executed test
+failures; static evidence alone cannot establish reproduction. After results,
+a later root-approved production plan must decide canonical ID handling and
+legacy stored rows, plus safe last-seen ledger wiring, before any fix. E3 and
+NFR-DATA-003 remain incomplete; this adds no C-34 or T-M3-10 scope.
 
 **T-M4-07 E4 request-policy follow-up (NFR-DATA-003; registered 2026-10-11 before production edits) — Done at scoped source level, published; draft-selected, not canonical:**
 `root/request_erasure_audit_20261011` exclusively owns `request-media` from release
@@ -1129,6 +1158,8 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | Final six prepared draft source selections in umbrella #223 | Root adds accepted `_mvp` `9174b2b` to the five selections above, after scope registration. Full retired-origin and no-replace checks pass again; pin checks exit 0 with the same five sparse-checkout warnings. Proto drift passes (`/tmp/umbrella-source-pins-proto-20261011.log`), all five clean-room orchestration fixtures pass at the six-checkout candidate (`/tmp/umbrella-source-pins-cleanroom-20261011.log`), and full-range `git diff --check` passes. These verify source hygiene and fixture orchestration only: canonical main `4403e97`, the train and deployment remain unchanged; exact root hosted checks and corrected-set E11/E12/runtime acceptance remain open |
 | 2026-10-11 | Six-source draft checkpoint `bcbcd475f0225301dc77479ccbf6d685bfecd7b9`, [umbrella #223](https://github.com/Muxcore-Media/umbrella/pull/223) | Root commits/pushes the six registered gitlinks and synchronized documentation after docs/diff checks pass. Correct positional `lint-commits.sh 4403e97…HEAD` passes five commits. An earlier incorrect `--base` invocation scanned 338 historical commits and rejected an old message; that was an invocation error, not failure of the candidate range. Canonical main remains unmerged; source and runtime acceptance boundaries above remain |
 | 2026-10-11 | Exact draft `bcbcd475` hosted result | [CI 38179536632](https://github.com/Muxcore-Media/umbrella/actions/runs/38179536632) workspace job 114588964601, docs job 114588964693 and secret job 114588964757, plus [Commit lint 38179536653](https://github.com/Muxcore-Media/umbrella/actions/runs/38179536653) job 114588964606, all fail with null steps. Cause remains unknown; no validation execution is claimed. Draft #223 remains unmerged and its description records the six source selections, clean-room orchestration and ADR-0036 scope. No unchanged-head rerun is requested |
+| 2026-10-11 | E12b snapshot scope publication, `4a7bc15312379dbdd63dd3d1be9de2a312ed04e7`, umbrella #223 | Root commits/pushes the five-file pure snapshot verifier registration after docs/diff checks and the correct six-commit lint range pass. Source implementation is separately owned and not accepted by this documentation commit; no unchanged-head hosted retry is requested |
+| 2026-10-11 | E3 userdata source review at `65264f7772b33e73340ee3e4200896796c73f1b3` | Reviewer identifies guard-normalized versus raw stored user-ID mismatch and absent last-seen ledger refusal after an apply failure. These are source findings, with runtime reproduction unverified at registration. Root authorizes only deterministic test-first baselines, including bystanders and no false OK; production policy/wiring requires a later accepted plan |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1319,7 +1350,7 @@ release gates now pass; canonical pin and household integration remain pending.
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
 | Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `1e95d22` and `_mvp` `9174b2b`. Six checkouts and bounded hygiene/orchestration checks pass (§6/§9); committed/pushed as `bcbcd475`, unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
-| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
+| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 userdata review now records normalized/stored-ID and last-seen-ledger source gaps, with test-only reproduction authorized and runtime evidence pending (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50 and the scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) are accepted source included in draft #223, not canonical. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
 | Verification limits | Existing §9 results belong to their named source and environment. #221 reports local race verification; its hosted CI/commitlint jobs failed with zero steps. This documentation reconciliation does not claim a new source suite, current-tip full-stack clean-room, deployment, or complete household acceptance |
 | Release and operating constraints | `train-2026.10.3`, core/images `v0.6.15`, spool `2.7.0` are unchanged. Acquisition stays fixture-only. No T-M3-10 investigation/probe/retry, paid service, billing change or network-policy bypass |
