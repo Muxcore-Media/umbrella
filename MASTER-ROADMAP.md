@@ -660,14 +660,43 @@ separate. Root accepted `_mvp` #111 after exact hosted Script/Compose and Go/lin
 gates, and verified reviewed/merge tree equality (§9); its draft gitlink addition
 was registered here before checkout. No release-train change is part of this preparation.
 
-**E12b initial helper scope (registered before source edits, 2026-10-11) — Bounded plan preparation:**
-Root assigns `_mvp` exclusively to `root/monitor_erasure_20261011` for the first
-phase of a reusable erasure fixture helper: a bounded exact-required-owner
-acknowledgment verifier with non-mutating existing-state inspection. The planner
-must first supply the precise files/interfaces, read-only behavior and focused
-fixtures for root decision and registration before implementation. This phase may not seed,
-delete, restore, start a real household journey or claim all-owner acceptance.
-Runtime deletion/restore journeys remain separately scoped and verified work.
+**E12b snapshot verifier (registered before source edits, 2026-10-11) — Approved bounded implementation:**
+Root assigns `_mvp` exclusively to `root/monitor_erasure_20261011`. The only
+files are `cmd/erasurecheck/main.go`, `cmd/erasurecheck/verify.go`,
+`cmd/erasurecheck/main_test.go`, `cmd/erasurecheck/verify_test.go` and
+`cmd/erasurecheck/README.md`. This is a pure Go snapshot
+checker: no network, authctl invocation, SDK startup, dependency, proto or schema
+changes. A later adapter that reads through the actual mesh needs separate scope.
+
+The CLI is `erasurecheck -erasure-id E -user-id U [-tenant-id ''] -required CSV
+-tombstone-file PATH`. Standard input is one `GetUserErasureStatusResponse`
+proto-JSON snapshot; the mandatory file is one `UserErasure` tombstone snapshot.
+Both inputs are untrusted. Require exactly one status erasure and exact bound
+erasure/user/tenant IDs plus matching deletion instant across the inputs. Accept
+the provider's UTC RFC3339 timestamp form; add no wall-clock, relative-time or
+retention policy. Require a nonempty exact configured required-owner set whose members each
+have `OK` and `ackedAt`, and `complete=true`. Refuse continuation, duplicate
+entries and unknown enum values. Valid optional-owner `FAILED` or `UNSUPPORTED`
+acknowledgments do not invalidate completion of the exact required set. Emit
+fixed safe output without IDs, tokens or raw responses.
+
+Required fixtures from the bounded plan:
+
+| Fixture group | Expected coverage |
+|---------------|-------------------|
+| Valid snapshots | Exact paired erasure/user/tenant/deletion instant; default four and enabled eight required owners with reordered rows; empty tenant; CSV whitespace trimming without case folding; documented proto-JSON camelCase/snake_case names and named/defined numeric enums; valid optional-owner `OK`/`FAILED`/`UNSUPPORTED` rows |
+| Required-owner and completion refusals | Empty/duplicate/empty-member/invalid expected IDs (including duplicates after trimming); duplicate module IDs; missing/unexpected required owner; expected owner marked optional; pending/failed/unsupported/unknown required outcome even with `complete=true`; false/absent completion even with all OK; missing required acknowledgment time |
+| Binding and timestamp refusals | Absent/zero/multiple status erasures, wrong erasure ID or continuation; paired tombstone wrong erasure/user/tenant; differing deletion instants; absent/invalid/non-UTC deletion or acknowledgment timestamps. Do not infer user binding from the status response alone |
+| Structural/CLI/output refusals | Malformed/truncated/trailing or multiple JSON documents; null/non-object/wrong types; unknown fields, duplicate keys and conflicting aliases; unknown enums anywhere and boolean/floating enum misuse; invalid usage, missing/unreadable/oversized inputs; fixed-output secrecy sentinels prove that IDs, tokens and raw responses are never echoed |
+
+Require focused CLI/pure-verifier Go tests, applicable full module build/vet/race,
+script/lint gates and independent/root review, with local dependency limits and
+exact hosted results recorded separately. No source acceptance is established at
+registration. These tests establish input verification only; they cannot prove
+snapshot provider provenance or current state. The scope performs no seed,
+delete, acknowledgment write, purge, restore or household journey. It does not
+establish actual deletion, all-owner behavior or full E12; NFR-DATA-003 remains
+Plan. A real mesh-read adapter and the full owner matrix require later scope.
 
 **E12b full matrix / E12c continuation — planned only, no source authorization:**
 E12b adds one reusable `_mvp` fixture helper under ADR-0035 §§3/5. Seed a victim
@@ -1098,6 +1127,8 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | E12a packaging source accepted and merged, `5052e7f` → `9174b2baa5296b90b26cf3c11fa7489e2a1dd381`, [mvp #111](https://github.com/Muxcore-Media/mvp/pull/111) | Root inspected all 12 named packaging fixtures and the final count, full script runner and Compose configuration success in exact [Script tests 38178682642](https://github.com/Muxcore-Media/mvp/actions/runs/38178682642), plus exact Go CI build/vet/race/lint above. Hosted skips cover two umbrella-only proto scripts and absent sibling backup proto; no hosted Helm skip was observed. Root accepted and merged at the expected head, fetched and verified reviewed/merge tree `a990bd256c2b777681550b1ae50f3360217d244c`. Addition to the draft source-pin scope is registered before checkout; no real image/household/restore or full E12 acceptance |
 | 2026-10-11 | First five draft source selections in umbrella #223 | Root checks out auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c` and media-ui-app `1e95d22`. Full `check-retired-origin` and `check-no-replace` pass; `check-pins` exits 0 with five known sparse-checkout warnings for installer `versions.env`, operator `api/v1alpha1/platform_types.go`, operator `config`, module-starter `go.mod` and spool `catalog.json`. Logs: `/tmp/umbrella-source-pins-{origin,replace,train}-20261011.log`. C-40 source constraints are restored in the draft only; merged canonical `4403e97` remains unchanged/discrepant. `_mvp` addition and exact umbrella hosted/integration gates remain pending |
 | 2026-10-11 | Final six prepared draft source selections in umbrella #223 | Root adds accepted `_mvp` `9174b2b` to the five selections above, after scope registration. Full retired-origin and no-replace checks pass again; pin checks exit 0 with the same five sparse-checkout warnings. Proto drift passes (`/tmp/umbrella-source-pins-proto-20261011.log`), all five clean-room orchestration fixtures pass at the six-checkout candidate (`/tmp/umbrella-source-pins-cleanroom-20261011.log`), and full-range `git diff --check` passes. These verify source hygiene and fixture orchestration only: canonical main `4403e97`, the train and deployment remain unchanged; exact root hosted checks and corrected-set E11/E12/runtime acceptance remain open |
+| 2026-10-11 | Six-source draft checkpoint `bcbcd475f0225301dc77479ccbf6d685bfecd7b9`, [umbrella #223](https://github.com/Muxcore-Media/umbrella/pull/223) | Root commits/pushes the six registered gitlinks and synchronized documentation after docs/diff checks pass. Correct positional `lint-commits.sh 4403e97…HEAD` passes five commits. An earlier incorrect `--base` invocation scanned 338 historical commits and rejected an old message; that was an invocation error, not failure of the candidate range. Canonical main remains unmerged; source and runtime acceptance boundaries above remain |
+| 2026-10-11 | Exact draft `bcbcd475` hosted result | [CI 38179536632](https://github.com/Muxcore-Media/umbrella/actions/runs/38179536632) workspace job 114588964601, docs job 114588964693 and secret job 114588964757, plus [Commit lint 38179536653](https://github.com/Muxcore-Media/umbrella/actions/runs/38179536653) job 114588964606, all fail with null steps. Cause remains unknown; no validation execution is claimed. Draft #223 remains unmerged and its description records the six source selections, clean-room orchestration and ADR-0036 scope. No unchanged-head rerun is requested |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1286,7 +1317,7 @@ release gates now pass; canonical pin and household integration remain pending.
 | Scope | Current source state and acceptance boundary |
 |-------|---------------------------------------------|
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
-| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `1e95d22` and `_mvp` `9174b2b`. Six checkouts and bounded hygiene/orchestration checks pass (§6/§9); candidate remains unmerged, with exact root hosted gates and corrected-set E11/E12/runtime acceptance unresolved |
+| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `1e95d22` and `_mvp` `9174b2b`. Six checkouts and bounded hygiene/orchestration checks pass (§6/§9); committed/pushed as `bcbcd475`, unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
 | ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50 and the scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) are accepted source included in draft #223, not canonical. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
