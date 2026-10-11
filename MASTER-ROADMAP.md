@@ -445,7 +445,7 @@ restricted-account journey; FR-PLAY-007 remains Part.
 | Slice | Source / integration state | Remaining gate |
 |-------|----------------------------|----------------|
 | E0 | Done — accepted ADR, LLD §3 and C-35…C-39; stale drafts #187–#192 superseded | — |
-| E1 / E3 | Source pins recorded by [umbrella #220](https://github.com/Muxcore-Media/umbrella/pull/220): core `81d2ac4` (`v0.6.17`, SDK `v0.6.7`), userdata-local `65264f7`. E3 review identifies two bounded source gaps; test-only reproduction is registered below, with runtime evidence pending | Canonical E2 discrepancy and unresolved E3 findings prevent accepting the reported E1–E3 set as integrated; full deletion/restore acceptance remains E12 |
+| E1 / E3 | Source pins recorded by [umbrella #220](https://github.com/Muxcore-Media/umbrella/pull/220): core `81d2ac4` (`v0.6.17`, SDK `v0.6.7`), userdata-local `65264f7`. E3 review findings are reproduced by exact hosted baseline #11; bounded production correction is registered below and remains unverified | Canonical E2 discrepancy and unresolved E3 findings prevent accepting the reported E1–E3 set as integrated; full deletion/restore acceptance remains E12 |
 | E2 auth-local | **Integration blocked (C-40)** — #220 reported `71c66d8` as E2, but canonical baseline pin lacks `internal/store/erasure.go` and `internal/server/erasure.go` and restores retired-origin/self-hosted CI content. Reviewed source tag `v0.1.20` resolves to `6d8723e9f4e6ae5e45284c3be0e0a5d45c81e925`, which includes E2 `ca0daf3` | Bounded invite correction accepted/merged as `a3c3420` (#46), published in verified source tag `v0.1.21` at `9f9ec32` (#47); selected in draft #223, not canonical. Reviewed/merge trees match. Draft pin preparation is registered below; E11 dependency/integration gates remain |
 | E4 request-media | Merged [#20](https://github.com/Muxcore-Media/request-media/pull/20), released [#21](https://github.com/Muxcore-Media/request-media/pull/21) as `v0.3.8` (`9aa2cc5`); canonical baseline still pins pre-erasure `10483aa` | Bounded follow-up #22 is published as `v0.3.9` at `4446d31` (#23), selected in draft #223, not canonical; preserves pending cleanup counts and repairs completed-record startup recovery. Provider/integration gates remain open |
 | E5 playback-monitor | Merged [#2](https://github.com/Muxcore-Media/playback-monitor/pull/2), fixture follow-up [#3](https://github.com/Muxcore-Media/playback-monitor/pull/3), released [#4](https://github.com/Muxcore-Media/playback-monitor/pull/4) as `v0.1.7` (`39cb244`); canonical baseline still pins pre-erasure `bf14e0c`, while E11 consumes `v0.1.7` | Bounded follow-up #5 is published as `v0.1.8` at `af7168e` (#6), selected in draft #223, not canonical; erasure-aware identity merges verified. E11 still consumes the older published `v0.1.7`; integration remains open |
@@ -530,14 +530,60 @@ at registration:
    observe seen state, failed apply/rollback and acknowledgment, then exercise
    the actual server write path deterministically.
 
-Only existing or new Go `_test.go` files and test fixtures are authorized; no
-production edit, dependency, proto or schema change. Require contract-expecting
+The initial registration authorized only existing or new Go `_test.go` files and
+test fixtures, with no production, dependency, proto or schema change. It required contract-expecting
 regressions with actual before-fix results, preserved bystanders and no false OK
 acknowledgment. Record setup/dependency failures separately from executed test
-failures; static evidence alone cannot establish reproduction. After results,
-a later root-approved production plan must decide canonical ID handling and
-legacy stored rows, plus safe last-seen ledger wiring, before any fix. E3 and
+failures; static evidence alone cannot establish reproduction. The executed
+baseline and subsequent approved production scope are recorded below. E3 and
 NFR-DATA-003 remain incomplete; this adds no C-34 or T-M3-10 scope.
+
+**E3 baseline checkpoint (2026-10-11) — Hosted reproduction confirmed:**
+Root reviewed test-only `50699e9`, adding only the 326-line
+`internal/erasure_regression_test.go` from `65264f7`. Remote main
+`4c9397b4a54deb195ed6b3b56ed790298b0739f4` is a metadata-only `v0.1.7` release
+following that base; root merged that metadata into the test branch as
+`037fae665e7561b4c319e5d3d35ec493dccc3a6a` and pushed draft
+[userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11).
+Offline parental/TLS checks and proto-package compilation pass; SQLite-backed
+regressions did not run locally under B-3. Root inspected exact hosted baseline
+CI `38180262356`: build/vet pass, full race fails exactly the two new tests, and
+lint/proto checks pass (§9).
+
+Authenticated ASCII/control/Unicode-padded IDs were accepted; three raw rows
+remained after exact-ID erasure and replay despite provider OK acknowledgment,
+and later verified-mesh padded puts returned nil. In the separate apply-failure
+fixture, seen state was true, applied rows zero and acknowledgment `FAILED`, yet
+a later exact-victim mesh put returned nil and advanced blob revision 1 to 2.
+These are deterministic fixture reproductions, not a live deployment claim.
+
+**E3 bounded production follow-up (registered before production edits, 2026-10-11) — Approved, implementation/verification pending:**
+Root accepts the planner's bounded correction after the hosted baseline. The
+same exclusive userdata owner continues; retain the baseline regression file
+and its contract assertions without weakening them.
+
+Reject new padded target IDs before the gRPC mesh bypass and in the shared
+blob-write path. Delete/count only legacy blob aliases whose Go `TrimSpace`
+value exactly equals the canonical tombstone ID. Before `Store.New` returns,
+repair such aliases for existing applied IDs in one startup transaction;
+preserve recorded erasure IDs, `applied_at` and counts. Wire the reconciler's
+memory-only `Erased` callback before listeners start, with deadlock-safe access;
+combine last-seen and persisted erasure checks for blob writes and parental
+policy target and actor. Existing parental-policy alias cleanup is excluded.
+Change no schema, dependency or proto, and make no readiness or cross-process
+refusal guarantee beyond this bounded source behavior.
+
+| Required regression group | Acceptance evidence |
+|---------------------------|---------------------|
+| Existing baseline | Both original regressions pass with their contract assertions retained and unweakened: padded authenticated/mesh writes cannot evade exact-ID erasure, and a seen tombstone blocks the mesh write even after failed apply/`FAILED` acknowledgment; no false OK |
+| Canonical writes and legacy blob aliases | ASCII/control/Unicode padding is refused before writes on the relevant gRPC/shared-store paths; exact canonical writes and bystanders remain usable. Canonical erasure deletes/counts only matching blob aliases; replay stays idempotent and unrelated IDs remain |
+| Startup recovery | Seed legacy aliases for already-applied IDs, reopen, and verify removal before the store is returned while erasure IDs, applied timestamps/counts and unrelated rows remain unchanged. Inject failure to prove transaction rollback and startup refusal rather than a partial-success store |
+| Last-seen guards and ordering | Deterministically observe last-seen refusal for blob target, parental target and actor after failed apply, with persisted guards retained and normal/bystander operations preserved. Verify callback availability before listeners and exercise lock/ordering behavior under race; avoid timing-only assertions |
+| Final acceptance | Independent/root review plus exact full hosted build/vet/race/lint/proto gates; local B-3 limitations reported separately. Source acceptance, release, gitlink selection and full E12 acceptance remain separate decisions |
+
+NFR-DATA-003 stays Plan. This authorizes only the registered E3 source correction,
+not C-34 permission changes, T-M3-10 work, provider/runtime readiness claims or
+all-owner deletion/restore acceptance.
 
 **T-M4-07 E4 request-policy follow-up (NFR-DATA-003; registered 2026-10-11 before production edits) — Done at scoped source level, published; draft-selected, not canonical:**
 `root/request_erasure_audit_20261011` exclusively owns `request-media` from release
@@ -726,6 +772,17 @@ snapshot provider provenance or current state. The scope performs no seed,
 delete, acknowledgment write, purge, restore or household journey. It does not
 establish actual deletion, all-owner behavior or full E12; NFR-DATA-003 remains
 Plan. A real mesh-read adapter and the full owner matrix require later scope.
+
+**E12b verifier publication checkpoint — reviewed candidate, exact hosted gates pending:**
+Snapshot helper `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0` is published in draft
+[mvp #112](https://github.com/Muxcore-Media/mvp/pull/112), changing exactly the
+five registered files (992 lines including tests/documentation). Root inspected
+the full source and logs: offline build/vet/race pass 15 top-level tests plus
+189 subtests, zero skips; lint reports zero issues; eight compiling mutations
+are detected. Independent review accepts the bounded candidate. Exact hosted Go
+and Script gates remain pending, so no final source acceptance or checker pin is
+claimed. Supplied snapshots still establish neither provider provenance nor live
+erasure/restore success.
 
 **E12b full matrix / E12c continuation — planned only, no source authorization:**
 E12b adds one reusable `_mvp` fixture helper under ADR-0035 §§3/5. Seed a victim
@@ -1160,6 +1217,12 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | Exact draft `bcbcd475` hosted result | [CI 38179536632](https://github.com/Muxcore-Media/umbrella/actions/runs/38179536632) workspace job 114588964601, docs job 114588964693 and secret job 114588964757, plus [Commit lint 38179536653](https://github.com/Muxcore-Media/umbrella/actions/runs/38179536653) job 114588964606, all fail with null steps. Cause remains unknown; no validation execution is claimed. Draft #223 remains unmerged and its description records the six source selections, clean-room orchestration and ADR-0036 scope. No unchanged-head rerun is requested |
 | 2026-10-11 | E12b snapshot scope publication, `4a7bc15312379dbdd63dd3d1be9de2a312ed04e7`, umbrella #223 | Root commits/pushes the five-file pure snapshot verifier registration after docs/diff checks and the correct six-commit lint range pass. Source implementation is separately owned and not accepted by this documentation commit; no unchanged-head hosted retry is requested |
 | 2026-10-11 | E3 userdata source review at `65264f7772b33e73340ee3e4200896796c73f1b3` | Reviewer identifies guard-normalized versus raw stored user-ID mismatch and absent last-seen ledger refusal after an apply failure. These are source findings, with runtime reproduction unverified at registration. Root authorizes only deterministic test-first baselines, including bystanders and no false OK; production policy/wiring requires a later accepted plan |
+| 2026-10-11 | E3 test-only registration checkpoint, local `14555b2b8c020cc9602ece1a6595a98658675506` | Root commits the E3 test scope locally after docs/diff checks and the correct seven-commit lint range pass; publication is deferred to the next substantive checkpoint. No source reproduction or production authorization follows from this documentation commit |
+| 2026-10-11 | Exact prior umbrella `4a7bc153` hosted result | [CI 38179751591](https://github.com/Muxcore-Media/umbrella/actions/runs/38179751591) docs job 114589603376, workspace job 114589603529 and secrets job 114589603649, plus [Commit lint 38179751585](https://github.com/Muxcore-Media/umbrella/actions/runs/38179751585) job 114589603323, all fail with null steps. No validation execution or cause is inferred; the draft remains unmerged |
+| 2026-10-11 | E3 test baseline, [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11), test-only `50699e9` → `037fae665e7561b4c319e5d3d35ec493dccc3a6a` | Root reviews the single new 326-line `internal/erasure_regression_test.go` from pinned `65264f7`, then merges the metadata-only `v0.1.7` main `4c9397b4a54deb195ed6b3b56ed790298b0739f4` and pushes the draft. Offline parental/TLS tests and proto-package compilation pass; SQLite-backed regressions did not execute locally under B-3. Hosted semantic baseline is pending, and no production code was changed; proposed ID/legacy-row/last-seen repair remains unapproved |
+| 2026-10-11 | E3 exact hosted baseline confirmed, `037fae665e7561b4c319e5d3d35ec493dccc3a6a`, [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11) | Root inspects actual [CI 38180262356](https://github.com/Muxcore-Media/userdata-local/actions/runs/38180262356) job 114591123614: build/vet pass and full race fails exactly two new tests. Authenticated ASCII/control/Unicode-padded IDs are accepted; three raw blob rows survive erasure/replay despite provider OK acknowledgment, and later verified-mesh padded puts return nil. In the failed-apply fixture, seen=true/applied=0/FAILED acknowledgment precede an accepted exact-victim mesh put and revision 1→2. Other listed packages pass; actual lint job 114591123630 and proto job 114591123422 pass. These executed baseline failures support the newly registered bounded production scope, not fix acceptance |
+| 2026-10-11 | E12b snapshot verifier local/review candidate `a23ab3d` | Independent review accepts the scoped five-file snapshot helper and local tests pass 15 top-level tests plus 189 subtests. Root is publishing separately; exact hosted/final source acceptance remains pending. Pure snapshot verification does not prove provider provenance, current state, deletion or full E12 |
+| 2026-10-11 | E12b verifier publication, `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, draft [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112) | Root reviews the full five-file/992-line source and actual logs: offline build/vet/race pass 15 top-level tests and 189 subtests with zero skips; lint has zero issues; eight compiling mutations fail the tests. Independent review accepts the scoped candidate. Exact hosted Go/Script gates remain pending; no final source acceptance, gitlink change, live-provider or E12 closure claim |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1350,7 +1413,7 @@ release gates now pass; canonical pin and household integration remain pending.
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
 | Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `1e95d22` and `_mvp` `9174b2b`. Six checkouts and bounded hygiene/orchestration checks pass (§6/§9); committed/pushed as `bcbcd475`, unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
-| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 userdata review now records normalized/stored-ID and last-seen-ledger source gaps, with test-only reproduction authorized and runtime evidence pending (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
+| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 userdata normalized/stored-ID and last-seen-ledger gaps are reproduced in exact hosted #11 tests; bounded correction is approved but unverified (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50 and the scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) are accepted source included in draft #223, not canonical. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
 | Verification limits | Existing §9 results belong to their named source and environment. #221 reports local race verification; its hosted CI/commitlint jobs failed with zero steps. This documentation reconciliation does not claim a new source suite, current-tip full-stack clean-room, deployment, or complete household acceptance |
 | Release and operating constraints | `train-2026.10.3`, core/images `v0.6.15`, spool `2.7.0` are unchanged. Acquisition stays fixture-only. No T-M3-10 investigation/probe/retry, paid service, billing change or network-policy bypass |
@@ -1374,6 +1437,13 @@ draft candidate before checkout and is now included in the prepared draft set.
 
 Auth-local `v0.1.21`, request-media `v0.3.9` and playback-monitor `v0.1.8` are verified source tags
 (§6/§9); published integration dependency updates remain separate work.
+
+**Active source recovery handoff (2026-10-11):**
+
+| Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
+|---------------|---------------------|---------------------------------------|
+| E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, draft [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); root/independent review and local gates pass, exact hosted Go/Script and final source acceptance pending. Draft umbrella `_mvp` remains `9174b2b` |
+| E3 userdata correction — `root/e12_integration_plan_20261011/restore_seams` | `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-erasure-regressions-20261011` | Published test baseline `037fae665e7561b4c319e5d3d35ec493dccc3a6a`, draft [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11); exact hosted baseline reproduces both defects. Bounded production plan is now registered/approved (§6); corrected source and final gates pending. Umbrella userdata pin remains `65264f7` |
 
 ### Historical session, transport and native checkpoint (2026-10-08–09)
 
