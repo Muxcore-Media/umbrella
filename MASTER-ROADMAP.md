@@ -322,7 +322,7 @@ bounded source and [UI #51](https://github.com/Muxcore-Media/media-ui-app/pull/5
 merged at the expected head as `1e95d2237286909e3601c9b2c3c2e13eed51f5ba`.
 It remains unpinned and undeployed; FR-PLAY-004 and FR-ADM-010 remain Part.
 
-**T-M4-09 remaining backend contract — Todo:** define and review consistent
+**T-M4-09 remaining backend contract — Proposed ADR under review, no implementation authority:** define and review consistent
 blob omission, deletion, unknown-field preservation, progress freshness and concurrent-write semantics
 before implementation. Source inspection of
 userdata-local `e544b35` finds both `store/store.go:109–120` (the BFF file fallback)
@@ -364,7 +364,25 @@ migration path enforces the new contract. BFF typed blobs, fallback merging and
 migration replay plus SPA full-map writes require coordinated consumer migration
 without silent downgrade. This is a design proposal awaiting independent review
 and a later architectural decision, not an accepted ADR or implementation scope.
-FR-PLAY-004 remains Part; blocked E7 is unchanged.
+FR-PLAY-004 remains Part; blocked E7 is unchanged. Proposed
+[ADR-0037](docs/adr/0037-conditional-userdata-mutations.md) now collects the three
+module reviews, unresolved wire/authority/uncertainty/ordering/cutover choices and
+ordered provider → published contract → BFF → every client/writer → migration
+and enforcement → real provider/restart/device acceptance gates. The proposal
+adds no implementation authority.
+
+**T-M4-09 proposed contract ADR scope (registered 2026-10-11 before drafting):**
+root authorizes documentation only for Proposed
+[ADR-0037](docs/adr/0037-conditional-userdata-mutations.md), conditional userdata
+mutations and coordinated writer migration. Sole writer
+`root/roadmap_reconcile_20261011` may edit this roadmap, `docs/specs/SRS.md`,
+`docs/specs/FRD.md`, `docs/adr/README.md` and that new ADR file. Provider, BFF and
+SPA reviewers supply read-only source/design reports; the draft is a Delegated
+proposal under standing authority, not an accepted decision or permission to
+edit module source. Wire format, revision authority/continuity, uncertainty,
+progress ordering and rollout remain explicit review gates. Decision number `0034` stays
+reserved; accepted ADR bodies, requirements' Part statuses, E7 and T-M3-10 blocks
+remain unchanged. No module tests, probes, dependency or pin edits are included.
 
 **T-M4-09 tenant integration condition:** canonical BFF `e9fbf38` (source re-read
 2026-10-09; behavior unchanged from `3c16074`, where the line ranges were
@@ -1583,6 +1601,9 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | T-M5-13 documentation-only source accepted/merged, `5aee3d4` → `95653eddd124db8d2c4aae0944f2b8b8453e96ae` → `e98c46ba5300eacadf689c90f6b990abbc391d9c`, [mvp #114](https://github.com/Muxcore-Media/mvp/pull/114) | Exactly one `BFF-API.md` line corrects expiry defaults/configuration and active-listing trigger. Source/independent review and diff checks pass; signed canonical import/hash and tree `9792fc38…` equality verified. Exact workflow-runs query returns no runs under both Markdown path filters. No new runtime test, Go/Script pass or behavior change claimed |
 | 2026-10-11 | Registered UI #52 / mvp #114 draft selections | After visible scope registration, root checks out clean `media-ui-app` `fdfa25ff` and `_mvp` `e98c46ba`. Actual `bash scripts/check-pins.sh` passes with the same five known missing-path warnings, and `bash scripts/check-proto-drift.sh` passes; logs `/tmp/umbrella-ui52-expiry114-{pins,proto}-20261011.log`. No other pin/tag/train or canonical main change; no fresh full-stack, live or deployment claim |
 | 2026-10-11 | T-M4-09 design-only backend contract discovery | Read-only source review of userdata `25de169` (metadata-only successor of `33dceaf1`) confirms remaining omission/deletion/unknown-field/freshness/concurrency limits. Conditional mutation/removal/raw-patch proposal and legacy-writer migration limitation are recorded in §6 for independent design review. No tests/runtime/source edits, accepted ADR or production authority |
+| 2026-10-11 | Accepted-source checkpoint published as `424deb4aff79e2483a186192bbbe237fb46c144e` | Exact tree `129c233dc54acbaf9c719cc70ebc0608626d4d1a` equals authored `5b2452f`, preserved on `codex/recovery-ui52-expiry114-20261011`. Root verifies canonical commit import/hash and clean branch/tracking alignment; docs/diff and correct fourteen-commit lint range pass. PR #223 remains draft |
+| 2026-10-11 | Exact umbrella `424deb4` hosted result | [CI 38184826026](https://github.com/Muxcore-Media/umbrella/actions/runs/38184826026) secret job 114604803466, workspace job 114604803491 and docs job 114604803513, plus [Commit lint 38184826022](https://github.com/Muxcore-Media/umbrella/actions/runs/38184826022) job 114604803086 all fail with null steps. Cause remains unknown; no actual check execution or unchanged-head retry |
+| 2026-10-11 | T-M4-09 Proposed ADR-0037 draft | Five-path docs-only scope is registered before drafting. Root and independent provider, BFF and SPA reviewers accept proposal coverage after clarifying client raw-field carry-forward for replaced arrays, lost-ack matching-GET/conflict uncertainty, and current migration retries importing then-current local state. Provider/BFF focused confirmation and root acceptance match final 205-line ADR SHA256 `df50136aa0454fb542d9ba58334e1a71c2f431a8d93ce62b3d283351b9a37b2d`; docs/diff/origin checks pass. No module edits/tests/probes or runtime acceptance. Wire/revision authority, receipts/uncertainty, ordering, presence rules and coordinated legacy-writer cutover remain explicit open decisions; requirements stay Part, ADR stays Proposed and implementation is not authorized |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1806,13 +1827,14 @@ correction and repeated exact full gates; it is selected only in the prepared
 draft, untagged. The provider-read adapter is accepted/merged as `64fbd75` after exact hosted
 gates; its draft pin is selected after registration and does not expand full E12 acceptance. Ordinary Git authentication is now
 blocked (B-7); supported connector Git operations remain available. Latest root
-`187ad3a` hosted jobs fail with null steps (§9), with cause unknown; the shell
+`424deb4` hosted jobs fail with null steps (§9), with cause unknown; the shell
 authentication failure is not evidence of that cause.
 
 **Active source recovery handoff (2026-10-11):**
 
 | Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
 |---------------|---------------------|---------------------------------------|
+| T-M4-09 conditional mutation proposal — `root/roadmap_reconcile_20261011` | Umbrella canonical docs on `codex/roadmap-20261011`, starting published `424deb4`; provider/BFF/SPA reviewers read only | Proposed [ADR-0037](docs/adr/0037-conditional-userdata-mutations.md), five permitted documentation paths (§6). Root and all three module reviewers accept proposal coverage after array/lost-ACK/migration wording corrections; provider/BFF focused confirmation matches SHA256 `df50136a…`. Publication pending; architectural status stays Proposed. No accepted decision, implementation authority, module tests/probes, dependency or pin change |
 | T-M5-13 expiry paragraph — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-expiry-docs-20261011` from `64fbd75`, aligned to published `95653ed` | One-line `BFF-API.md` correction accepted/merged as `e98c46ba` (#114), exact tree `9792fc38…`; authored `5aee3d4` saved on `codex/recovery-mvp-expiry-docs-20261011`. Draft-only pin advance is selected after registration with fresh proto/pin checks. Markdown workflows filter the change; no runtime test or new Go/Script pass claimed |
 | T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | `/workspace/media-ui-feedback-20261011`, `codex/consumer-action-feedback-20261011`, base `1e95d22`, clean at published `7354e4308de6b4db80b089c97c0a0a22f577d732` | Accepted/merged #52 `fdfa25ff`, signed canonical tree `da0e24bf…` equals reviewed source. Local/hosted gates and independent review pass (§9). Recovery `codex/recovery-ui-feedback-authored-20261011` preserves authored `21a4d2f` and complete baseline/fix history. Draft-only pin advance is selected after registration with fresh proto/pin checks; no backend or deployment acceptance |
 | E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | Reviewed `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, accepted after exact hosted Go/Script gates and merged as `197784572f599fc0d7facd68582751c139087456` in [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); signed commit/tree identity verified through the connector. Snapshot helper is retained by the later prepared draft `_mvp` `e98c46ba`; its separately recorded proto/pin checks do not establish real-provider or E12 acceptance |

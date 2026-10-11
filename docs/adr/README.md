@@ -51,3 +51,4 @@
 | [0033](0033-userdata-http-mesh-transport.md) | Userdata HTTP authenticates both provider and calling module; narrowly supersedes 0016 Decision 2 for direct userdata HTTP | Accepted | Delegated (2026-10-08) |
 | [0035](0035-user-erasure-ledger.md) | User erasure is a durable identity-provider ledger reconciled by every personal-data owner (0034 is reserved for the request-only permission model) | Accepted | Delegated (2026-10-09) |
 | [0036](0036-invite-creator-authority-and-erasure.md) | Bind user-created invites to current creator authority and serialize creation with erasure | Accepted | Delegated (2026-10-11) |
+| [0037](0037-conditional-userdata-mutations.md) | Conditional userdata mutations and coordinated writer migration | Proposed | Delegated proposal (2026-10-11; not accepted) |
