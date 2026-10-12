@@ -53,3 +53,5 @@
 | [0036](0036-invite-creator-authority-and-erasure.md) | Bind user-created invites to current creator authority and serialize creation with erasure | Accepted | Delegated (2026-10-11) |
 | [0037](0037-conditional-userdata-mutations.md) | Conditional userdata mutations and coordinated writer migration | Proposed | Delegated proposal (2026-10-11; not accepted) |
 | [0038](0038-additive-household-userdata-mutations.md) | Additive household userdata mutations: bounded five-family provider HTTP contract | Accepted | Delegated (2026-10-12; root and independent contract review) |
+| [0039](0039-household-viewer-profile-authority.md) | Household viewer profile authority: credentials, ownership, migration and isolation | Proposed | Delegated proposal (2026-10-12; not accepted) |
+| [0040](0040-dormant-default-profile-mapping.md) | Dormant auth-local account-to-default-profile mapping | Accepted | Delegated (2026-10-12; root and independent exact-candidate review) |

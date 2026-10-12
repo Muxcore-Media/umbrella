@@ -233,3 +233,49 @@ and denies metadata/link-local and its blocked special-use ranges. Its existing
 certificate verification is retained. `MaxRedirects=-1` refuses even same-origin
 redirects, and the guarded transport does not use implicit environment HTTP
 proxies. The API key therefore stays on requests to the configured origin.
+
+## 9. Household viewer profiles — proposed only
+
+[ADR-0039](../../adr/0039-household-viewer-profile-authority.md) is an unaccepted
+T-M4-02 design for FR-AUTH-010 (Plan). It proposes that auth own stable profile
+ownership, PIN verification and typed viewer grants; userdata-local would own
+profile-scoped data and separate policy. Current account sessions and policy
+contracts above do not carry that authority.
+
+The proposed viewer binding includes verified account/tenant/profile IDs,
+credential kind, provider grant identity/expiry and a viewer-session selection
+generation. Viewer records carry no account-management bearer. Auth must reject
+viewer credentials on old account-only operations; BFF route checks must deny
+account-self/MFA/operator access independently of the parental route classes.
+Provider lookup, policy caching, local mirrors, pending operations and playback
+bindings must use verified profile scope. Every profile mutation carries the
+expected selection generation to prevent an old tab writing through a new
+shared cookie; stale completions cannot update the replacement binding.
+
+Credential custody across BFF/admin/auth origins and renewable account tokens
+remains a blocking choice in ADR-0039. Default-profile mapping/data migration,
+durable PIN attempts, grant revocation, restore and unsupported-client behavior
+also need accepted contracts and separately registered implementation. New core
+contracts must be published before dependent providers/consumers use them;
+no proto/schema, default migration, grant issuance or consumer activation is
+authorized by this LLD section. See ADR-0039 for the proposed sequence and test
+matrix; documentation checks are not runtime verification.
+
+### 9.1 Dormant default mapping — accepted target, not implemented
+
+[ADR-0040](../../adr/0040-dormant-default-profile-mapping.md) defines one
+internal `account_default_profiles` row per live auth-local account. The ADR
+owns its exact schema/ID/time contract, transactional first backfill, atomic
+normal/invite creation, and sweep-before-validation rules for startup and offline
+ledger import. Existing mappings are never regenerated to repair inconsistency.
+The declared foreign key does not enable a global pragma or replace manual
+owner cleanup. Import's prior forward migration can persist if its later
+ledger/sweep/validation transaction fails.
+
+IDs stay out of claims, sessions, APIs and userdata/policy. Stability requires
+the mapping to survive in the database/backup; total table loss cannot be
+distinguished from first migration, and pre-feature restore can mint new dormant IDs.
+Writable old-binary downgrade is unsupported. The decision is Accepted/Delegated;
+the registered source waits for root's commit and explicit release. Genuine
+previous-tag/N-1 upgrade evidence remains required, with no implementation,
+active profile restore guarantee or consumer activation acceptance.

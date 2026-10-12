@@ -137,6 +137,35 @@ FR-AUTH-010 or change accepted ADR-0030/0031.
 - **Failure:** code exchange timeout (8 s in BFF) → error page, no session. Invalid/expired session → redirect to login.
 - **Current:** cookie-authenticated BFF mutations require an allowed Origin/Referer, logout is `POST`, and browser servers set timeouts/security headers. Native bearer-authenticated requests are exempt from the browser Origin check. Persistence/key rotation behavior is documented in the [auth LLD](../architecture/lld/auth-and-sessions.md) → `NFR-SEC-004`, `NFR-SEC-005`, `NFR-SEC-006`.
 
+**Proposed profile selection target, not current behavior (FR-AUTH-010):**
+[ADR-0039](../adr/0039-household-viewer-profile-authority.md) proposes an
+auth-verified account/profile/tenant selection that replaces viewer authority
+and advances a session generation. Every profile write carries its expected
+generation; a stale tab cannot submit old-profile data using the new cookie.
+Tabs sharing that cookie converge, while other devices retain their own viewer
+selection. A protected-profile PIN authorizes only the selected viewer transition,
+never account management or an override of server policy. Credential-kind rules
+must deny viewer access to account-self/MFA/operator routes even when the current
+parental route table exempts them.
+
+Activation is blocked until the separate-origin/account-credential custody
+decision, default-data migration, profile-aware provider contracts and every
+supported consumer's refusal/isolation behavior are decided and verified.
+Unconfigured policy and unavailable authority fail closed. Existing cosmetic
+PIN preferences grant no authority and are not imported as authoritative PINs.
+ADR-0039 remains Proposed; the current workflows above are unchanged.
+
+**Accepted dormant foundation target, not implemented:**
+[ADR-0040](../adr/0040-dormant-default-profile-mapping.md) defines an internal
+auth-local default mapping created atomically with each account, including
+bootstrap and invite redemption, plus one-time legacy backfill. It changes no
+login, invite, profile-selection or PIN workflow and exposes no profile ID.
+Mapping failure would roll back account creation/invite consumption; existing
+invalid mappings would refuse startup/import after tombstone cleanup. The
+decision is Accepted/Delegated; the registered source waits for root's commit
+and explicit release. Genuine upgrade-fixture/N-1 gates remain open, with no
+implementation acceptance or FR-AUTH-010 advancement.
+
 ### WF-03 Invite and onboarding (J-02)
 
 1. Admin creates an invite (role, max uses, expiry) in admin-ui `/invites` through the existing AuthService RPC, forwarding the current caller's bearer on the actual call → auth-local stores a SHA-256 token hash (`internal/store/invites.go`). Nonpositive form uses map to the contract's unlimited `-1`; positive expiry hours become seconds, with zero preserving the provider default. Explicit tenant wins, then the session tenant; creator attribution belongs to the auth provider.

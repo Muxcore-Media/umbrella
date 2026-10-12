@@ -223,11 +223,11 @@ The original nine items from [TDD §8](docs/architecture/TDD.md#8-security-harde
 | ID | Objective / refs | Status and remaining acceptance |
 |----|------------------|---------------------------------|
 | T-M4-01 | Server-side parental middleware in BFF (FR-PLAY-007) | In progress — [ADR-0030](docs/adr/0030-authoritative-parental-policy-resource.md) provider, first pinned as userdata-local `v0.1.5` (`e544b35`), is retained by the current source pins (§14). [ADR-0031](docs/adr/0031-bff-enforcement-of-parental-policy.md) (Accepted/Delegated) decides BFF enforcement: one gate with an exact route-class table, classification from the owning media modules (operator rating first, TMDB later), fail-closed failure behavior, a 30 s cache and an admin-run trusted migration. **State 2026-10-08:** S1–S3, S5a, S6, S7 and S8 are merged and pinned (§9). The S5a gate (`_mvp` PR #99, `7e0f45c`; umbrella pin `_mvp` `3c16074`, which also carries the T-M5-12/T-M5-13 fixes) replaced the old trust of request metadata and self-editable userdata for playback; the previous pin `3c16074` denied a restricted principal all playback and exposed list/detail titles. The 2026-10-09 integration pins `_mvp` `e9fbf38`, which carries S5b (#103), BFF session revalidation (#104) and subtitle ownership (#102); it is merged and pinned, not deployed. S5b source `0b51bfd` is locally verified under ADR-0031/0032: trusted movie/TV classification, episode inheritance, visible lists/totals, fresh item checks and a playback-only cache of at most 30 s. Source [PR #103](https://github.com/Muxcore-Media/mvp/pull/103) was selected after read-only comparison with parallel draft [PR #102](https://github.com/Muxcore-Media/mvp/pull/102) (`8757ad9`); the final test-only follow-up passes focused race/lint and independent review. PR #103 merged as `41a18c0` and #104 as `214484f`; both are carried by the `e9fbf38` pin. Parallel [PR #102](https://github.com/Muxcore-Media/mvp/pull/102) was rebuilt on #104's `214484f` as reconciled head `530537ddac5a752cd3f74b65292a5af339589c28` (11 files), adding sidecar-subtitle ownership and a session/item-bound restricted subtitle fetch: restricted sidecars need conservative filename matching and no competing video owner, module rows must name the authorized media file, and a restricted fetch requires a session/item binding and rechecks current policy and classification (unbound, expired, evicted, restart-lost, other-session or revoked bindings and provider outages fail closed). Independent review accepts the reconciled source and its focused tests. Serial full build, vet, race, lint and scripts pass on that exact commit on 2026-10-09 (Go 1.27.1, golangci-lint 2.14.0; log `/tmp/s5b-reconciled-summary.log`), with actual proto-drift plus its negative control and the generated descriptor passing; the backup-proto script check skipped because the temporary workspace lacked that sibling module. #102 merged as `e9fbf38f1ff28bfa6461b18adcca0b8d6933c4e4` (tree identical to `530537d`) and is pinned (§9, §14); the hosted Script tests pass, while hosted Build/vet/test and Lint fail on B-1 private-module credentials (not source acceptance). Filename ownership trusts the operator-managed library: a misnamed, symlinked or replaced-after-listing sidecar can carry other content (a residual, not an untrusted-user exploit claim); same-stem videos in different containers are refused; the existing unrestricted `sc_base64` confinement gap (T-M3-10) is separate. Full production verification is at `4054780`; final-head hosted scripts pass, while Go jobs stop at private-module credentials (B-1), with hosted vet/race skipped. Ambiguous segment `media_id` references and unbound subtitle IDs stay denied for restricted principals; a valid bound track fetch is served with current authorization; T-M3-10 remains blocked. The admin S6 provider-backed form and migration (admin-ui PR #66, `6d0eb55`) are merged and pinned. S9 transport design is accepted under [ADR-0033](docs/adr/0033-userdata-http-mesh-transport.md) (Accepted/Delegated; S9a–e merged and integrated at fixture level on 2026-10-09, §9; no deployment or full parental acceptance). Admin classification source `154d74b` on `codex/admin-classification-20261008` (base `c686129`) passes local and hosted checks and independent review; [PR #68](https://github.com/Muxcore-Media/admin-ui/pull/68) merged as `f14e50b`, carried by the `ddeced6` pin (§9). #68 was rebuilt on the preserved #67 base because the historical `feat/content-rating-ui` source was unrecoverable with no open PR. The historical PR #210 checkpoint recorded a separate local-only `feat/content-rating-ui` head `4629312` (also from `c686129`; unpushed, no PR, not merged) with F1 response-deadline, F2 loaded/empty/error-state and F3 uncertain-audit follow-ups, source accepted and full verification in progress. That object is unavailable in the current checkout and is not recovered or reused. Fresh read-only discovery on merged #68 established F1/F3 gaps but no additional F2 gap. Replacement source `dfdaa2f` on `codex/admin-rating-outcomes-20261008` from `f14e50b` implements the registered plan below and passes full local gates plus independent review; [PR #69](https://github.com/Muxcore-Media/admin-ui/pull/69) passes exact-head hosted build/vet/race/lint and merged as `1a90d8c`, carried by the `ddeced6` pin. Hosted Accessibility did not trigger for #69; its 37/37 result is local only. Bulk follow-up [PR #70](https://github.com/Muxcore-Media/admin-ui/pull/70), reviewed head `26015bc66c5f09be50f6cc4ab048935a92f8fc18` from `1a90d8c`, merged as `ddeced6df42d0a0ee3628d74383093422733f8b1` (tree identical to the reviewed head) and was the 2026-10-09 `admin-ui` integration pin (carried by current pins in §14). The historical candidate remains unavailable; local source verification does not establish integrated or live acceptance. S10/S11 rollout/integration and profiles remain open; merged gate/migration code is not deployment acceptance. No full acceptance: FR-PLAY-007 stays Part. History: the producer was first merged as `d07d419` (tree identical to verified candidate `b199a59`) before it was pinned; local full verification 2026-10-08 is in §9 |
-| T-M4-02 | Profiles incl. kids/PIN (FR-AUTH-010) | Todo — architecture proposal only is the next step; credential custody and verified profile authority remain undecided (below) |
+| T-M4-02 | Profiles incl. kids/PIN (FR-AUTH-010) | Todo — proposed ADR-0039 records target authority and phased gates; credential custody, contracts, migration and rollout remain undecided (below) |
 | T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
 | T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — admin-only indexer mutation controls retain admin/manager Acquisition access. Fresh direct-Settings role hydration is fixed in source `881bfb1`, merged as `ab429bc` (#44), included in earlier UI pin `816abd6` and the current pin `b00db38`, with delayed identity, current-role correction, expiry, sign-out and cross-tab fixtures. T-M5-12 source `0ef06f3` adds verified operator-action controls, merged as `517ba0a` (#47) after both hosted workflows passed; carried by the `b00db38` pin. Display preference hydration source `ef4d284` (#49), merged as `79cc826`, and preference-ordering source `54585c6` (#50), merged as `ba68ada`, are locally/independently/hosted verified and remain unpinned after `b00db38` (details below). Settings migration, an admin destination and manager page access remain open |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
-| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, carried by the `b00db38` pin. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. Phone Search entry #53 (`1eb773a`, merged `2bd3bcd8`) is accepted at scoped source level after local/hosted 1,415 units and 310 browser cases / 18 existing skips plus independent review (§6/§9); its draft-only pin advance is selected after registration with fresh pin/proto checks. Follow-up #54 (`9ee6078`, merged `a673fe5`) fixes loading after clearing a pending query, with local/hosted 1,419 units and 318 browser cases / 18 existing skips plus independent review; selected only in draft after separate registration/checks (§6/§9). These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
+| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, carried by the `b00db38` pin. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. Phone Search entry #53 (`1eb773a`, merged `2bd3bcd8`) is accepted at scoped source level after local/hosted 1,415 units and 310 browser cases / 18 existing skips plus independent review (§6/§9); its draft-only pin advance is selected after registration with fresh pin/proto checks. Follow-up #54 (`9ee6078`, merged `a673fe5`) fixes loading after clearing a pending query, with local/hosted 1,419 units and 318 browser cases / 18 existing skips plus independent review; selected only in draft after separate registration/checks (§6/§9). Player native-button Space #56 is accepted/merged as `6674c28f` after full local/hosted 1,439 units and 358 browser cases/18 existing skips plus independent review; its draft-only pin advance is selected after registration `5cfbb1c` and fresh bounded checks (§6/§9). These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
 | T-M4-07 | User deletion fan-out (NFR-DATA-003) | **Part (2026-10-11)** — [ADR-0035](docs/adr/0035-user-erasure-ledger.md). E1/E3 and E7–E10 have recorded source pins; canonical baseline E2 auth-local `71c66d8` lacks the reported ledger implementation (C-40). Accepted E2/E4/E5 follow-ups are published as `v0.1.21`/`v0.3.9`/`v0.1.8`; E6 `v0.1.3` source review passes. These four sources plus accepted UI #51, `_mvp` #112 and userdata-local #11 form the seven draft #223 source selections; exact source gates and bounded draft checks are recorded by checkpoint (§6/§9), while canonical main remains unchanged. E7 admin review now identifies five source-backed gaps with a root-approved test-only scope whose execution is now platform-blocked (B-8); no runtime results. E11 is merged in [umbrella #221](https://github.com/Muxcore-Media/umbrella/pull/221), with reported local mTLS stopped-consumer catch-up verification on older published dependencies. Exact root hosted gates, corrected-set E11 verification, E12 household deletion plus pre-deletion restore drill and E13 closure remain. NFR-DATA-003 stays Plan; no deployment |
 | T-M4-08 | Consumer theme contrast and a rendered browser gate (NFR-A11Y-001, NFR-A11Y-002, NFR-MNT-002, ADR-0025) | Done (selected fixture scope) — source `690442b`, [PR #46](https://github.com/Muxcore-Media/media-ui-app/pull/46), merged as `7a45f33` after hosted CI/Browser success, carried by the `b00db38` pin. Anchor layering, theme-aware tertiary/danger/success text and foreground-only accent migration (59 exact mechanical files plus InviteJoin) retain accent fills/borders/brand colors and filled danger-control surfaces; light error borders follow the darker danger token. Local typecheck, 1326 unit tests, build and 208 browser cases pass (12 existing skips), including 104 new contrast cases with computed-theme assertions and negative controls at four widths/both themes; final hover-paint checks 24/24. Follow-up #48 `adf6d29`, merged as `b00db38`, adds Activity action/Movies select contrast; 256 local and hosted browser cases pass with 16 existing skips (§9); it is the pinned `media-ui-app` (`b00db38`, tree identical to the reviewed head). The earlier `d39156c` baseline Movies contrast failure was fixed at `26a594e` and is no longer pending. Media/gradient incomplete results, other routes, assistive technology, light video OSD and full/cross-browser WCAG acceptance remain open |
 | T-M4-09 | Native userdata authentication and durable cross-device persistence (FR-PLAY-004, C-33) | **In progress (reviewed native drafts; Apple/provider gates pending)** — iOS `6bc13a5` (draft muxcore-ios #1, base `830d14d`) and tvOS `fe08722` (draft muxcore-tvos #1, base `a424ac6`) implement cookie-free BFF bearer requests, verified server/user/tenant binding, persisted pending edits, visible failure/retry, serialized writes and response guards. Independent Linux package tests/builds and real-loopback transport checks pass (§9); complete Apple app compilation and simulator journeys remain blocked by B-6. Neither draft is merged or pinned; FR-PLAY-004/FR-NAT-001 stay Part. Real BFF→provider persistence after app/BFF/provider restart, fresh-device/account isolation, failure/offline recovery and explicit Quick Connect limits remain required. S9a–e are merged and integrated at fixture level, including the canonical blob-path correction and authenticated transport (`_mvp` #106, admin-ui #72, umbrella #217). Ordinary blob fallback still does not prove provider persistence. The bounded ADR-0038 five-family provider source #13 (`b0a3abe2`) is accepted after actual hosted full gates and selected only in draft, still untagged; progress/watched, legacy-writer enforcement, client integration and tenant conditions below remain open. BFF acknowledgment or portable cache-reload fixtures alone do not establish provider/device durability |
@@ -331,7 +331,7 @@ registration/outcomes as `91d3ba0`, then checks out `960074b5`. Actual
 with exit 0; pin checks retain the same five known optional missing-path warnings.
 Logs are `/tmp/umbrella-cosmetic-pin-pins-20261012.log` and
 `/tmp/umbrella-cosmetic-pin-proto-20261012.log`. This selects only the prepared
-draft; the gitlink awaits root staging with the final outcome documentation.
+draft; the gitlink and final outcome documentation are published in `3db0271e`.
 Other six draft selections, canonical umbrella main, deployment and release
 train remain unchanged; PR #223 stays draft.
 
@@ -346,6 +346,284 @@ attempt budget, grant lifecycle/revocation, userdata/policy isolation and stale
 or cross-tab switches. A separate viewer-grant suggestion is unaccepted and must
 address retained account credentials. This next-step evidence expands neither
 the cosmetic repair nor accepted ADR bodies; Todo/Plan remain unchanged.
+
+**T-M4-02 architecture proposal registration (2026-10-12, before drafting) — Documentation only:**
+sole umbrella documentation writer `root/profiles_roadmap` works from clean
+`9c404ab` on `/workspace/umbrella`, branch `codex/roadmap-20261011`; that base
+preserves the local roadmap-only handoff after published `3db0271e`. This first
+registration changes only `MASTER-ROADMAP.md`. Root must commit it and release
+the writer before proposal drafting. Read-only module reviewers are
+`root/profiles_auth_design` (`auth-local`), `root/profiles_userdata_design`
+(`userdata-local`) and `root/profiles_bff_design` (`_mvp`); they make no source
+edits. Root owns commits and publication.
+
+The later candidate is limited to `MASTER-ROADMAP.md`, `docs/adr/README.md`, new
+`docs/adr/0039-household-viewer-profile-authority.md`, `docs/specs/SRS.md`,
+`docs/specs/FRD.md` and the existing
+`docs/architecture/lld/auth-and-sessions.md`. Reserved ADR `0039` must remain Proposed,
+with `Decided by: Delegated` explicitly identified as an unaccepted proposal.
+The candidate must address privileged credential custody during viewer use;
+account/profile identity, verified ownership and selection; default-profile and
+invite migration; verified per-profile userdata and parental-policy isolation;
+PIN purpose, durable attempt limits and grant issuance, expiry and revocation;
+cross-tab/stale-session behavior; and module/contract sequencing. It must name
+required negative, migration, lifecycle and isolation tests and the independent
+decision-review gate before any later implementation registration. Unresolved
+questions remain explicit; accepted ADR bodies are not edited.
+
+Registration and candidate gates are `node scripts/check-docs.mjs` and
+`git diff --check`, plus root review of the exact diff and independent proposal
+review before a decision can be accepted. FR-AUTH-010 stays Plan and T-M4-02
+stays Todo. No source, gitlink, dependency, release-train, deployment or new
+requirement closure is authorized. E7/B-8 and T-M3-10 remain prohibited; the
+unchanged-head root CI jobs are not retried. Historical evidence and the prior
+publication stop remain preserved; this registration opens only the named
+documentation proposal.
+
+**T-M4-02 proposed architecture candidate (2026-10-12):** root committed the
+registration as `89b1555` before releasing the six-document draft.
+[ADR-0039](docs/adr/0039-household-viewer-profile-authority.md) now records the
+read-only auth/userdata/BFF findings, proposed typed viewer authority and
+verified profile scope, default migration, PIN/grant lifecycle, stale-tab
+mutation preconditions and module/test sequence. Cross-origin privileged
+credential custody remains unresolved: account-wide retirement, browser-family
+retirement and isolated-context alternatives need explicit review of their
+coverage and cost. No option or destructive token/key retirement is accepted.
+A dormant default mapping would require a separate bounded decision and
+registration; this candidate authorizes no source slice. Independent review
+found that bearerless Quick Connect/legacy BFF sessions bypass provider
+validation; the corrected proposal explicitly requires retirement, reviewed
+migration or refusal of that local authority before kids-ready acknowledgment,
+with persisted-restart negative tests. Root accepted the documentation as a
+Proposed record only and committed it as `803f634` after fresh docs/diff checks.
+ADR-0039 remains Proposed; FR-AUTH-010 stays Plan and T-M4-02 Todo.
+
+**T-M4-02 dormant default-profile mapping documentation registration (2026-10-12, before drafting) — No source release:**
+from clean umbrella `803f634`, sole writer `root/profiles_roadmap` first changes
+only `MASTER-ROADMAP.md`. Root must commit this registration and release drafting
+before the separate bounded decision is written. The exact future candidate is
+`MASTER-ROADMAP.md`, `docs/adr/README.md`, new
+`docs/adr/0040-dormant-default-profile-mapping.md`, `docs/specs/SRS.md`,
+`docs/specs/FRD.md` and `docs/architecture/lld/auth-and-sessions.md`. ADR-0039 and
+all accepted ADR bodies remain unchanged. Reserved ADR `0040` starts Proposed;
+root and independent exact-candidate review must precede any acceptance.
+
+The bounded subject is an internal auth-owned one-to-one mapping from each live
+account to a stable random default-profile ID: one-time transactional backfill,
+atomic normal/bootstrap/invite creation, tombstone cleanup and validation after
+startup/import cleanup. Later missing/invalid mappings fail rather than
+regenerate. The draft must state dormant restore/downgrade limits and required
+failure/rollback tests. It exposes no profile catalogue/API, claims, session or
+credential change and enables no userdata/policy alias, PIN, viewer grant,
+switcher or consumer activation. This is separate from ADR-0039's unresolved
+viewer-authority and credential-custody decisions.
+
+Any later auth-local source candidate requires its own exact path registration
+after decision acceptance and root release; no source is released here.
+The existing B-3 SQLite dependency and missing `sqlite3` tooling block local
+generation of a genuine previous-tag `v0.1.21` fixture. ADR-0015 also requires
+previous-release-train (N-1) provenance, currently unresolved. Do not replace
+either with hand-written SQL, a fabricated snapshot or a CI workaround.
+A separately authorized candidate may remain Draft while running normal
+available/hosted checks, but these cannot establish migration acceptance:
+no source acceptance, merge, pin, release or activation before genuine fixture
+and N-1 evidence plus the remaining gates. FR-AUTH-010 stays Plan and T-M4-02
+Todo. E7/B-8, T-M3-10, unchanged-head root CI retry and deployment restrictions
+remain in force. Documentation gates are `node scripts/check-docs.mjs`,
+`git diff --check` and independent/root review of the exact candidate.
+
+**Dormant mapping accepted decision after registration `359e098` (2026-10-12):**
+[ADR-0040](docs/adr/0040-dormant-default-profile-mapping.md) defines the accepted
+internal table, checked random 128-bit/lowercase-hex identity, canonical UTC
+timestamp, transactional first backfill and user/invite creation. Startup
+tombstone sweep plus validation share a write transaction; offline ledger
+merge/sweep/validation also share one, while earlier forward migration can
+persist on a failed import. Existing missing/invalid mappings fail without
+regeneration. Stability requires a surviving mapping/backup; absent-table
+migration cannot detect total table loss, and writable downgrade is unsupported.
+No profile field/API, credential, userdata/policy alias or consumer is activated.
+Root and independent exact-candidate review accept the bounded decision as
+Delegated, not Owner. Reviewed Proposed ADR SHA-256 is
+`25341debd350b0f776daab1c029d14b0a4f89eeaaae76b39826c46829cc1809d`;
+UTC RFC3339Nano is the accepted timestamp format. Source remains unreleased
+until root commits this decision/registration and explicitly releases its owner.
+The prior-tag fixture and N-1 gates below keep any later candidate Draft until
+verified, regardless of ordinary hosted results. ADR-0039 remains Proposed,
+FR-AUTH-010 Plan and T-M4-02 Todo.
+
+**Auth-local dormant mapping source registration (2026-10-12, before edits) — Draft candidate only:**
+sole source owner `root/profiles_auth_design` reuses
+`/workspace/audits/auth-local-e2-20261011` on new branch
+`codex/auth-default-profile-mapping-20261012` from actual default-branch `master`
+source `9f9ec32` (`v0.1.21`), not obsolete `main` `71c66d8`; its clean reusable
+`2547a4d` has the same tree. Exactly eleven authorized future source/documentation
+paths are `internal/store/default_profiles.go`, `internal/store/store.go`,
+`internal/store/invites.go`, `internal/store/erasure.go`,
+`internal/store/default_profiles_test.go`,
+`internal/store/default_profiles_erasure_test.go`,
+`internal/store/upgrade_test.go`, `internal/store/session_management_test.go`,
+`internal/store/erasure_test.go`, `README.md` and
+`internal/store/testdata/upgrade/README.md`. New branch/source edits wait for
+root's decision/registration commit and explicit owner release. Future genuine
+`v0.1.21` seed/database/schema artifacts require separately registered fixture
+scope; they are not included implicitly in these eleven paths. Existing
+released fixture artifacts are retained; checks update their mapping assertions,
+the direct session-user seed helper and erasure counts without broadening
+unrelated orphan-session cleanup.
+
+Implement only ADR-0040's dormant table and atomic creation, migration and
+cleanup/validation contract. Required tests cover its full creation, checked
+RNG/SQL failure, canonical ID/time, stable-open, concurrent/uniqueness,
+tombstone/orphan, startup/import rollback and retained-fixture matrix. Preserve
+account claims/session behavior and validate both old fixtures twice with the
+new mapping assertions. Run normal full build, vet, race and configured lint
+plus focused tests and independent exact-candidate review; actual hosted full
+build/vet/race/lint are required. Report local B-3-blocked attempts as blocked,
+never passes. No proto/API/claims/session-contract, dependency, CI/workflow,
+version or existing released fixture database/schema changes belong to this
+scope. No new provider credential, profile authority or consumer change.
+
+The source PR must remain Draft, with no source acceptance, merge, pin,
+tag/release or activation until genuine `v0.1.21` and N-1 fixture evidence,
+all required checks and independent review pass. Ordinary hosted success
+cannot waive the open fixture gates. Root owns source release and publication
+coordination; E7/B-8, T-M3-10 and unchanged-head root CI restrictions remain.
+
+**Dormant mapping draft source checkpoint (2026-10-12):** authored
+`f2ffaec94ccd420797279518d05ef20f73a3e425` is published as
+`b9f6f08786065404cdb352b5a384c0284ccca031` in Draft
+[auth-local #48](https://github.com/Muxcore-Media/auth-local/pull/48), against
+canonical `master` `9f9ec32`. Both commits have tree
+`4f7bf207736eb5002e740ef49148a555afe3adc2`. Independent static review reports no
+remaining code blockers; this is not source acceptance. The eleven-file
+manifest `/workspace/.tools/checks/auth-default-profile-mapping-20261012/source-manifest.sha256`
+has SHA-256 `80a70a668333bf10ef7a8dac9236beb236a84fcfb7187966a1ccb2e21711ee7f`.
+Root inspected build/vet/focused-race/full-race/lint logs: each required provider
+gate is setup-blocked by uncached `modernc.org/sqlite v1.55.0` (B-3), before
+provider compilation/runtime verification. Only three unrelated packages run
+in the full-race attempt; gofmt/diff pass. Actual hosted CI `38197732896` now
+passes lint and full build/vet/race. Both job logs check out synthetic merge
+`8dac6d7b517edd795325d86859ad9fd96980b157` of `b9f6f087` into `9f9ec32`, whose
+tree equals the authored source above; provider packages pass (§9). Genuine
+`v0.1.21`/N-1 fixtures remain absent/unresolved; ordinary hosted success cannot
+remove the Draft/no-acceptance/merge/pin/tag/release/activation gate.
+The local worktree is clean at published `b9f6f087`; recovery branch
+`codex/recovery-auth-profile-mapping-20261012` preserves authored `f2ffaec9`.
+An optional artifact-attachment attempt hung and was terminated; the PR exists,
+but no attachment success is claimed.
+
+**T-M4-06 player button Space registration (2026-10-12, before edits) — Done at bounded source level, accepted/merged; selected only in draft:**
+under existing NFR-A11Y-002 (related NFR-A11Y-001 / FR-PLAY-005), independent
+read-only UI discovery and root source review find that
+`src/components/player/hooks/useKeyboardShortcuts.ts:57–79` excludes text inputs
+but calls `preventDefault()` and `togglePlay()` for Space on a focused native
+`BUTTON`. Settings/Mute/Fullscreen consequently lose native Space activation;
+this is source evidence only, with no runtime baseline yet.
+
+Sole UI owner `root/consumer_accessibility_discovery` reuses clean
+`/workspace/media-ui-feedback-20261011` on new branch
+`codex/player-button-space-20261012` from canonical `960074b5`; published
+`c7b575b` has the identical tree. Exactly three future module paths are in scope:
+
+| Path | Scope |
+|---|---|
+| `src/components/player/hooks/useKeyboardShortcuts.ts` | After baseline acceptance only, preserve native BUTTON-target Space activation; retain other shortcuts and existing input/overlay behavior |
+| New `src/components/player/hooks/useKeyboardShortcuts.test.tsx` | Focused default-prevention/toggle/callback regressions and passing controls |
+| New `e2e/player-keyboard.spec.ts` | Actual Player native-keyboard HTTP-fixture regression at 375/768/1280/1920 px |
+
+Root commits this roadmap/SRS registration before branch/test edits and releases
+only the two new test files first. Mount the existing Player at
+`/player?src=%2Fstream%2Fmovies%2Ffixture-movie-1&title=The%20Long%20Journey%20Home&id=fixture-movie-1&kind=movie&back=%2Fmovies%2Ffixture-movie-1`,
+using the unchanged shared fixtures, page-scoped resolve/auxiliary-read responses
+and an inline deterministic PCM WAV at the fixture stream URL, with no media
+asset file. Keep the strict unexpected/external request gate and first prove
+loaded media metadata, separating setup errors from behavior failures.
+Prove expected pre-fix failures for focused Settings/Mute Space, with
+Enter and non-button global Space passing; verify native activation occurs once,
+Settings menu/expanded state, Mute/video state, keyboard focus and no horizontal
+overflow at all four widths. Production waits for root review of those expected
+failures and passing controls. No subtitle behavior, investigation or T-M3-10
+work is included; no shared fixture/config/dependency or unrelated player edit.
+
+Focused gates are `npm test -- src/components/player/hooks/useKeyboardShortcuts.test.tsx`,
+`npm run build` and
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npx playwright test e2e/player-keyboard.spec.ts`.
+Final gates
+are full `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e`,
+independent exact-candidate review and required hosted checks before scoped
+source acceptance. Fixtures establish no backend or real-playback acceptance.
+T-M4-06 and NFR-A11Y-001/002 stay Part; no requirement is added or closed.
+Auth's registered implementation proceeds independently; E7/B-8, T-M3-10,
+root CI retry and release/deployment restrictions remain unchanged.
+
+**Accepted test-only baseline (2026-10-12):** root committed registration `bab563a` and
+released only the two new tests. With the production hook unchanged at canonical
+`960074b5`, units report two expected Settings/Mute Space failures and five
+passing controls; build passes. The actual Player browser baseline reports
+eight expected Space failures and eight Enter/global-Space controls passing at
+375/768/1280/1920 px. Each browser case first establishes the inline 60-second
+WAV's loaded metadata/current data without media error; fixture/runtime checks
+pass, with no setup failure or correction reported. Logs and attachments are in
+`/workspace/.tools/checks/player-button-space-20261012/` (`baseline-unit.log`,
+`baseline-build.log`, `baseline-browser.log`, `baseline-report/`,
+`baseline-results/`). Independent review reproduces the exact two/five unit and
+eight/eight browser outcomes on actual Chromium at all four widths, with
+setup/focus/overflow/network gates passing. Root accepts and commits test-only
+`182dbcb0c05ea5ee8d463b69942ec2bd3b07c095`, then explicitly releases only the
+registered native-button Space correction. Production verification and final
+review remain pending; no source acceptance or requirement advancement.
+
+**Accepted source outcome (2026-10-12):** the production change is exactly a
+three-line native `BUTTON` + Space guard; only the registered hook and two new
+tests change. Root inspects final logs: typecheck/build pass, 1,439 units across
+187 files pass, and all nine focused hook tests pass. Full Chromium 151.0.7922.173
+browser results are 358 passes, 18 existing skips and zero failures from 376
+scheduled cases; all 16 new Player cases pass at the four registered widths.
+Evidence is in `/workspace/.tools/checks/player-button-space-20261012/`;
+`candidate-manifest.sha256` has digest
+`076a663675e81449b3cb05b46b7affb36628d6e471b330b41e7b340bb2e162db`, and
+`candidate.patch` has digest
+`36a1c41e3d42ba56b8e85b88785af5a59af0c369c05b38d21aab6ef900036d83`.
+After author resource release, independent final review approves with no
+findings and fresh nine-unit/16-Player-browser passes; the manifest is unchanged.
+Authored `3bf86ab30062e7293f20db8a3c1ef4935c4851c5` (baseline `182dbcb0`) is
+published as `2693058d283b9ac444bfe88d25f22bb9cf601ca6` in
+[UI #56](https://github.com/Muxcore-Media/media-ui-app/pull/56), against main
+`960074b5`; both source commits have tree
+`e4053b5e5e64fca255ca514e4d4f5864ef0df805`. Root inspects actual hosted CI
+`38198409156` / job `114646139533` (typecheck, 1,439 units, build/output) and
+Browser `38198409168` / job `114646139534` (358 passes / 18 existing skips): both
+pass on synthetic merge `58a4d36f4521dc5365f6eb2c4a173b1e525f8b64`, parents
+`960074b5` and `2693058d`, with that same tree. Root accepts the bounded source,
+marks #56 ready and merges using the exact head lease. Signed canonical merge
+`6674c28f2de62c1ac628defd1e3a31cc8b35259c` is verified with the identical tree.
+Root
+imports/verifies the canonical commit and aligns the clean worktree to published
+`2693058d`; `codex/recovery-player-space-20261012` preserves authored `3bf86ab3`
+and baseline `182dbcb0`. One optional PR #56 attachment attempt hung and was
+terminated, with no attachment success claim. The exact source is now selected
+only in the prepared draft after registration and bounded checks below; no
+deployment is claimed. Baseline `182dbcb0` remains immutable and
+broad T-M4-06/NFR-A11Y-001/002 stay Part.
+
+**T-M4-06 accepted Player Space draft-pin extension (registered 2026-10-12 before checkout) — Selected in prepared draft after bounded checks:**
+root commits this registration as `5cfbb1c`, then advances only the prepared
+draft's `media-ui-app` gitlink from
+`960074b5ec998855cb3d196a0f93628e72817331` to accepted signed merge
+`6674c28f2de62c1ac628defd1e3a31cc8b35259c`. The registration precedes root
+checkout; the documentation writer changes no gitlink. Root verifies/imports
+the canonical object and matching tree, then checks out that exact source.
+Fresh `bash scripts/check-pins.sh`,
+`bash scripts/check-proto-drift.sh`, `node scripts/check-docs.mjs`,
+`git diff --check` and canonical `4403e97..HEAD` commit lint all pass, exit 0;
+commit lint covers 26 commits at this checkpoint. Pin checks retain the same
+five optional missing-path warnings and no new warnings. Actual logs are
+`/workspace/.tools/checks/player-button-space-20261012/root-pins.log` and
+`root-proto.log` in that directory. Other six draft sources stay unchanged; auth-local remains
+`9f9ec32`, while its dormant-mapping #48 remains Draft behind genuine fixture
+gates. Consolidated pin/docs publication is pending. Umbrella #223 stays Draft
+pending its new-head gates; canonical main,
+release train and deployment do not advance. No broad accessibility closure.
 
 **T-M4-06 phone Search entry (NFR-A11Y-002; registered 2026-10-12 before source edits) — Done at scoped source level, merged; selected only in draft:**
 root's read-only review at canonical UI `fdfa25ff7d74fceeef7cf25591c292076691be6e`
@@ -1673,7 +1951,7 @@ runs actual `bash scripts/check-pins.sh` and `bash scripts/check-proto-drift.sh`
 both pass with exit 0; pin checks retain the same five known optional missing-path
 warnings. Logs are `/tmp/umbrella-stop-ack-pins-20261012.log` and
 `/tmp/umbrella-stop-ack-proto-20261012.log`. These are bounded draft checks; the
-gitlink awaits root staging with this outcome documentation.
+gitlink and outcome documentation are published in `3db0271e`.
 Other six draft selections, canonical umbrella main, deployment and release
 train remain unchanged. Bounded Stop acknowledgment source acceptance does not
 establish physical stream/device termination or complete T-M5-12; FR-PLAY-004,
@@ -2141,10 +2419,30 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-12 | Stop #115 final hosted Script retry and source acceptance | The single retry in [Script run 38191770001](https://github.com/Muxcore-Media/mvp/actions/runs/38191770001), job 114626903523, succeeds with all 46 script entries and both Compose configs. Checkout remains synthetic merge `c1746bac6033b4b6cf2fdad9779f9f7199f4ee2d` of published `47fcb2f` into `e98c46ba`. Hosted scripts explicitly skip the umbrella proto checker, its negative script and sibling backup proto; local scripts additionally skip both Helm checks. Smoke-vault uses mocks only. Actual Go CI 38191769959 full build/vet/race and lint already pass; independent final review accepts with 53 focused race passes. Root accepts/merges #115 as signed `5cf783ed46a3b1482512f56104bd594e145f6cd2`, verifies/imports tree `bce38d53…` equal to published `47fcb2f` and authored `6ecd84a4`. Initial cancelled job/cause remain historical; no successful Go or umbrella job is retried. FR-ANA-003 Impl for bounded acknowledgment source only; broad T-M5-12 and runtime gates remain open |
 | 2026-10-12 | Cosmetic PIN registration and Stop draft selection checkpoint `d72f978` | Root commits the two-document registration before source edits/checkout, then releases the sole UI owner test-only on the registered branch from `a673fe5`. FR-PLAY-012 starts Part; T-M4-10 In progress, baseline pending, no production release. Profile/PIN architecture next step stays proposal-only (FR-AUTH-010 Plan / T-M4-02 Todo). Root checks out the separately registered `_mvp` `5cf783ed`; actual pin and proto-drift scripts each pass exit 0, with the same five known optional-path pin warnings. Logs `/tmp/umbrella-stop-ack-pins-20261012.log` and `/tmp/umbrella-stop-ack-proto-20261012.log`. Draft #223 only; no main merge, deployment or full integration claim |
 | 2026-10-12 | T-M4-10 accepted cosmetic PIN baseline `8d2bb5e206699c310dfb175ee62eecbf4523a833` | Root inspects the immutable two-test-file diff (+102 lines) and actual logs with production unchanged from `a673fe5`: units two expected five/six-digit failures/seven passes; browser eight expected five/six-digit failures/four passes at all four widths; build passes. Settings PUT stores the correct salted hash; longer PINs keep the prompt open with an incorrect-PIN error and no BFF resolve, while four-digit controls reach retained BFF denial without video/stream. Initial test-only TypeScript-cast/locator errors were corrected and are not defect evidence. Root approves the previously registered production/test scope for release after this transition is committed; independent baseline review accepts `8d2bb5e` without findings after inspecting all 12 attachments/logs and unchanged production. Final gates remain pending. FR-PLAY-012 Part |
-| 2026-10-12 | Reviewed Stop outcome `f72eec2` and PIN production release `9b2913f` | Root accepts independently corrected Stop documentation and commits its draft pin/outcomes as `f72eec2`; actual docs and canonical-range commitlint (21 commits) pass. Root then commits accepted PIN baseline/production transition as `9b2913f` and releases only the registered correction. Both remain local history after prior publication `2f5c0c71`; consolidated publication is pending, with no new root hosted result inferred |
+| 2026-10-12 | Reviewed Stop outcome `f72eec2` and PIN production release `9b2913f` | Root accepts independently corrected Stop documentation and commits its draft pin/outcomes as `f72eec2`; actual docs and canonical-range commitlint (21 commits) pass. Root then commits accepted PIN baseline/production transition as `9b2913f` and releases only the registered correction. At this checkpoint both were local history after prior publication `2f5c0c71`; consolidated publication was pending, with no new root hosted result inferred |
 | 2026-10-12 | Cosmetic PIN draft #55 author and partial hosted gates | Authored `5531b6e9e5ba7969f0a5c43a87d3ba1113e73dbe` is published as `c7b575b451ec9fde699596408f52b4549b3d026d`; root hash-verifies/imports identical tree `fc6fd72f24d3c7644791892d177ee0700c75933a`. Full author typecheck/build, 1,430 units/186 files and 342 browser cases pass, with 18 existing intentional skips/zero flaky cases; focused 236 units and 24 browser cases pass without new skips. Independent static review accepts; independent runtime remains pending. Actual [CI 38193904180](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38193904180) job 114632303164 passes typecheck/build/1,430 units on synthetic merge `f0917792dbb25a2d6a888aa69fbb20cf884715d0` of published `c7b575b` into `a673fe5`; [Browser 38193904177](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38193904177) job 114632302802 remains pending. No source acceptance/merge/pin or authority advancement |
 | 2026-10-12 | Cosmetic PIN #55 final acceptance and exact draft-pin registration | Independent final review accepts with fresh 236 units and 24 browser cases; actual Browser 38193904177 job 114632302802 passes 342 cases/18 existing skips on synthetic merge `f0917792dbb25a2d6a888aa69fbb20cf884715d0`, matching successful CI 38193904180. Root inspects actual hosted/reviewer logs, accepts and merges #55 as `960074b5ec998855cb3d196a0f93628e72817331`. All author/reviewer processes are released; root verifies clean worktree/tracking alignment to published `c7b575b`, identical tree `fc6fd72f…`; recovery `codex/recovery-cosmetic-pin-20261012` preserves authored `5531b6e` and baseline `8d2bb5e`. Exact draft UI `a673fe5`→`960074b5` is registered before checkout, with signed canonical object/hash/tree verification complete and checkout/fresh pin/proto checks pending. FR-PLAY-012 Impl / T-M4-10 Done only for cosmetic UI; no authority/profile, broader accessibility or deployment advancement |
-| 2026-10-12 | Cosmetic PIN registered draft selection `91d3ba0` | Root commits independently accepted PIN outcome/registration docs, then checks out exact signed `media-ui-app` `960074b5`. Actual `bash scripts/check-pins.sh` and `bash scripts/check-proto-drift.sh` both pass exit 0; pin checks retain the same five optional missing-path warnings. Logs `/tmp/umbrella-cosmetic-pin-pins-20261012.log` and `/tmp/umbrella-cosmetic-pin-proto-20261012.log`. Selected only in prepared draft #223, pending root staging/final consolidated publication; no canonical-main, deployment or full integration claim. Prior root CI failure evidence remains dated, cause unknown; userdata tag, profile authority and E12/E13 gates remain open |
+| 2026-10-12 | Cosmetic PIN registered draft selection `91d3ba0` | Root commits independently accepted PIN outcome/registration docs, then checks out exact signed `media-ui-app` `960074b5`. Actual `bash scripts/check-pins.sh` and `bash scripts/check-proto-drift.sh` both pass exit 0; pin checks retain the same five optional missing-path warnings. Logs `/tmp/umbrella-cosmetic-pin-pins-20261012.log` and `/tmp/umbrella-cosmetic-pin-proto-20261012.log`. At this checkpoint selection was only in prepared draft #223, pending root staging/final consolidated publication; no canonical-main, deployment or full integration claim. Prior root CI failure evidence remains dated, cause unknown; userdata tag, profile authority and E12/E13 gates remain open |
+| 2026-10-12 | Consolidated Stop/PIN publication `3db0271e38d7f341916d2e1f317383a3fb086b4b` | Authored `28480610a0fcc9321a12d29bfca789fb04a8d9a8` is published with identical tree `ad992e26f75b8bbcf943676f3e68256666e99682`. Root hash-verifies/imports the canonical object and confirms clean branch/tracking alignment. All seven local commits after `2f5c0c71` are preserved on `codex/recovery-stop-pin-20261012`. Published canonical-base commitlint passes 18 commits (authored range 24); fresh docs, pin and proto checks pass, retaining the five known optional-path pin warnings. PR #223 body records exact head/tree/results and stays draft; all source/spec changes in this batch are published, with no main merge/deployment/train change |
+| 2026-10-12 | Exact `3db0271e` umbrella hosted CI blocker | Actual [CI 38194581846](https://github.com/Muxcore-Media/umbrella/actions/runs/38194581846) jobs 114634336027, 114634336137 and 114634336196, and [Commit lint 38194581880](https://github.com/Muxcore-Media/umbrella/actions/runs/38194581880) job 114634335799 fail with `steps: null`. Cause remains unknown; no actual check execution is inferred and no jobs are retried. This dated evidence does not establish a source failure or a newer local status-only checkpoint's hosted result |
+| 2026-10-12 | T-M4-02 proposal-only registration from `9c404ab` | Registers one umbrella documentation writer, three read-only module reviewers and the exact six-path future candidate before drafting (§6). Initial diff is roadmap-only; local `node scripts/check-docs.mjs` and `git diff --check` pass. Root's registration commit/release and module findings remain required before drafting. No architecture acceptance, source/runtime result, hosted retry or publication is claimed; FR-AUTH-010 Plan / T-M4-02 Todo remain unchanged |
+| 2026-10-12 | T-M4-02 six-document Proposed ADR-0039 candidate after `89b1555` | Auth/userdata/BFF read-only source reviews inform the authority, custody alternatives, recommended default aliases and policy intersection, migration and lifecycle proposal. Local `node scripts/check-docs.mjs` and `git diff --check` pass before freezing the candidate for independent review; no source tests or runtime probes run, no architecture acceptance or hosted retry. FR-AUTH-010 Plan / T-M4-02 Todo remain unchanged |
+| 2026-10-12 | T-M4-02 Proposed ADR-0039 review and commit `803f634` | Independent review identified bearerless Quick Connect/legacy sessions as authority outside provider-epoch revocation. Corrected evidence/custody rules and retained-local-session/restart negative tests pass independent review; final ADR SHA-256 is `dc78f99c96db9e94595f1c7dc21ad50ceea139766dc58672188c99ff40bbd93e`. Root reruns docs/diff checks and commits the six docs as a Proposed record only. No architecture or source acceptance; FR-AUTH-010 Plan / T-M4-02 Todo |
+| 2026-10-12 | Dormant default-profile mapping docs registration from `803f634` | Roadmap-only registration names the separate six-document candidate before reserved ADR `0040` drafting. Source remains unreleased; genuine `v0.1.21` snapshot generation is locally blocked by B-3/missing `sqlite3`, and N-1 provenance remains unresolved. Normal candidate checks cannot substitute for these migration gates. Local `node scripts/check-docs.mjs` and `git diff --check` pass; root's registration commit/release remains required before drafting |
+| 2026-10-12 | Dormant mapping Proposed ADR-0040 after `359e098` | Root commits the documentation registration, then releases only its six-document draft. Read-only auth and independent foundation review inform the bounded schema, transaction, corruption/restore and verification proposal; no source edit/test/probe or acceptance is claimed. Local `node scripts/check-docs.mjs` and `git diff --check` pass before exact-candidate independent/root review; FR-AUTH-010 Plan / T-M4-02 Todo remain unchanged |
+| 2026-10-12 | Bounded N-1 release-train provenance lookup | Root reports local `git tag --list 'train-*'` empty; `release-train.env` declares `train-2026.10.3` metadata only. Supported GitHub umbrella `/releases?per_page=30` returns `[]`; `/git/refs/tags` returns 404 `NOT_FOUND`; `/tags?per_page=100` is rejected 400 `INVALID_ARGUMENT` by the allowlist, without retry. These available paths establish no discoverable previous-train provenance, not absence of historical trains. N-1 gate remains unresolved; no further lookup or CI workaround is authorized by this record |
+| 2026-10-12 | ADR-0040 decision acceptance and exact eleven-path source registration | Root and independent review accept Proposed ADR SHA-256 `25341debd350b0f776daab1c029d14b0a4f89eeaaae76b39826c46829cc1809d`, including canonical UTC RFC3339Nano, after fresh root docs/diff checks. Decision transitions to Accepted/Delegated only; §6 registers the sole auth owner, exact branch/base, eleven paths and full verification/fixture gates before source edits. Final accepted-decision/registration `node scripts/check-docs.mjs` and `git diff --check` pass; root commit and explicit source-owner release remain pending. No source test, acceptance or migration/activation result is claimed |
+| 2026-10-12 | ADR-0040 registration commit and source release `c29c224` | Root commits the accepted decision/eleven-path registration and then explicitly releases `root/profiles_auth_design`. The auth owner is on `codex/auth-default-profile-mapping-20261012` with registered edits in progress; no source acceptance or new verification result is claimed. Root `lint-commits` for `3db0271..c29c224` passes five commits. Genuine prior-tag/N-1 gates keep the candidate Draft; accepted ADR-0040 is unchanged |
+| 2026-10-12 | T-M4-06 player button Space registration | Independent read-only discovery and root source review identify global BUTTON Space interception; no runtime baseline yet. Roadmap/SRS register the exact hook/two-new-test-file scope and actual Player fixture plan before root's test-only release. Expected failing Settings/Mute Space cases plus passing Enter/global-Space controls are required before production; local `node scripts/check-docs.mjs` and `git diff --check` pass. NFR-A11Y-001/002 and T-M4-06 stay Part; no subtitle/T-M3-10 investigation or runtime acceptance |
+| 2026-10-12 | Dormant mapping frozen draft auth-local #48 | Authored `f2ffaec94ccd420797279518d05ef20f73a3e425`, published `b9f6f08786065404cdb352b5a384c0284ccca031`, share tree `4f7bf207736eb5002e740ef49148a555afe3adc2`; source-manifest SHA-256 `80a70a668333bf10ef7a8dac9236beb236a84fcfb7187966a1ccb2e21711ee7f`. Independent static review has no remaining code blockers. Root inspects actual `/workspace/.tools/checks/auth-default-profile-mapping-20261012/` build/vet/focused/full-race/lint logs: required provider gates all stop before compilation on missing SQLite v1.55.0 with `GOPROXY=off` (B-3); only unrelated `grpctls`, `policy` and `redirectallow` packages pass. Gofmt/diff pass; no provider compile/runtime pass. Hosted results pending; Draft-only and genuine previous-tag/N-1 gates remain, with no source acceptance/merge/pin/tag/release/activation |
+| 2026-10-12 | T-M4-06 provisional test-only Player Space baseline after `bab563a` | Only the two registered new tests change; production hook stays at `960074b5`. Author unit run: 2 expected failures/5 controls pass; build passes; actual Player browser run: 8 expected Settings/Mute Space failures/8 Enter/global-Space controls pass across four widths. Each case establishes loaded 60-second WAV metadata/current data/no media error; no setup failures/corrections reported. Logs/attachments are under `/workspace/.tools/checks/player-button-space-20261012/`. Independent review running; no production release, source acceptance or requirement advancement |
+| 2026-10-12 | Player Space baseline `182dbcb0c05ea5ee8d463b69942ec2bd3b07c095` accepted; production release | Independent review reproduces 2 expected unit failures/5 passing controls and 8 expected browser failures/8 controls on actual Chromium at 375/768/1280/1920, with media setup, focus, overflow and strict network gates passing. Root accepts/commits the test-only baseline, then releases only the registered native-button Space hook correction. Final production/full checks and independent review remain pending; no scoped source or requirement acceptance |
+| 2026-10-12 | Auth-local #48 partial hosted CI | Actual [CI 38197732896](https://github.com/Muxcore-Media/auth-local/actions/runs/38197732896) lint job `114644080761` succeeds; build/vet steps pass, while race tests remain running. Lint log checks out synthetic merge `8dac6d7` of published `b9f6f087` into canonical `9f9ec32`. No completed full gate is claimed; local B-3 limits and missing genuine previous-tag/N-1 fixture gates remain |
+| 2026-10-12 | Auth-local #48 final ordinary hosted gates, still Draft | Actual CI `38197732896` lint job `114644080761` and build/vet/full-race job `114644080945` both succeed. Root inspects `hosted-lint.log`/`hosted-test.log` in `/workspace/.tools/checks/auth-default-profile-mapping-20261012/`: checkout is synthetic merge `8dac6d7b517edd795325d86859ad9fd96980b157`, parents canonical `9f9ec32` and published `b9f6f087`, tree `4f7bf207736eb5002e740ef49148a555afe3adc2` identical to authored source. All provider packages report `ok`, including store 28.684 s/server 11.981 s. Local B-3 setup failures remain historical/environment-specific. Clean worktree tracks `b9f6f087`; recovery `codex/recovery-auth-profile-mapping-20261012` preserves `f2ffaec9`. PR #48 body is updated; an optional artifact attachment hung/was terminated without success. Genuine `v0.1.21`/N-1 fixture gates remain unresolved: no source acceptance, merge, pin, tag/release or activation |
+| 2026-10-12 | Player Space final source acceptance, merge and exact draft-pin registration | Authored `3bf86ab30062e7293f20db8a3c1ef4935c4851c5`, published `2693058d283b9ac444bfe88d25f22bb9cf601ca6`, and signed canonical merge `6674c28f2de62c1ac628defd1e3a31cc8b35259c` share reviewed tree `e4053b5e5e64fca255ca514e4d4f5864ef0df805`. The registered three-file diff contains only a three-line native BUTTON Space guard plus two tests. Actual local typecheck/build, 1,439 units/187 files, nine focused units and full Chromium 151.0.7922.173 (358 pass/18 existing skips/zero failures, 376 scheduled) pass; all 16 new Player cases pass at four widths. Independent final review approves with fresh nine units/16 browser passes and unchanged manifest. Root inspects [CI 38198409156](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38198409156) job `114646139533` and [Browser 38198409168](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38198409168) job `114646139534`: actual typecheck/1,439 units/build/output and 358 browser passes/18 existing skips succeed on synthetic merge `58a4d36f4521dc5365f6eb2c4a173b1e525f8b64` of `2693058d` into `960074b5`, identical tree. Logs are under `/workspace/.tools/checks/player-button-space-20261012/`, including `hosted-ci.log`/`hosted-browser.log`; manifest digest `076a663675e81449b3cb05b46b7affb36628d6e471b330b41e7b340bb2e162db`, patch digest `36a1c41e3d42ba56b8e85b88785af5a59af0c369c05b38d21aab6ef900036d83`. Root accepts, marks ready and exact-head-merges #56, then verifies signed merge/tree. Clean published worktree/recovery preserve `3bf86ab3` and baseline `182dbcb0`; one optional attachment attempt hung/was terminated without success. Exact draft UI `960074b5`→`6674c28f` is registered before checkout; local registration docs/diff checks pass, while root commit/fresh pin/proto/docs/commit-lint gates remain pending. No pin/deployment or broad accessibility acceptance |
+
+| 2026-10-12 | Player Space registered draft selection `5cfbb1c` | Root commits the outcome/exact-pin registration before checking out signed `media-ui-app` `6674c28f2de62c1ac628defd1e3a31cc8b35259c`. Actual fresh pins/proto/docs/diff and canonical `4403e97..HEAD` commit lint all pass, exit 0; lint covers 26 commits at this checkpoint. Pins retain the same five optional missing-path warnings, with no new ones. Logs `/workspace/.tools/checks/player-button-space-20261012/root-pins.log` and `root-proto.log` were inspected. Only the prepared Draft selection advances; other six pins, canonical main, release train and deployment are unchanged. Auth remains pinned `9f9ec32` and mapping #48 stays Draft. Consolidated source-pin/docs publication and root new-head hosted gates remain pending |
+
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -2323,6 +2621,52 @@ is established by independent producer publication.
 
 ## 14. Current integration and authority work (2026-10-12)
 
+**Current documentation handoff:** root committed T-M4-02's independently
+reviewed Proposed ADR-0039 record as `803f634` after registration `89b1555`,
+preserving the published `3db0271e` checkpoint and historical stop below.
+`root/profiles_roadmap` records independent/root acceptance of the separate
+ADR-0040 dormant mapping decision and eleven-path source registration, committed
+as `c29c224`. Root released `root/profiles_auth_design`; its isolated
+`codex/auth-default-profile-mapping-20261012` source is now frozen/published in
+Draft auth-local #48 (`b9f6f08`, authored `f2ffaec9`, identical tree §6/§9).
+Independent static review has no remaining code blockers; required local
+provider gates are B-3 setup-blocked. Actual hosted full build/vet/race/lint pass
+on the identical source tree (§9). The clean worktree tracks `b9f6f087`, with
+authored history preserved on `codex/recovery-auth-profile-mapping-20261012`.
+The decision
+is Accepted/Delegated; its accepted body is unchanged.
+The viewer-authority proposal remains unaccepted, with credential custody and
+activation blockers explicit. FR-AUTH-010 stays Plan and T-M4-02 Todo. The auth
+source candidate stays Draft until genuine
+previous-tag/N-1 fixtures and all other gates pass. Available
+tag/release lookup paths establish no previous-train provenance (§9). E7/B-8,
+T-M3-10, root CI retry and deployment restrictions are unchanged.
+
+Independent T-M4-06 player button Space registration is committed as `bab563a`.
+`root/consumer_accessibility_discovery` owns the isolated UI slice; the two-file
+test-only baseline has two expected unit/eight browser failures with five/eight
+passing controls and a passing build (§6/§9). Independent review confirms the
+baseline; root commits it as `182dbcb0` and releases only the registered hook
+correction. Its three-file candidate passes full local typecheck/build, 1,439
+units and 358 browser cases/18 existing skips; independent final review approves
+with fresh nine units/16 Player cases. Actual hosted CI/browser gates pass with
+the same counts, and root accepts/merges UI #56 as signed `6674c28f`, identical
+to authored `3bf86ab3` / published `2693058d` (§6/§9). Root verifies those objects and
+aligns the clean worktree; recovery `codex/recovery-player-space-20261012`
+preserves authored/baseline history. Exact draft-only `media-ui-app`
+`960074b5`→`6674c28f` is selected after registration commit `5cfbb1c`; fresh
+pin/proto/docs/diff and canonical-range commit lint pass, with the same five
+optional-path pin warnings (§6/§9). Consolidated publication/new-head root
+hosted gates remain pending. Broad T-M4-06 and NFR-A11Y-001/002
+remain Part, with no deployment or full accessibility acceptance.
+Auth's Draft source and fixture gates remain independent.
+
+The saved next priorities remain T-M4-09's untagged accepted userdata release
+and shared-writer/progress migration decisions before consumer activation and
+real provider/device isolation checks. Auth #48 still needs genuine `v0.1.21`
+and N-1 upgrade evidence; ADR-0039's credential-custody/viewer-authority decisions
+remain Proposed. This handoff opens no new source scope or blocked retry.
+
 This checkpoint reconciles GitHub source/PR evidence with umbrella `4403e97`
 ([#222](https://github.com/Muxcore-Media/umbrella/pull/222)). The older checkpoints
 below are dated history: their use of “current”, “blocked” or “unpinned” describes
@@ -2333,7 +2677,7 @@ release gates now pass; canonical pin and household integration remain pending.
 | Scope | Current source state and acceptance boundary |
 |-------|---------------------------------------------|
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
-| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `960074b5`, `_mvp` `5cf783ed` and userdata-local `b0a3abe2`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. The accepted UI #53 `2bd3bcd8`, later UI #54 `a673fe5`, and userdata #13 `b0a3abe2` advances are also selected after separate registrations and fresh pin/proto checks (§6/§9). The accepted Stop #115 `5cf783ed` advance is selected after registration `d72f978` and fresh pin/proto checks, committed with its outcomes as `f72eec2`. Accepted UI #55 `960074b5` is selected after registration `91d3ba0` and fresh bounded pin/proto checks. Umbrella #223 remains unmerged; consolidated publication is pending and its PR identifies the current exact head. Recorded prior root CI/commitlint failed with null steps and unknown cause, with no newer result inferred; corrected-set E11/E12/runtime acceptance remains unresolved |
+| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `6674c28f`, `_mvp` `5cf783ed` and userdata-local `b0a3abe2`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. The accepted UI #53 `2bd3bcd8`, later UI #54 `a673fe5`, and userdata #13 `b0a3abe2` advances are also selected after separate registrations and fresh pin/proto checks (§6/§9). The accepted Stop #115 `5cf783ed` advance is selected after registration `d72f978` and fresh pin/proto checks, committed with its outcomes as `f72eec2`. Accepted UI #55 `960074b5` is selected after registration `91d3ba0` and fresh bounded pin/proto checks. Accepted UI #56 `6674c28f` is subsequently selected after registration `5cfbb1c` and fresh pin/proto/docs/diff/canonical-range commit-lint checks; consolidated publication is pending. Umbrella #223 remains draft/unmerged at published `3db0271e`; its PR body records the exact head/tree/results. Exact hosted jobs for this published head failed with null steps and unknown cause (§9); no execution, retry or merge is inferred; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
 | ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 normalized/stored-ID and last-seen-ledger gaps are reproduced in #11 baseline tests; corrected source is accepted after exact full hosted gates, merged as `33dceaf1` and selected only in the prepared draft. Metadata-only #12 is accepted/merged as `25de169`, but its v0.1.8 tag remains unpublished. Accepted P1 #13 `b0a3abe2` carries E3 and the metadata, and is selected only in draft after registration/fresh pin/proto checks; no consumer activation or new erasure closure follows. E7 admin now has five source-backed, unreproduced findings with root-approved test-only scope registered before source edits, now blocked by platform agent failure (B-8) without runtime results (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50, scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) and action-feedback #52 (`7354e43`, merged `fdfa25ff`) are accepted source included in draft #223, not canonical. Phone Search #53 (`1eb773a`, merged `2bd3bcd8`) and pending-clear #54 (`9ee6078`, merged `a673fe5`) are accepted and carried only in draft after registration and fresh pin/proto checks (§6/§9). Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
@@ -2381,11 +2725,27 @@ equality and clean branch/tracking alignment. Correct canonical-base lint passes
 steps and unknown cause (§9); no rerun, main merge or deployment follows.
 The prior unpublished-checkpoint descriptions above are dated history.
 
-**Active source recovery handoff (2026-10-12):**
+**Published source recovery handoff (2026-10-12):**
+source owners `root/userdata_contract_20261012`, `root/bff_contract_20261012` and
+`root/consumer_contract_20261012` are idle/released; author and reviewer runtime
+processes are released. Their accepted work and recoverable histories are below.
+This final roadmap-only status update remains local for the next run; it does
+not start another publication or hosted-CI cycle.
+
+Next work remains gated: T-M4-02/FR-AUTH-010 requires an unaccepted architecture
+proposal addressing account/viewer credentials, privileged browser credential
+custody, profile ownership/selection, migration, PIN purpose/attempt budgets and
+userdata/policy isolation (§6), not an expansion of the cosmetic repair.
+T-M4-09 consumer integration still requires publication of the currently untagged
+userdata release,
+coordinated shared-writer/progress migration decisions, BFF/SPA/native activation
+and real provider restart/device/isolation verification; FR-PLAY-004 stays Part.
+E12/E13 and NFR-DATA-003 remain open, alongside the recorded root CI blocker.
+B-8 and T-M3-10 restrictions remain unchanged; no new source scope is opened.
 
 | Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
 |---------------|---------------------|---------------------------------------|
-| T-M4-09 accepted bounded provider decision — `root/roadmap_20261012` | Sole umbrella writer in `/workspace/umbrella`, `codex/roadmap-20261011`, prior published checkpoint `2f5c0c710000c264cdd15469e249d879e1ba0a34`, followed by local reviewed history `69c420c`, `568ba8c`, `d72f978`, Stop outcome `f72eec2` PIN release `9b2913f` and accepted PIN registration/outcome `91d3ba0`. Consolidated publication is pending; [PR #223](https://github.com/Muxcore-Media/umbrella/pull/223) identifies its current exact head. Prior published tree `e7b75792…` equals authored `62f9d4ea`; recovery `codex/recovery-provider-search-20261012` preserves all seven local commits. Correct published canonical-base lint passes 17 commits | Accepted [ADR-0038](docs/adr/0038-additive-household-userdata-mutations.md), final SHA256 `42059f97…`, is published with exact tree `00e6ea89…` matching authored `af24bb2`, preserved with prior registration `7b1b27c` on `codex/recovery-adr0038-20261012`. Root/independent review accepts the bounded contract; ADR-0037 stays Proposed. Dated prior root hosted failures remain tied to their recorded heads (§9), with null steps/cause unknown and no retry; no checks are inferred for the pending consolidated publication. No main merge. FR-PLAY-004 stays Part and integration gates remain open |
+| T-M4-09 accepted bounded provider decision — `root/roadmap_20261012` | Umbrella `/workspace/umbrella`, `codex/roadmap-20261011`, aligned cleanly at published `3db0271e38d7f341916d2e1f317383a3fb086b4b` before this deliberate local status-only update. Published tree `ad992e26…` equals reviewed authored `28480610`; recovery `codex/recovery-stop-pin-20261012` preserves all seven commits after prior `2f5c0c71`. Published canonical-base lint passes 18 commits (authored 24). [PR #223](https://github.com/Muxcore-Media/umbrella/pull/223) records its exact published head/tree/results | Accepted ADR-0038 is published and unchanged; ADR-0037 stays Proposed. Exact `3db0271e` hosted CI/commitlint jobs fail with null steps and unknown cause (§9), without retry or inferred execution. Source/spec changes are published; this final roadmap status record is deliberately local and unpushed, with no further publication/CI loop. FR-PLAY-004 Part and integration gates remain open; no main merge/deployment |
 | T-M4-09 P1 additive HTTP provider — `root/userdata_contract_20261012` | Reused `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-conditional-v2-20261012`, clean/tracking at published `ea30faf6dc429d7021f60530832c07f999f8de6c`; recovery `codex/recovery-userdata-conditional-20261012` preserves authored `b08ea98d` | Accepted/merged #13 as `b0a3abe2`, signed canonical tree `9b30dfc9…` identical to reviewed source. Independent focused checks/review and actual hosted full build/vet/race/lint/proto pass (§9); full local SQLite gates remain B-3-blocked. Draft-only pin extension is selected after registration and fresh bounded pin/proto checks. Module manifest `0.1.8` remains untagged; no consumer dependency/activation, deployment or train change. FR-PLAY-004 Part, NFR-DATA-003 Plan and E12/E13 remain open |
 | T-M4-06 phone Search entry — `root/consumer_contract_20261012` | Preserved history: `codex/mobile-search-entry-20261012` published `1eb773ab0bc8e09c25ea4d4f5ee36d3f2ee279eb`; recovery `codex/recovery-mobile-search-20261012` retains baseline `46789ac`/authored `38a194eb`. Shared worktree is reused for the registered cosmetic-PIN test-only scope below | Accepted/merged [UI #53](https://github.com/Muxcore-Media/media-ui-app/pull/53) as `2bd3bcd8`, signed canonical tree `5d52dfbd…` identical to reviewed source. Local/hosted 1,415 units and 310 browser passes/18 existing skips plus independent 29 units/12 browser cases pass (§9). Draft-only pin advance is selected after registration and fresh actual pin/proto checks (§9). NFR-A11Y-002 stays Part; no backend, userdata or deployment acceptance |
 | T-M4-06 pending-Search clear — `root/consumer_contract_20261012` | Preserved history: `codex/search-clear-pending-20261012` at published `9ee6078399a65d06cfdb43cf0383d99c5ed81838`; recovery `codex/recovery-search-clear-20261012` preserves baseline `66336ca` and authored `0824fd8` | Accepted/merged #54 `a673fe5`, signed canonical tree `e208ca9e…` identical to reviewed source. Local/hosted 1,419 units and 318 browser passes/18 existing skips plus independent 33 units/20 browser cases pass (§9). Draft-only pin advances after registration and fresh pin/proto checks. One optional Codex app-attachment attempt hung and was terminated after a bounded wait; it is not a source/test failure and needs no user action. NFR-A11Y-002 remains Part; no live backend, userdata or deployment claim |
