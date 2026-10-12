@@ -227,10 +227,159 @@ The original nine items from [TDD §8](docs/architecture/TDD.md#8-security-harde
 | T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
 | T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — admin-only indexer mutation controls retain admin/manager Acquisition access. Fresh direct-Settings role hydration is fixed in source `881bfb1`, merged as `ab429bc` (#44), included in earlier UI pin `816abd6` and the current pin `b00db38`, with delayed identity, current-role correction, expiry, sign-out and cross-tab fixtures. T-M5-12 source `0ef06f3` adds verified operator-action controls, merged as `517ba0a` (#47) after both hosted workflows passed; carried by the `b00db38` pin. Display preference hydration source `ef4d284` (#49), merged as `79cc826`, and preference-ordering source `54585c6` (#50), merged as `ba68ada`, are locally/independently/hosted verified and remain unpinned after `b00db38` (details below). Settings migration, an admin destination and manager page access remain open |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
-| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, carried by the `b00db38` pin. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
+| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, carried by the `b00db38` pin. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. Phone Search entry #53 (`1eb773a`, merged `2bd3bcd8`) is accepted at scoped source level after local/hosted 1,415 units and 310 browser cases / 18 existing skips plus independent review (§6/§9); its draft-only pin advance is selected after registration with fresh pin/proto checks. Follow-up #54 (`9ee6078`, merged `a673fe5`) fixes loading after clearing a pending query, with local/hosted 1,419 units and 318 browser cases / 18 existing skips plus independent review; selected only in draft after separate registration/checks (§6/§9). These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
 | T-M4-07 | User deletion fan-out (NFR-DATA-003) | **Part (2026-10-11)** — [ADR-0035](docs/adr/0035-user-erasure-ledger.md). E1/E3 and E7–E10 have recorded source pins; canonical baseline E2 auth-local `71c66d8` lacks the reported ledger implementation (C-40). Accepted E2/E4/E5 follow-ups are published as `v0.1.21`/`v0.3.9`/`v0.1.8`; E6 `v0.1.3` source review passes. These four sources plus accepted UI #51, `_mvp` #112 and userdata-local #11 form the seven draft #223 source selections; exact source gates and bounded draft checks are recorded by checkpoint (§6/§9), while canonical main remains unchanged. E7 admin review now identifies five source-backed gaps with a root-approved test-only scope whose execution is now platform-blocked (B-8); no runtime results. E11 is merged in [umbrella #221](https://github.com/Muxcore-Media/umbrella/pull/221), with reported local mTLS stopped-consumer catch-up verification on older published dependencies. Exact root hosted gates, corrected-set E11 verification, E12 household deletion plus pre-deletion restore drill and E13 closure remain. NFR-DATA-003 stays Plan; no deployment |
 | T-M4-08 | Consumer theme contrast and a rendered browser gate (NFR-A11Y-001, NFR-A11Y-002, NFR-MNT-002, ADR-0025) | Done (selected fixture scope) — source `690442b`, [PR #46](https://github.com/Muxcore-Media/media-ui-app/pull/46), merged as `7a45f33` after hosted CI/Browser success, carried by the `b00db38` pin. Anchor layering, theme-aware tertiary/danger/success text and foreground-only accent migration (59 exact mechanical files plus InviteJoin) retain accent fills/borders/brand colors and filled danger-control surfaces; light error borders follow the darker danger token. Local typecheck, 1326 unit tests, build and 208 browser cases pass (12 existing skips), including 104 new contrast cases with computed-theme assertions and negative controls at four widths/both themes; final hover-paint checks 24/24. Follow-up #48 `adf6d29`, merged as `b00db38`, adds Activity action/Movies select contrast; 256 local and hosted browser cases pass with 16 existing skips (§9); it is the pinned `media-ui-app` (`b00db38`, tree identical to the reviewed head). The earlier `d39156c` baseline Movies contrast failure was fixed at `26a594e` and is no longer pending. Media/gradient incomplete results, other routes, assistive technology, light video OSD and full/cross-browser WCAG acceptance remain open |
-| T-M4-09 | Native userdata authentication and durable cross-device persistence (FR-PLAY-004, C-33) | **In progress (reviewed native drafts; Apple/provider gates pending)** — iOS `6bc13a5` (draft muxcore-ios #1, base `830d14d`) and tvOS `fe08722` (draft muxcore-tvos #1, base `a424ac6`) implement cookie-free BFF bearer requests, verified server/user/tenant binding, persisted pending edits, visible failure/retry, serialized writes and response guards. Independent Linux package tests/builds and real-loopback transport checks pass (§9); complete Apple app compilation and simulator journeys remain blocked by B-6. Neither draft is merged or pinned; FR-PLAY-004/FR-NAT-001 stay Part. Real BFF→provider persistence after app/BFF/provider restart, fresh-device/account isolation, failure/offline recovery and explicit Quick Connect limits remain required. S9a–e are merged and integrated at fixture level, including the canonical blob-path correction and authenticated transport (`_mvp` #106, admin-ui #72, umbrella #217). Ordinary blob fallback still does not prove provider persistence. The backend blob-contract and tenant integration conditions below also remain open; BFF acknowledgment or portable cache-reload fixtures alone do not establish provider/device durability |
+| T-M4-09 | Native userdata authentication and durable cross-device persistence (FR-PLAY-004, C-33) | **In progress (reviewed native drafts; Apple/provider gates pending)** — iOS `6bc13a5` (draft muxcore-ios #1, base `830d14d`) and tvOS `fe08722` (draft muxcore-tvos #1, base `a424ac6`) implement cookie-free BFF bearer requests, verified server/user/tenant binding, persisted pending edits, visible failure/retry, serialized writes and response guards. Independent Linux package tests/builds and real-loopback transport checks pass (§9); complete Apple app compilation and simulator journeys remain blocked by B-6. Neither draft is merged or pinned; FR-PLAY-004/FR-NAT-001 stay Part. Real BFF→provider persistence after app/BFF/provider restart, fresh-device/account isolation, failure/offline recovery and explicit Quick Connect limits remain required. S9a–e are merged and integrated at fixture level, including the canonical blob-path correction and authenticated transport (`_mvp` #106, admin-ui #72, umbrella #217). Ordinary blob fallback still does not prove provider persistence. The bounded ADR-0038 five-family provider source #13 (`b0a3abe2`) is accepted after actual hosted full gates and selected only in draft, still untagged; progress/watched, legacy-writer enforcement, client integration and tenant conditions below remain open. BFF acknowledgment or portable cache-reload fixtures alone do not establish provider/device durability |
+
+**T-M4-06 phone Search entry (NFR-A11Y-002; registered 2026-10-12 before source edits) — Done at scoped source level, merged; selected only in draft:**
+root's read-only review at canonical UI `fdfa25ff7d74fceeef7cf25591c292076691be6e`
+finds that `src/components/layout/Nav.tsx:246` hides its only `HeaderSearch`
+below the `sm` breakpoint (`hidden … sm:flex`), while the mobile Search tab opens
+`/search` and `src/pages/Search.tsx:158` directs the user to that hidden header
+input. The reused worktree's current published `7354e43` has the identical
+`da0e24bf…` tree; the source review preceded runtime reproduction. This is an
+improvement to the existing viewport requirement,
+not a new API or architectural decision.
+
+Sole source writer `root/consumer_contract_20261012` reuses
+`/workspace/media-ui-feedback-20261011` on new branch
+`codex/mobile-search-entry-20261012` from canonical `fdfa25ff`, preserving old
+branches. Exactly three module paths are authorized after root commits this
+registration and releases the source owner:
+
+| Path | Scope |
+|---|---|
+| `src/pages/Search.tsx` | Reuse the existing `HeaderSearch` on phones; retain one visible search input on desktop, URL/scope behavior and existing restricted-route handling |
+| `src/pages/Search.test.tsx` | Focused page regressions and unchanged route/query behavior |
+| New `e2e/search-interaction.spec.ts` | Actual-client HTTP-fixture browser regression and four-width interaction checks |
+
+The registered baseline required a failing fixture before production edits: at
+375 px the mobile Search tab must lead to a visible, focusable query input. After
+the bounded repair,
+entering a query and pressing Enter must update the URL, invoke the expected
+fixture API and display the result. Verify exactly one visible query input at
+375/768/1280/1920 px, keyboard interaction, scope, clear and back navigation as
+applicable, absence of horizontal overflow, and existing restricted-route
+handling. Full `npm run typecheck`, `npm test`, `npm run build` and
+`npm run test:e2e`, plus independent review, are required before source
+acceptance. Acquisition/search results are fixtures only; no external provider
+calls. No shared `HeaderSearch`, navigation, API, userdata, dependency, gitlink
+or deployment edits belong to this scope. NFR-A11Y-002 remains Part. P1 userdata
+work and its acceptance gates remain independent; B-3/B-7/B-8 and T-M3-10 limits
+are unchanged.
+
+**Accepted result (2026-10-12):** test-only baseline `46789ac` preserves two
+expected unit failures/eight passes and three phone browser failures/nine wider
+passes before the production repair. Authored final `38a194eb` adds the existing
+`HeaderSearch` below `sm` only while `/search` is allowed and corrects the page
+hint. It is published as `1eb773ab0bc8e09c25ea4d4f5ee36d3f2ee279eb` and accepted/
+merged in [UI #53](https://github.com/Muxcore-Media/media-ui-app/pull/53) as
+`2bd3bcd826efe644c16f38683c2df948d487c22c`. Root verifies the signed canonical
+object and tree `5d52dfbdefedeac35497e16a6825f887cf20496c`, equal to reviewed
+source. Authored history, including the baseline, is preserved on
+`codex/recovery-mobile-search-20261012`. Local typecheck/build, 1,415 units across
+186 files and full Chromium 151 browser suite (310 pass / 18 existing skips)
+pass. Independent review finds no issue after 29 focused units and all 12 new
+browser cases at four widths. Actual hosted CI and Browser gates pass with the
+same counts (§9). Fixtures establish a usable phone input, one visible input on
+unrestricted Search at four widths, URL/query/scope/history/clear behavior,
+result rendering, no horizontal overflow and the existing restricted-entry
+refusal. No live search, backend, broad accessibility or userdata acceptance is
+claimed. The draft-only pin extension below is selected after registration with
+fresh pin/proto checks; canonical main, deployment and train remain unchanged.
+
+**T-M4-06 accepted phone Search draft-pin extension (registered 2026-10-12 before gitlink change) — Selected in the prepared draft:**
+root advances only the prepared draft's `media-ui-app` gitlink from
+`fdfa25ff7d74fceeef7cf25591c292076691be6e` to accepted canonical merge
+`2bd3bcd826efe644c16f38683c2df948d487c22c`
+([UI #53](https://github.com/Muxcore-Media/media-ui-app/pull/53)). Root verifies
+the signed canonical object and tree `5d52dfbdefedeac35497e16a6825f887cf20496c`,
+identical to reviewed source `38a194ebf1d502bb7be8e015c65faab684191ad3`.
+Sole umbrella writer records the scope before root checks out the gitlink; the
+writer does not move it. After the clean submodule checkout, actual
+`bash scripts/check-pins.sh` passes with the same five known optional missing-path
+warnings, and `bash scripts/check-proto-drift.sh` passes. Logs are
+`/tmp/umbrella-mobile-search-pins-20261012.log` and
+`/tmp/umbrella-mobile-search-proto-20261012.log`. These are bounded draft checks,
+not substitute provider/runtime/source gates. Other six prepared draft selections, canonical umbrella main,
+deployment and release train remain unchanged. This source-only draft selection
+does not establish live search, provider persistence, full layout/accessibility
+or household acceptance; NFR-A11Y-002 and T-M4-06 remain Part.
+
+**T-M4-06 clearing a pending Search (NFR-A11Y-002; registered 2026-10-12 before source edits) — Done at scoped source level, merged; selected only in draft:**
+root and consumer read-only review at canonical UI
+`2bd3bcd826efe644c16f38683c2df948d487c22c` identifies an independent loading-state
+gap: the `!canSearch` branch in `src/pages/Search.tsx` clears results/errors but
+does not set loading false. Clearing a query cleans up the old effect, so the
+old request's guarded `finally` cannot clear loading later. Searching status and
+skeletons can therefore remain after the query becomes empty. This source
+finding preceded the failing runtime baseline below. Accepted #53's clear fixture
+waits for completed results and does not cover an outstanding request.
+
+Sole source writer `root/consumer_contract_20261012` reuses
+`/workspace/media-ui-feedback-20261011` on fresh
+`codex/search-clear-pending-20261012` from canonical `2bd3bcd8`, preserving earlier
+branches. Root must commit this registration and release the owner before edits.
+The exact three-file scope is:
+
+| Path | Scope |
+|---|---|
+| `src/pages/Search.tsx` | Set `loading` false in the empty/too-short-query branch; preserve current cancellation guards and all other query/route behavior |
+| `src/pages/Search.test.tsx` | Deferred old-success/old-failure regressions and a newer pending-search control, proving stale completion cannot restore results/errors or finish the newer request |
+| `e2e/search-interaction.spec.ts` | Hold a fixture search, clear through the visible input, and assert no Searching status, skeletons or stale results both before and after the late response at 375/768/1280/1920 px; preserve scope and focus |
+
+Freeze a failing baseline against unchanged production before the one-line
+correction. Run focused units/browser fixtures, then full `npm run typecheck`,
+`npm test`, `npm run build` and `npm run test:e2e`, plus independent review before
+source acceptance. Use only local HTTP fixtures, with no live traffic. Shared
+`HeaderSearch`, Nav, API, userdata, dependencies, gitlinks and deployment are
+outside this scope. T-M4-06/NFR-A11Y-002 stay Part. This follow-up does not alter
+accepted #53 evidence, provider P1 work or B-3/B-7/B-8/T-M3-10 restrictions.
+
+**Accepted result (2026-10-12):** test-only baseline
+`66336caca17b36b771fdc60b21fd6aa42deaf3d3` preserves two expected unit failures/
+12 passes and eight browser failures/12 passes on unchanged `2bd3bcd8`. Old
+success/failure leaves Searching and six skeletons after debounced clear at all
+four widths before release; after releasing the old response, the baseline also
+fails the Searching assertion. These are state assertions, not fixture timeouts;
+the explicit `response.finished()` wait belongs to the final fixture only. The one-line production reset is authored as
+`0824fd8c2c6406a3adeb69de3baeb865007018b3`, published as
+`9ee6078399a65d06cfdb43cf0383d99c5ed81838` and accepted/merged in
+[UI #54](https://github.com/Muxcore-Media/media-ui-app/pull/54) as
+`a673fe5b8bee21916b43c2c6e561991ea6cfeb7c`. Root verifies signed merge/hash and
+identical reviewed/published/merge tree `e208ca9e315bcb8fc8a88ebbc66888dc12ecc807`.
+Recovery `codex/recovery-search-clear-20261012` preserves the authored baseline
+and final source; worktree/tracking are clean at published `9ee6078`.
+
+Full local typecheck/build, 1,419 units/186 files and Chromium 151 browser suite
+(318 pass / 18 existing intentional skips) pass. Independent review has no
+findings after 33 focused units and 20 browser cases at four widths. Actual
+hosted CI and Browser gates pass with those full-suite counts (§9). Browser fixtures cover clear and late old success/failure at four widths,
+retaining scope and focus. Unit fixtures additionally cover a newer pending
+search; that control is not browser coverage. Final browser fixtures explicitly
+await `response.finished()` before asserting late results remain absent. This is scoped frontend fixture/source
+acceptance, without live backend, broad accessibility or userdata activation.
+The draft-only pin below is selected after registration and fresh bounded
+pin/proto checks; canonical main, deployment and train remain unchanged.
+
+**T-M4-06 accepted pending-Search clear draft-pin extension (registered 2026-10-12 before gitlink change) — Selected in the prepared draft:**
+root advances only the prepared draft's `media-ui-app` gitlink from
+`2bd3bcd826efe644c16f38683c2df948d487c22c` to accepted canonical merge
+`a673fe5b8bee21916b43c2c6e561991ea6cfeb7c`
+([UI #54](https://github.com/Muxcore-Media/media-ui-app/pull/54)). Root verifies
+the signed merge object and tree `e208ca9e315bcb8fc8a88ebbc66888dc12ecc807`,
+identical to reviewed authored `0824fd8` and published
+`9ee6078399a65d06cfdb43cf0383d99c5ed81838`. Registration precedes root checkout;
+the documentation writer does not move the gitlink. After root checks out the
+exact signed merge, actual `bash scripts/check-pins.sh` and
+`bash scripts/check-proto-drift.sh` pass (exit 0); pins retain the same five known
+optional missing-path warnings. Logs are
+`/tmp/umbrella-search-clear-pins-20261012.log` and
+`/tmp/umbrella-search-clear-proto-20261012.log`. These are bounded draft checks,
+not substitute source/runtime integration gates. Other six draft
+selections, canonical main, train and deployment remain unchanged. This is
+frontend fixture/source selection only; T-M4-06/NFR-A11Y-002 remain Part.
 
 **T-M4-04 / T-M4-06 personal Display Settings hydration (FR-PLAY-004, FR-ADM-010) — Done (scoped source, merged/unpinned):**
 
@@ -417,17 +566,19 @@ implementation; remote documentation publication is not an additional gate.
 This documentation expansion changes no source, dependency, gitlink, deployment,
 train, requirement status or existing block.
 
-**T-M4-09 P1 additive provider source registration (2026-10-12, before source edits) — Approved scope; immutable documentation commit precedes source release:**
+**T-M4-09 P1 additive provider source registration (2026-10-12, before source edits) — Done at bounded provider source level, merged; selected only in draft:**
 accepted [ADR-0038](docs/adr/0038-additive-household-userdata-mutations.md) isolates
 the five-family HTTP contract while ADR-0037 remains Proposed for broader
-coordination. Sole provider writer `root/userdata_contract_20261012` will reuse
-clean `/workspace/userdata-erasure-regression-20261011` on a fresh
+coordination. Sole provider writer `root/userdata_contract_20261012` reuses
+`/workspace/userdata-erasure-regression-20261011` on the fresh
 `codex/userdata-conditional-v2-20261012` branch from canonical
 `25de1692878de189b3ab8151c1ff58508f6d07fb`, preserving the old branch. Root and
 independent review accept the visible contract and root approves the following
-exact 26-file scope. Root releases implementation only after freezing the
-accepted documentation in a local commit; no provider edits or runtime evidence
-are included in this documentation checkpoint.
+exact 26-file scope. Root freezes the accepted documentation in authored local
+commit `af24bb2` before releasing implementation, then publishes the identical
+tree as `02b99958` (§9). That immutable decision precedes provider edits.
+The resulting P1 source is now accepted and merged as `b0a3abe2` (#13); published
+version, consumer activation and full integration remain separate gates.
 
 | Kind | Allowed paths within userdata-local | Boundaries |
 |---|---|---|
@@ -453,11 +604,56 @@ roundtrips/admission. After sourcing `/workspace/.tools/muxcore-env.sh`, run
 `GOWORK=off GOPROXY=off go build ./...` and configured lint if available. B-3
 dependency failures remain blocked checks, not passes; pure package checks may
 run independently without replacing full gates. Root coordinates independent
-review and exact-candidate hosted full gates/publication. No module check has
-run for this registration, and no consumer activation is released. Published
-producer/client contract, BFF forwarding, every shared writer including
+review and exact-candidate hosted full gates/publication. The accepted results
+below complete bounded provider source verification, while full local SQLite
+checks remain B-3-blocked and no consumer activation is released. Published
+producer/client version, BFF forwarding, every shared writer including
 progress/watched, migration/enforcement, native/real-provider restart/device and
 household gates remain open; FR-PLAY-004 stays Part.
+
+**P1 accepted result (2026-10-12):** the exact 26-file source is authored as
+`b08ea98d520457330e5ec6840e97686adeb4eae3`, published as
+`ea30faf6dc429d7021f60530832c07f999f8de6c` and accepted/merged in
+[userdata-local #13](https://github.com/Muxcore-Media/userdata-local/pull/13) as
+`b0a3abe2a2d6f5e38d40b45a906f48d31c9137f7`. Root verifies signed canonical
+object/hash and identical authored/published/merge tree
+`9b30dfc974abd3de23bd1f339cda05e4d4759aa5`. Authored history is preserved on
+`codex/recovery-userdata-conditional-20261012`; local source/tracking are clean at
+published `ea30faf6`. Independent review finds no blockers and focused local
+race/build/vet/lint pass. Full local build/vet/race/lint cannot complete because
+SQLite is unavailable under B-3; those failed/blocked gates are retained, not
+counted as full local passes. Actual hosted CI executes and passes full
+build/vet/race, lint and proto checks, including internal upgrade, store and
+server tests (§9). The self-only household HTTP API and published-client source
+implement the five supported mutation families, strict raw parsing, scoped
+authority/preconditions and atomic writes under unchanged ADR-0038.
+
+This is bounded source acceptance. The module manifest version remains `0.1.8` and its
+tag is still unpublished. Progress/watched are unsupported; every legacy writer
+remains enabled and can interfere. There are no consumer dependency changes or
+activation, BFF/client integration or deployment. FR-PLAY-004 stays Part,
+NFR-DATA-003 stays Plan and E12/E13 remain open. The draft-only source-pin
+extension below is selected after registration and fresh pin/proto checks.
+
+**T-M4-09 accepted P1 draft-pin extension (registered 2026-10-12 before gitlink change) — Selected in the prepared draft:**
+root advances only the prepared draft's `userdata-local` gitlink from
+`33dceaf1ebd540b6a76bf1e6f55b631787408e31` to accepted canonical merge
+`b0a3abe2a2d6f5e38d40b45a906f48d31c9137f7`
+([userdata-local #13](https://github.com/Muxcore-Media/userdata-local/pull/13)).
+Root verifies published `ea30faf6` and authored `b08ea98d` have identical tree
+`9b30dfc974abd3de23bd1f339cda05e4d4759aa5`, also verified for the signed merge.
+Registration precedes root checkout; the documentation writer does not move the
+gitlink. After checkout at the signed merge, actual `bash scripts/check-pins.sh`
+and `bash scripts/check-proto-drift.sh` both pass (exit 0); pins retain the same
+five known optional missing-path warnings. Logs are
+`/tmp/umbrella-userdata-v2-pins-20261012.log` and
+`/tmp/umbrella-userdata-v2-proto-20261012.log`. These bounded draft checks do not
+replace source/runtime integration gates. The manifest remains `0.1.8` and the
+tag remains unpublished;
+this draft source selection does not authorize consumer dependency changes or
+activation. Other six draft selections, canonical main, deployment and train
+remain unchanged; FR-PLAY-004 stays Part, NFR-DATA-003 stays Plan and E12/E13
+remain open.
 
 **T-M4-09 tenant integration condition:** canonical BFF `e9fbf38` (source re-read
 2026-10-09; behavior unchanged from `3c16074`, where the line ranges were
@@ -1252,6 +1448,58 @@ Consumer source `0ef06f3`, [PR #47](https://github.com/Muxcore-Media/media-ui-ap
 
 The controls remain cosmetic: fresh pending identity without roles hides them, while cached privileged roles can remain visible during pending/transient refresh under #44's existing behavior. Completed downgrade, clear and cross-tab corrections remove controls and open dialogs; the reviewed #48 follow-up retains fixed safe denial feedback outside removed rename/series-override forms, with one rejected mutation and one session refresh and no automatic retry. Add-to-wanted feedback disappearance and session Stop feedback cleared by polling are repaired in accepted #52 below; canonical main still carries the older UI pin. The BFF remains the authorization boundary. Source is pinned (`media-ui-app` `b00db38`) and no deployment, live backend or settings-migration acceptance is established. `POST /api/import` remains privileged; restricted managers still pass through the parental gate (ADR-0031 §2.7).
 
+**T-M5-12 Stop acknowledgment follow-up (FR-ANA-003; registered 2026-10-12 before source edits) — Failed baseline accepted, registered production correction approved:**
+root and BFF read-only review at accepted `_mvp`
+`e98c46ba5300eacadf689c90f6b990abbc391d9c`, tree
+`9792fc38101f6794204a3f83c0011b4c8707eeb6`, identifies a false-success path in
+`cmd/mediauiprox/sessions.go:99`: when playback-monitor is absent, `monErr` stays
+nil. Configured Jellyfin/Plex calls can all return RPC errors or `Ok: false`,
+yet the handler returns HTTP 200 with `stopped: true` because failure tests only
+`monErr != nil`. Existing bridge fixtures return `Ok: true`; that source review preceded the
+failing runtime baseline recorded below. FR-ANA-003 adds the scoped response requirement without
+claiming actual stream or device termination.
+
+Sole `_mvp` writer `root/bff_contract_20261012` reuses
+`/workspace/mvp-authctl-packaging-20261011` on fresh
+`codex/bff-stop-ack-20261012` from canonical `e98c46ba`, preserving earlier
+branches. Root first commits this registration and releases only
+`cmd/mediauiprox/sessions_test.go` for a frozen failing baseline on unchanged
+production. After root accepts that evidence, a separate release may add exactly
+`cmd/mediauiprox/sessions.go` and `BFF-API.md`: when the monitor is absent and no
+bridge acknowledges the request, return HTTP 502 `sessions.stop_failed` with a
+safe fixed message. Preserve existing monitor-error paths, successful-monitor
+semantics, backend routing/fallback, six-second timeout and permissions. In
+particular, a successful parsed monitor 2xx remains an acknowledgment under its
+existing boundary, including an empty session or `stopped: false`; no new strict
+monitor-response validation is introduced. Success reports that bounded
+acknowledgment, not proof of physical termination.
+
+The test table must cover Jellyfin and Plex RPC errors and `Ok: false`, both
+bridges failing, fallback success, successful bridge acknowledgment, failed
+monitor with bridge success/failure, current successful-monitor behavior, no
+backend (503) and invalid/empty ID (400). Run focused baseline/final fixtures,
+then existing full Go build/vet/race/lint and `_mvp/scripts/run-script-tests.sh`,
+independent review and actual exact-candidate hosted gates before acceptance.
+Use local fixtures only; no live backend or device claim. The exact source scope
+is one test file first, then the two named production/API-documentation files
+only after baseline review; no dependency, gitlink or deployment change is
+included. B-8 and T-M3-10 remain prohibited; no erasure, subtitle or security
+investigation is included. FR-ANA-003 is Part with verification pending.
+
+**Stop baseline acceptance and production release (2026-10-12):** root inspects
+frozen `f4ba359cb5ed6d810e33b4c0e3f67cbfb1d38a0b`, exactly
+`cmd/mediauiprox/sessions_test.go` plus 182 lines with production unchanged.
+The actual focused offline race baseline has eight expected absent-monitor
+subtest failures: HTTP 200 `stopped: true` instead of 502 when no bridge
+acknowledges. Sixteen new controls and three existing tests pass; no race or
+dependency block occurs with the correct `/home/agent/go/pkg/mod` cache. Root
+accepts the failed baseline and approves release of the previously registered
+`cmd/mediauiprox/sessions.go` and `BFF-API.md` correction, with the frozen tests
+unweakened. This visible transition precedes the root source-release message.
+Preserve the registered successful-monitor boundary and all other controls.
+Final focused/full local, scripts, independent and hosted gates remain pending;
+FR-ANA-003 stays Part and no repair or physical-termination acceptance is claimed.
+
 **T-M5-12 action-feedback follow-up (FR-ADM-010, NFR-A11Y-002) —
 Done at scoped frontend source level, 2026-10-11:** [media-ui-app #52](https://github.com/Muxcore-Media/media-ui-app/pull/52)
 merges as `fdfa25ff7d74fceeef7cf25591c292076691be6e`, with signed canonical
@@ -1683,6 +1931,27 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-12 | Exact umbrella `ccf98f65` hosted result | Actual [Commit lint 38185328310](https://github.com/Muxcore-Media/umbrella/actions/runs/38185328310) job 114606303087 and [CI 38185328314](https://github.com/Muxcore-Media/umbrella/actions/runs/38185328314) docs job 114606304157, workspace job 114606304367 and secret job 114606304406 all fail with `steps: null`. Exact cause remains unknown; no check execution or unchanged-head retry is inferred. Ordinary Git authentication failure (B-7) does not establish the hosted failure's cause |
 | 2026-10-12 | T-M4-09 decision-refinement scope registration | Root assigns three read-only contract reviewers and one umbrella writer, with roadmap-only registration before any ADR refinement (§6). Provider/BFF/SPA wire, authority, mutation and cutover review is pending. Local `node scripts/check-docs.mjs` and `git diff --check` pass. Managed environment remains restricted/enforced with no VPN, configured secrets or outbound identities; Go 1.26.6 and Node 24.19 are available. No new module runtime checks, probes or acceptance; B-3/B-7/B-8 and T-M3-10 limits remain unchanged |
 | 2026-10-12 | T-M4-09 bounded provider decision and source registration | Following read-only provider/BFF/SPA design reviews, root releases six documentation paths after roadmap registration. Root and independent reviewer accept exact ADR-0038 draft SHA256 `3f851acdc556a9f98cbcda7b746f100870d99724708ae0bfde3a0954cd31088a` without blockers, then root authorizes Accepted/Delegated status; ADR-0037 remains Proposed for broader coordination. Exact 26-file P1 scope, canonical base and required tests are visibly registered and approved before any source edit (§6). Local docs/diff checks pass. Root source release follows the accepted immutable local documentation commit; no module runtime checks or new provider/device acceptance |
+| 2026-10-12 | Accepted ADR-0038 checkpoint published as `02b99958f5517447b32687fe560c1ff0ebad9958` | Exact tree `00e6ea897df85754e9ace73fa2d7fffed9e8cbdc` equals authored `af24bb2194e2f2939c40d985b9de070f6d0db5b6`, preserved on `codex/recovery-adr0038-20261012` together with prior registration `7b1b27c`. Root verifies canonical object hash/import, clean local/tracking alignment, docs/diff and the correct sixteen-commit lint range; local read-only checks reconfirm the published/recovery trees and tracking head. Root releases P1's sole provider source owner only after the accepted immutable local decision. Final Accepted ADR SHA256 is `42059f97a2f36b7fe323a019352eb64bf368552eaae0a451fc8a9ee87be3f9eb`; final SPA review confirms no drift. PR #223 remains updated and draft; no canonical merge, source acceptance, deployment or train change |
+| 2026-10-12 | Exact umbrella `02b99958` hosted result | Actual [Commit lint 38188477488](https://github.com/Muxcore-Media/umbrella/actions/runs/38188477488) job 114615877950 and [CI 38188477622](https://github.com/Muxcore-Media/umbrella/actions/runs/38188477622) workspace job 114615878627, docs job 114615878724 and secrets job 114615878741 all fail with `steps: null`. Exact cause remains unknown; no actual check execution is inferred, no unchanged-head rerun or merge. B-7 is not evidence of the hosted cause |
+| 2026-10-12 | P1 implementation handoff and documentation hold | Registered sole source writer reuses `/workspace/userdata-erasure-regression-20261011` on `codex/userdata-conditional-v2-20261012` from canonical `25de169`, within the exact 26-file scope (§6). No provider verification result yet. Umbrella writer records this checkpoint in the roadmap only, holding it uncommitted for consolidation with substantive provider results; other five decision/spec documents are unchanged. Local docs/diff checks and the published sixteen-commit lint range pass. No additional remote documentation publication is required before that checkpoint |
+| 2026-10-12 | T-M4-06 phone Search entry source review and registration | Root reviews canonical `fdfa25ff` source; local read-only re-read at tree-identical published `7354e43` confirms the header query input is hidden at phone width while the mobile tab routes to a Search page without a query input. Exact three-path source/test scope, base/worktree/branch and baseline/final fixture gates are registered before source edits (§6). Local docs/diff checks pass. No browser/unit reproduction or result exists yet; no SRS status, API, userdata, dependency or deployment change |
+| 2026-10-12 | T-M4-06 phone Search baseline `46789ac` on unchanged `fdfa25ff` production | Final baseline build passes after a test-only ByRoleOptions typing correction; the initial build failure log is retained. Search page unit baseline has two expected failures/eight passes. Actual-client Chromium 151 browser baseline has three expected phone failures/nine wider passes at 375/768/1280/1920 px. Production source is unchanged at baseline; logs, traces and screenshots are retained under `/workspace/.tools/checks/mobile-search-20261012/` |
+| 2026-10-12 | T-M4-06 phone Search source accepted/merged, authored `38a194ebf1d502bb7be8e015c65faab684191ad3` → published `1eb773ab0bc8e09c25ea4d4f5ee36d3f2ee279eb` → canonical `2bd3bcd826efe644c16f38683c2df948d487c22c`, [UI #53](https://github.com/Muxcore-Media/media-ui-app/pull/53) | Exact three-path scope passes local typecheck/build, 1,415 units/186 files and full Chromium 151.0.7922.173 browser suite, 310 pass/18 existing intentional skips. Independent review accepts with no findings: 29 focused units and 12 browser cases across all four widths pass. Actual [CI 38189219516](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38189219516) job 114618149904 passes typecheck/unit/build with the same unit counts; [Browser 38189219512](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38189219512) job 114618150655 passes 310/18. Checkout logs identify synthetic merge `887e10c` of `1eb773a` into `fdfa25ff`. Root verifies signed canonical object/hash and tree `5d52dfbdefedeac35497e16a6825f887cf20496c`, equal to reviewed/published source. Local/tracking are clean at published `1eb773a`; authored baseline/final history is preserved on `codex/recovery-mobile-search-20261012`. Summary and logs under `/workspace/.tools/checks/mobile-search-20261012/` were inspected. Fixture/source acceptance only; no live backend, broad WCAG, userdata or deployment claim |
+| 2026-10-12 | T-M4-06 accepted UI #53 draft-pin registration | Roadmap first registers optional draft-only UI `fdfa25ff` → `2bd3bcd8` before root gitlink checkout, with exact merge/reviewed tree identity and mandatory actual pin/proto checks afterward (§6). Sole documentation writer does not move the gitlink. Canonical main, other six draft selections, deployment and train remain unchanged; root then confirms a clean submodule and advances to `2bd3bcd8`. Fresh actual `bash scripts/check-pins.sh` passes with the same five known optional missing-path warnings; `bash scripts/check-proto-drift.sh` passes. Logs `/tmp/umbrella-mobile-search-pins-20261012.log` and `/tmp/umbrella-mobile-search-proto-20261012.log` were inspected. These bounded draft checks do not replace source/runtime gates |
+| 2026-10-12 | T-M4-06 pending-Search clear source review and registration | Root/consumer read-only review at canonical `2bd3bcd8` identifies the `!canSearch` loading reset gap; local source re-read confirms it on tree-identical published `1eb773a`. Existing #53 clear coverage waits for completed results. Exact three-file scope, reused worktree/new branch and fail-before-fix/focused/full/independent fixture gates are registered before edits (§6). Local docs/diff checks pass. No unit/browser reproduction or outcome yet; SRS and other source scopes remain unchanged |
+| 2026-10-12 | T-M4-09 P1 local/independent verification at authored `b08ea98d` | Registered 26-file source implements accepted ADR-0038 without changing its contract. Owner focused race/build/vet/lint pass; pure race covers conditional/auth/httptransport/httpclient and lint reports zero issues. Full local build/vet/race/lint exit 1 because required `modernc.org/sqlite@v1.55.0` is absent with `GOPROXY=off` (B-3); no excluded download retry or full local pass is claimed. Logs and exit files `/workspace/.tools/checks/userdata-conditional-v2-20261012/` were inspected. Independent reviewer reports no blockers and focused local race/build/vet/lint pass; full SQLite-dependent provider acceptance relies on actual hosted evidence below |
+| 2026-10-12 | T-M4-09 P1 source accepted/merged, authored `b08ea98d520457330e5ec6840e97686adeb4eae3` → published `ea30faf6dc429d7021f60530832c07f999f8de6c` → canonical `b0a3abe2a2d6f5e38d40b45a906f48d31c9137f7`, [userdata-local #13](https://github.com/Muxcore-Media/userdata-local/pull/13) | Root inspects actual [CI 38190331127](https://github.com/Muxcore-Media/userdata-local/actions/runs/38190331127) on synthetic merge `ad6a4570497c5911898ac7ede1e4f3959bf57dab` of `ea30faf6` into `25de169`. Job 114621512686 executes and passes full build/vet/race, including internal upgrade 14.158 s, store 8.653 s and server 1.570 s. Lint job 114621512561 passes with zero issues; proto job 114621512653 passes. Root accepts and merges the expected head, verifies signed canonical object/hash and tree `9b30dfc974abd3de23bd1f339cda05e4d4759aa5`, identical to authored/published source. Authored history is preserved on `codex/recovery-userdata-conditional-20261012`; local/tracking are clean at published `ea30faf6`. Version `0.1.8` remains untagged; no consumer dependency/activation, deployment, full persistence or erasure closure claim |
+| 2026-10-12 | T-M4-09 accepted provider #13 draft-pin registration | Sole docs writer registers draft-only userdata `33dceaf1` → `b0a3abe2` before root gitlink checkout (§6). Root then checks out signed merge `b0a3abe2`; actual fresh pin/proto checks pass (exit 0), with the same five known optional missing-path warnings for pins. Logs `/tmp/umbrella-userdata-v2-pins-20261012.log` and `/tmp/umbrella-userdata-v2-proto-20261012.log` were inspected. These bounded checks remain distinct from actual hosted provider gates and do not establish full integration. Other draft selections, canonical main, train and deployment remain unchanged; FR-PLAY-004 Part, NFR-DATA-003 Plan and E12/E13 remain open |
+| 2026-10-12 | Provider outcome local documentation commit `e6cf8018fa0790570fcbc85f05f0f59dc3cbc655` | Root commits accepted provider outcome/docs and registered draft pin. Correct canonical-base commit lint passes 20 commits. An initial mistyped nonexistent base caused a historical lint range to run; that invocation was not a patch failure and is not the accepted range check. No new hosted umbrella result is inferred |
+| 2026-10-12 | T-M5-12 Stop acknowledgment source review and staged registration | Root/BFF source review at accepted `e98c46ba` (tree `9792fc38…`) identifies `monErr` remaining nil with no monitor and failed/false bridge responses, allowing false HTTP 200 `stopped: true`; existing bridge fixtures cover acknowledgment only. FR-ANA-003 is confirmed unused and added at Should/Part for the response boundary. Roadmap registers sole BFF owner, base/worktree/branch, test-only baseline and conditional two-file follow-up before source edits (§6). Existing successful parsed monitor-2xx semantics remain the acknowledgment boundary, including empty session/`stopped: false`. Local docs/diff checks pass. No runtime reproduction or repair result; UI #54 outcomes remain pending separately |
+| 2026-10-12 | T-M4-06 pending-Search clear baseline `66336ca` on unchanged `2bd3bcd8` production | Baseline build passes. Units have two expected failures/12 passes; actual-client browser fixtures have eight expected failures/12 passes across 375/768/1280/1920 px. Before the held old response is released, clear leaves Searching and six skeletons; after release, the baseline also fails the Searching assertion. The explicit `response.finished()` wait is added only in the final fixture and is not baseline evidence. No test timeout/fixture error is counted as detection. Summary, logs and traces are retained under `/workspace/.tools/checks/search-clear-pending-20261012/` |
+| 2026-10-12 | T-M4-06 pending-Search clear accepted/merged, authored `0824fd8c2c6406a3adeb69de3baeb865007018b3` → published `9ee6078399a65d06cfdb43cf0383d99c5ed81838` → canonical `a673fe5b8bee21916b43c2c6e561991ea6cfeb7c`, [UI #54](https://github.com/Muxcore-Media/media-ui-app/pull/54) | Full local typecheck/build, 1,419 units/186 files and Chromium 151.0.7922.173 browser suite (318 pass/18 existing intentional skips) pass. Independent reviewer finds no issues after 33 focused units and 20 browser cases across all four widths. Actual [CI 38190846644](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38190846644) job 114623082080 passes full typecheck/unit/build with the same counts; [Browser 38190846780](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38190846780) job 114623082814 passes 318/18. Checkout is synthetic merge `e0af496809635969659ddd3476011b3f19eb7715` of `9ee6078` into `2bd3bcd8`. Root accepts/merges the expected head and verifies signed canonical object/hash and tree `e208ca9e315bcb8fc8a88ebbc66888dc12ecc807`, identical to reviewed/published source. Recovery `codex/recovery-search-clear-20261012` preserves authored baseline/final history; root imports/aligns the published object and worktree/tracking are clean at `9ee6078`, resolving the author's earlier missing-local-object comparison. Local summary/final/reviewer logs were inspected. No live backend, broad accessibility, userdata activation or deployment claim |
+| 2026-10-12 | Registered UI #54 draft selection and bounded checks | Root checks out exact signed merge `a673fe5` only after roadmap registration (§6). Fresh actual pin/proto checks both pass (exit 0), with the same five known optional missing-path warnings for pins; logs `/tmp/umbrella-search-clear-pins-20261012.log` and `/tmp/umbrella-search-clear-proto-20261012.log` were inspected. Local docs/diff checks pass. These bounded draft checks do not substitute for source/runtime gates. Other six selections, canonical main, deployment and train remain unchanged |
+| 2026-10-12 | Stop acknowledgment scope local commit `c6a1835e135d5da97252663e7ecea2a575c15f88` | Root commits the three-document registration and releases the BFF source owner test-only on the root-created branch. Production/API-documentation changes remain held pending failed-baseline review; no new Stop runtime outcome is recorded here |
+| 2026-10-12 | T-M5-12 accepted Stop baseline `f4ba359cb5ed6d810e33b4c0e3f67cbfb1d38a0b` and production transition | Root inspects exactly `cmd/mediauiprox/sessions_test.go` +182 lines with production unchanged and the actual focused offline race baseline: eight expected absent-monitor subtest failures (HTTP 200 `stopped: true` instead of 502), 16 new controls and three existing tests pass, no races. Correct `/home/agent/go/pkg/mod` cache avoids any dependency block. Root accepts the baseline and approves release of the already registered `sessions.go`/`BFF-API.md` correction without weakening tests; transition is recorded before root release. Final repair/full/independent/hosted verification remains pending; FR-ANA-003 stays Part |
+| 2026-10-12 | UI #54 local umbrella outcome checkpoint `88677c7f6e9867b80dd68c2ed907b12770e908e8` | Root commits UI #54 docs and registered draft gitlink. Docs/diff and correct canonical-base commit lint pass (22 commits). This is the current unpublished local outcome checkpoint after published `02b99958`; no new hosted umbrella result is claimed |
+| 2026-10-12 | Read-only diagnosis of published umbrella `02b99958` null-step jobs | Root reads actual [CI 38188477622](https://github.com/Muxcore-Media/umbrella/actions/runs/38188477622) and [Commit lint 38188477488](https://github.com/Muxcore-Media/umbrella/actions/runs/38188477488): all four raw job records have `steps: []`, `runner_id: 0` and no assigned runner. Run metadata provides no cause. The connector check-run endpoint is rejected with 400 `INVALID_ARGUMENT` for its allowlist, and no annotations tool is available. No check execution or specific failure cause is established; no rerun, workflow/configuration change or billing diagnosis follows |
+| 2026-10-12 | Independent documentation precision follow-up | Separate UI #54 unit-only newer-pending-request coverage from four-width browser clear/late-old-response checks; baseline records Searching/skeleton failures before response release and Searching failure after release, while the explicit response-finished wait belongs only to final fixtures. Historical #52/#53 branch rows are labelled preserved history; current UI checkout is published `9ee6078`. Current local root outcome checkpoint is unpublished, with no invented future SHA. Local docs/diff checks pass |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1871,10 +2140,10 @@ release gates now pass; canonical pin and household integration remain pending.
 | Scope | Current source state and acceptance boundary |
 |-------|---------------------------------------------|
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
-| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `fdfa25ff`, `_mvp` `e98c46ba` and userdata-local `33dceaf1`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. Umbrella #223 remains unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
+| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `a673fe5`, `_mvp` `e98c46ba` and userdata-local `b0a3abe2`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. The accepted UI #53 `2bd3bcd8`, later UI #54 `a673fe5`, and userdata #13 `b0a3abe2` advances are also selected after separate registrations and fresh pin/proto checks (§6/§9). Umbrella #223 remains unmerged. Exact root CI/commitlint fail with null steps; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
-| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 normalized/stored-ID and last-seen-ledger gaps are reproduced in #11 baseline tests; corrected source is accepted after exact full hosted gates, merged as `33dceaf1` and selected only in the prepared draft. Metadata-only #12 is accepted/merged as `25de169`, but its v0.1.8 tag remains unpublished; draft userdata stays `33dceaf1`. E7 admin now has five source-backed, unreproduced findings with root-approved test-only scope registered before source edits, now blocked by platform agent failure (B-8) without runtime results (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
-| Other accepted source | Consumer Display/preference changes #49/#50, scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) and action-feedback #52 (`7354e43`, merged `fdfa25ff`) are accepted source included in draft #223, not canonical. Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
+| ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 normalized/stored-ID and last-seen-ledger gaps are reproduced in #11 baseline tests; corrected source is accepted after exact full hosted gates, merged as `33dceaf1` and selected only in the prepared draft. Metadata-only #12 is accepted/merged as `25de169`, but its v0.1.8 tag remains unpublished. Accepted P1 #13 `b0a3abe2` carries E3 and the metadata, and is selected only in draft after registration/fresh pin/proto checks; no consumer activation or new erasure closure follows. E7 admin now has five source-backed, unreproduced findings with root-approved test-only scope registered before source edits, now blocked by platform agent failure (B-8) without runtime results (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
+| Other accepted source | Consumer Display/preference changes #49/#50, scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) and action-feedback #52 (`7354e43`, merged `fdfa25ff`) are accepted source included in draft #223, not canonical. Phone Search #53 (`1eb773a`, merged `2bd3bcd8`) and pending-clear #54 (`9ee6078`, merged `a673fe5`) are accepted and carried only in draft after registration and fresh pin/proto checks (§6/§9). Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
 | Verification limits | Existing §9 results belong to their named source and environment. #221 reports local race verification; its hosted CI/commitlint jobs failed with zero steps. This documentation reconciliation does not claim a new source suite, current-tip full-stack clean-room, deployment, or complete household acceptance |
 | Release and operating constraints | `train-2026.10.3`, core/images `v0.6.15`, spool `2.7.0` are unchanged. Acquisition stays fixture-only. No T-M3-10 investigation/probe/retry, paid service, billing change or network-policy bypass |
 
@@ -1906,21 +2175,35 @@ correction and repeated exact full gates; it is selected only in the prepared
 draft, untagged. The provider-read adapter is accepted/merged as `64fbd75` after exact hosted
 gates; its draft pin is selected after registration and does not expand full E12 acceptance. Ordinary Git authentication is now
 blocked (B-7); supported connector Git operations remain available. Latest published root
-`ccf98f65` hosted jobs fail with null steps (§9), with cause unknown; the shell
+`02b99958` hosted jobs fail with null steps (§9), with cause unknown; the shell
 authentication failure is not evidence of that cause.
+
+Local umbrella commits after published `02b99958` are `868116b` (phone Search
+registration/provider handoff), `a817d39` (UI #53 selection), `5531201` (pending
+clear registration), `e6cf801` (provider P1 selection), `c6a1835` (Stop
+acknowledgment registration) and `88677c7` (UI #54 outcome and selection). The
+current local outcome checkpoint remains unpublished. Root docs/diff and the
+correct canonical-base commit lint pass through that checkpoint (22 commits);
+final publication requires fresh checks for the final documentation tree.
+No hosted result for these local commits is inferred from the older published
+null-step jobs.
 
 **Active source recovery handoff (2026-10-12):**
 
 | Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
 |---------------|---------------------|---------------------------------------|
-| T-M4-09 conditional mutation decision refinement — `root/roadmap_20261012` | Sole writer in `/workspace/umbrella`, `codex/roadmap-20261011`, starting published `ccf98f65`; `root/userdata_contract_20261012`, `root/bff_contract_20261012` and `root/consumer_contract_20261012` review source/contracts read only | Prior Proposed [ADR-0037](docs/adr/0037-conditional-userdata-mutations.md) is published with reviewed SHA256 `df50136a…`; tree `59a18036…` matches authored `92919cca`, preserved on `codex/recovery-adr0037-20261011`. Root and independent review accept bounded ADR-0038 after the six-path documentation scope is registered; exact 26-file P1 provider scope/tests are registered and approved before source edits (§6). ADR-0037 stays Proposed. Root releases implementation after freezing accepted docs in a local commit; no module tests/probes, dependency or pin change |
+| T-M4-09 accepted bounded provider decision — `root/roadmap_20261012` | Sole umbrella writer in `/workspace/umbrella`, `codex/roadmap-20261011`; latest published/tracking checkpoint is `02b99958`, followed by unpublished local outcome/scope commits through UI #54 checkpoint `88677c7`. Root docs/diff and correct canonical-base commit lint pass (22 commits); fresh final-tree checks precede publication | Accepted [ADR-0038](docs/adr/0038-additive-household-userdata-mutations.md), final SHA256 `42059f97…`, is published with exact tree `00e6ea89…` matching authored `af24bb2`, preserved with prior registration `7b1b27c` on `codex/recovery-adr0038-20261012`. Root/independent review accepts the bounded contract; ADR-0037 stays Proposed. Exact root hosted jobs fail with null steps, cause unknown; no retry/merge. FR-PLAY-004 stays Part and integration gates remain open |
+| T-M4-09 P1 additive HTTP provider — `root/userdata_contract_20261012` | Reused `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-conditional-v2-20261012`, clean/tracking at published `ea30faf6dc429d7021f60530832c07f999f8de6c`; recovery `codex/recovery-userdata-conditional-20261012` preserves authored `b08ea98d` | Accepted/merged #13 as `b0a3abe2`, signed canonical tree `9b30dfc9…` identical to reviewed source. Independent focused checks/review and actual hosted full build/vet/race/lint/proto pass (§9); full local SQLite gates remain B-3-blocked. Draft-only pin extension is selected after registration and fresh bounded pin/proto checks. Module manifest `0.1.8` remains untagged; no consumer dependency/activation, deployment or train change. FR-PLAY-004 Part, NFR-DATA-003 Plan and E12/E13 remain open |
+| T-M4-06 phone Search entry — `root/consumer_contract_20261012` | Preserved history: `codex/mobile-search-entry-20261012` published `1eb773ab0bc8e09c25ea4d4f5ee36d3f2ee279eb`; recovery `codex/recovery-mobile-search-20261012` retains baseline `46789ac`/authored `38a194eb`. Shared worktree is now on pending-clear branch at `9ee6078` below | Accepted/merged [UI #53](https://github.com/Muxcore-Media/media-ui-app/pull/53) as `2bd3bcd8`, signed canonical tree `5d52dfbd…` identical to reviewed source. Local/hosted 1,415 units and 310 browser passes/18 existing skips plus independent 29 units/12 browser cases pass (§9). Draft-only pin advance is selected after registration and fresh actual pin/proto checks (§9). NFR-A11Y-002 stays Part; no backend, userdata or deployment acceptance |
+| T-M4-06 pending-Search clear — `root/consumer_contract_20261012` | Reused `/workspace/media-ui-feedback-20261011`, `codex/search-clear-pending-20261012`, clean/tracking at published `9ee6078399a65d06cfdb43cf0383d99c5ed81838`; recovery `codex/recovery-search-clear-20261012` preserves baseline `66336ca` and authored `0824fd8` | Accepted/merged #54 `a673fe5`, signed canonical tree `e208ca9e…` identical to reviewed source. Local/hosted 1,419 units and 318 browser passes/18 existing skips plus independent 33 units/20 browser cases pass (§9). Draft-only pin advances after registration and fresh pin/proto checks. One optional Codex app-attachment attempt hung and was terminated after a bounded wait; it is not a source/test failure and needs no user action. NFR-A11Y-002 remains Part; no live backend, userdata or deployment claim |
+| T-M5-12 Stop acknowledgment — `root/bff_contract_20261012` | Reuse `/workspace/mvp-authctl-packaging-20261011` on fresh `codex/bff-stop-ack-20261012` from accepted `e98c46ba5300eacadf689c90f6b990abbc391d9c`, preserving earlier branches | Frozen test-only `f4ba359` adds 182 lines; root accepts eight expected absent-monitor failures with 16 new controls/three existing tests passing and no races/dependency block. Previously registered `sessions.go` and `BFF-API.md` production correction is approved for root release with unchanged tests (§6). Preserve monitor/routing/fallback/timeout/role behavior; final full local/scripts/independent/hosted gates remain pending. FR-ANA-003 Part; no stream/device termination or deployment claim |
 | T-M5-13 expiry paragraph — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-expiry-docs-20261011` from `64fbd75`, aligned to published `95653ed` | One-line `BFF-API.md` correction accepted/merged as `e98c46ba` (#114), exact tree `9792fc38…`; authored `5aee3d4` saved on `codex/recovery-mvp-expiry-docs-20261011`. Draft-only pin advance is selected after registration with fresh proto/pin checks. Markdown workflows filter the change; no runtime test or new Go/Script pass claimed |
-| T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | `/workspace/media-ui-feedback-20261011`, `codex/consumer-action-feedback-20261011`, base `1e95d22`, clean at published `7354e4308de6b4db80b089c97c0a0a22f577d732` | Accepted/merged #52 `fdfa25ff`, signed canonical tree `da0e24bf…` equals reviewed source. Local/hosted gates and independent review pass (§9). Recovery `codex/recovery-ui-feedback-authored-20261011` preserves authored `21a4d2f` and complete baseline/fix history. Draft-only pin advance is selected after registration with fresh proto/pin checks; no backend or deployment acceptance |
+| T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | Preserved history: `codex/consumer-action-feedback-20261011`, base `1e95d22`, published `7354e4308de6b4db80b089c97c0a0a22f577d732`. Shared `/workspace/media-ui-feedback-20261011` is now on pending-clear branch at `9ee6078` above | Accepted/merged #52 `fdfa25ff`, signed canonical tree `da0e24bf…` equals reviewed source. Local/hosted gates and independent review pass (§9). Recovery `codex/recovery-ui-feedback-authored-20261011` preserves authored `21a4d2f` and complete baseline/fix history. Draft-only pin advance is selected after registration with fresh proto/pin checks; no backend or deployment acceptance |
 | E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | Reviewed `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, accepted after exact hosted Go/Script gates and merged as `197784572f599fc0d7facd68582751c139087456` in [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); signed commit/tree identity verified through the connector. Snapshot helper is retained by the later prepared draft `_mvp` `e98c46ba`; its separately recorded proto/pin checks do not establish real-provider or E12 acceptance |
 | E7 admin-local baselines — `root/e12_integration_plan_20261011` | Reviewed baseline `dd71c7f22078766df9b707b43aeb4176cd8fee11`; execution base `728c5d0682b190adf4e705330f11b94622964939` has metadata-only changes. Root confirms clean admin worktree and no additional test worktree | Preserved approved first-batch scope names only `handler/erasure_late_write_test.go` and root `erasure_regression_test.go` (§6): PIN, key fallback and delayed exchange. Execution/source edits are blocked by platform agent failure (B-8), with no source/runtime results and no replacement/rephrase/retry authorized. All five findings are unreproduced; session/reset races stay deferred. No production or simultaneous `_mvp` shared-reset edits authorized |
 | E12b provider-read adapter — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, fresh `codex/mvp-erasure-provider-20261011` from `1977845`; remote base branch created through the connector | Exact five-file read-only adapter scope registered before edits (§6); authored `015aeae` is published as `6f79c55d2b1daacf480878f0e337686ec560a6ec` in [mvp #113](https://github.com/Muxcore-Media/mvp/pull/113), accepted after root/independent review and exact local/hosted Go/Script gates, then merged as `64fbd755149dc19b1d968168279012be97dbe1d9`; signed canonical commit/tree identity verified. Authored source is retained on `codex/recovery-mvp-provider-authored-20261011` and worktree/tracking align to the published commit. Existing verifier is unchanged; draft-only pin `1977845`→`64fbd75` is selected after registration with new proto/pin checks. No live-provider, purge or restore acceptance |
-| E3 userdata metadata — root-coordinated release preparation | `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-local-v0.1.8-20261011`, clean at published `bc8d77de17ae0590213069867e7f5fe3346e1287` | Two-file metadata source accepted after exact full hosted gates; #12 merges as `25de1692878de189b3ab8151c1ff58508f6d07fb`, tree `6312afac…`. Authored `ad1758a` preserved on `codex/recovery-userdata-release-20261011`. Tag unpublished/blocked; prepared draft pin remains code-fix `33dceaf1`, no consumer dependency edits |
-| E3 userdata correction — `root/e12_integration_plan_20261011/restore_seams` | Source preserved on `codex/userdata-erasure-regressions-20261011`; shared worktree `/workspace/userdata-erasure-regression-20261011` is now on the metadata branch below | Reviewed final `fe9572698f9b6765bcecaac0a99f03879c3afcf8`, tree `b4a917c…`, passes exact full hosted gates and merges as `33dceaf1ebd540b6a76bf1e6f55b631787408e31` in [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11). Earlier authored `31d198c` remains preserved on `codex/recovery-userdata-authored-20261011`; original baseline and failed intermediate history remain in §9. Prepared draft userdata selects `33dceaf1`; no `v0.1.8` tag/release or full E12 acceptance |
+| E3 userdata metadata — root-coordinated release preparation | `/workspace/userdata-erasure-regression-20261011`, `codex/userdata-local-v0.1.8-20261011`, clean at published `bc8d77de17ae0590213069867e7f5fe3346e1287` | Two-file metadata source accepted after exact full hosted gates; #12 merges as `25de1692878de189b3ab8151c1ff58508f6d07fb`, tree `6312afac…`. Authored `ad1758a` preserved on `codex/recovery-userdata-release-20261011`. Tag unpublished/blocked; prepared draft now selects accepted P1 successor `b0a3abe2`, carrying this metadata and E3, with no consumer dependency edits |
+| E3 userdata correction — `root/e12_integration_plan_20261011/restore_seams` | Source preserved on `codex/userdata-erasure-regressions-20261011`; shared worktree `/workspace/userdata-erasure-regression-20261011` is now on P1 branch `codex/userdata-conditional-v2-20261012` above | Reviewed final `fe9572698f9b6765bcecaac0a99f03879c3afcf8`, tree `b4a917c…`, passes exact full hosted gates and merges as `33dceaf1ebd540b6a76bf1e6f55b631787408e31` in [userdata-local #11](https://github.com/Muxcore-Media/userdata-local/pull/11). Earlier authored `31d198c` remains preserved on `codex/recovery-userdata-authored-20261011`; original baseline and failed intermediate history remain in §9. Prepared draft userdata selects accepted successor `b0a3abe2`, carrying this correction; no `v0.1.8` tag/release or full E12 acceptance |
 
 ### Historical session, transport and native checkpoint (2026-10-08–09)
 
