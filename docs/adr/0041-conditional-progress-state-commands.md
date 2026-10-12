@@ -1,24 +1,28 @@
 # ADR-0041: Conditional progress and state commands
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-12
-- **Decided by:** Delegated proposal under standing project authority; not accepted or owner-approved.
+- **Decided by:** Delegated under standing project authority; root accepted the bounded provider contract on 2026-10-12 after provider, BFF, SPA and independent contract review and root re-read. Not owner-approved.
 - **Tracks:** T-M4-09, FR-PLAY-004; requirement remains Part.
 - **Related:** [ADR-0011](0011-go-workspace-and-published-versions.md), [ADR-0015](0015-upgrade-compatibility-window.md), [ADR-0033](0033-userdata-http-mesh-transport.md), [Proposed ADR-0037](0037-conditional-userdata-mutations.md), [ADR-0038](0038-additive-household-userdata-mutations.md).
 
-This proposal defines a separate all-family provider contract for review. It
-does not amend accepted ADR-0038, release source work, publish a producer or
-activate consumers. Provider, BFF, SPA and root review of the exact draft are
-required. Consumer cutover choices below remain unresolved even if the bounded
-provider contract is later accepted.
+This bounded decision accepts the separate all-family provider contract. It
+does not amend accepted ADR-0038, establish source acceptance, publish a producer
+or activate consumers. Root re-read the exact Proposed contract already cleared
+by provider, BFF, SPA and independent reviewers before accepting it under standing
+delegation. The exact provider file/test scope is registered in the roadmap;
+implementation starts only after root freezes the accepted documentation and
+source registration in an immutable local commit and explicitly releases the
+provider owner. Remote documentation publication is not an additional
+implementation prerequisite. Consumer cutover choices below remain unresolved.
 
 ## Evidence and boundary
 
 Read-only reviews use userdata-local `b0a3abe2`, `_mvp` `5cf783ed` and
 media-ui-app `2693058d` (tree-identical to merged `6674c28f`). No runtime tests
-or source edits were performed for this proposal.
+or source edits were performed for the contract review.
 
-| Module/source anchor | Consequence for the proposed contract |
+| Module/source anchor | Consequence for the provider contract |
 |---|---|
 | Provider `conditional/contract.go:241,251–254`; `contract_test.go:129` | The v2 parser requires the exact five-operation list and tests rejection of added progress. Extending that list in place breaks compatibility. |
 | Provider `internal/store/merge.go:16–43,92–99`; `store.go:159–162,201–214` | Legacy progress compares timestamp strings, then Put overwrites the merge winner. Completion inference and ContinueWatching filtering differ; MarkWatched has separate read/write steps. These paths cannot implement the new commands. |
@@ -32,7 +36,7 @@ writers remain enabled, they can overwrite conditional results or restore
 removed entries. Neither v3 support nor a successful conditional request proves
 durable removal, event chronology or cross-device completion.
 
-## Proposed provider contract
+## Provider decision
 
 ### 1. Separate version, unchanged v2
 
@@ -80,7 +84,7 @@ the exact `contract`, `request_id` and original `expected` scope/authority/revis
 
 ### 2. Progress intent and raw preservation
 
-| Command | Proposed meaning |
+| Command | Meaning |
 |---|---|
 | `report` | Map of media IDs to non-null report objects with exactly required `positionSec` and `durationSec` plus optional `metadata` and `observedAt`. Position/duration obey the numeric rule below. Duration zero means unknown; position greater than duration is allowed. Metadata is a non-null raw object; observedAt is a timestamp string under §3. A report neither clamps position nor infers watched state at 92% or another threshold. |
 | `set_watched` | Map of media IDs to exact booleans. This is explicit watched/unwatched intent, separate from a playback observation. |
@@ -219,10 +223,11 @@ future gate may interpret these helpers' empty results as positive absence.
 - A pure raw bridge or five-family SPA cutover cannot prevent legacy progress
   replay. Provider-only publication is a separate milestone from safe activation.
 - Durable receipts or per-entry/event ordering could reduce uncertainty but need
-  separate schema/retention/restore decisions; this proposal adds neither.
+  separate schema/retention/restore decisions; this decision adds neither.
 
-First review and decide this contract, then register exact provider source scope
-and tests before implementation. Require strict parser, raw/numeric/size/alias,
+The roadmap registers exact provider source scope and tests before
+implementation. Root must commit the accepted decision and registration and
+explicitly release that scope before source edits. Require strict parser, raw/numeric/size/alias,
 mixed command/no-op, timestamp, concurrency, erasure, real HTTP/mTLS/admission,
 cross-version and restart/restore/lost-ACK fixtures plus actual full provider
 build/vet/race/lint gates. Keep existing upgrade suites and unchanged DDL; local

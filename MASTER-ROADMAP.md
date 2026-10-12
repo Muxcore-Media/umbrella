@@ -227,10 +227,10 @@ The original nine items from [TDD §8](docs/architecture/TDD.md#8-security-harde
 | T-M4-03 | Hide unsupported Cast/AirPlay (FR-PLAY-009) | Done — PR #37; SRS remains Part because Remote Playback API is not a Cast SDK implementation |
 | T-M4-04 | Operator settings gating/migration (FR-ADM-010) | Part — admin-only indexer mutation controls retain admin/manager Acquisition access. Fresh direct-Settings role hydration is fixed in source `881bfb1`, merged as `ab429bc` (#44), included in earlier UI pin `816abd6` and the current pin `b00db38`, with delayed identity, current-role correction, expiry, sign-out and cross-tab fixtures. T-M5-12 source `0ef06f3` adds verified operator-action controls, merged as `517ba0a` (#47) after both hosted workflows passed; carried by the `b00db38` pin. Display preference hydration source `ef4d284` (#49), merged as `79cc826`, and preference-ordering source `54585c6` (#50), merged as `ba68ada`, are locally/independently/hosted verified and remain unpinned after `b00db38` (details below). Settings migration, an admin destination and manager page access remain open |
 | T-M4-05 | Automated accessibility gates in both UIs (NFR-A11Y-001) | Done — SPA PR #38 retained; admin-ui `a567ab1` adds 13 rendered document audits, 15/15 axe suite/control and 6/6 keyboard checks. Local and hosted CI/Accessibility pass; PR #60 merged as `5206686`. NFR-A11Y-001 stays Part pending full browser/manual WCAG evidence (ADR-0025) |
-| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, carried by the `b00db38` pin. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. Phone Search entry #53 (`1eb773a`, merged `2bd3bcd8`) is accepted at scoped source level after local/hosted 1,415 units and 310 browser cases / 18 existing skips plus independent review (§6/§9); its draft-only pin advance is selected after registration with fresh pin/proto checks. Follow-up #54 (`9ee6078`, merged `a673fe5`) fixes loading after clearing a pending query, with local/hosted 1,419 units and 318 browser cases / 18 existing skips plus independent review; selected only in draft after separate registration/checks (§6/§9). Player native-button Space #56 is accepted/merged as `6674c28f` after full local/hosted 1,439 units and 358 browser cases/18 existing skips plus independent review; its draft-only pin advance is selected after registration `5cfbb1c` and fresh bounded checks (§6/§9). These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
+| T-M4-06 | Playwright fixture e2e J-02/J-03/J-08 + viewports (NFR-A11Y-002) | Part — #44 adds fresh-session hydration coverage to navigation, keyboard/focus and indexer actions at 375/768/1280/1920 px (92 browser cases). Later merged S8 source `816abd6` records 104 passing / 12 skipped browser cases, including parental server-state UI. T-M5-12 source `0ef06f3` passes 244 / 12 existing skips locally, adding 28 operator cases and 8 member-detail contrast audits; both hosted #47 workflows pass, merged as `517ba0a`, carried by the `b00db38` pin. Follow-up #49 `ef4d284` adds 20 Display hydration cases plus focus assertions; local/hosted browser suites pass 276 cases / 16 existing skips, merged as `79cc826`, unpinned (§9). Preference-ordering follow-up #50 `54585c6` passes 292 browser cases / 16 existing skips locally on Chromium 151 and hosted on Chromium 153, with 36 independent browser cases; merged as `ba68ada`, unpinned. Phone Search entry #53 (`1eb773a`, merged `2bd3bcd8`) is accepted at scoped source level after local/hosted 1,415 units and 310 browser cases / 18 existing skips plus independent review (§6/§9); its draft-only pin advance is selected after registration with fresh pin/proto checks. Follow-up #54 (`9ee6078`, merged `a673fe5`) fixes loading after clearing a pending query, with local/hosted 1,419 units and 318 browser cases / 18 existing skips plus independent review; selected only in draft after separate registration/checks (§6/§9). Player native-button Space #56 is accepted/merged as `6674c28f` after full local/hosted 1,439 units and 358 browser cases/18 existing skips plus independent review; its draft-only pin advance is selected after registration `5cfbb1c` and fresh bounded checks (§6/§9). Player Settings Escape #57 is accepted/merged as `36dad53b` after local/hosted 1,443 units and 374 browser cases/18 existing skips plus independent source/runtime review; its exact draft-only pin advance is selected with provider #14 after registration `dc16b964` and fresh pin/proto/docs/diff checks (§6/§9). These HTTP fixtures do not establish real auth/session, acquisition/playback/resume or backend parental journeys. Screenshots are diagnostic, not comparison baselines (ADR-0025) |
 | T-M4-07 | User deletion fan-out (NFR-DATA-003) | **Part (2026-10-11)** — [ADR-0035](docs/adr/0035-user-erasure-ledger.md). E1/E3 and E7–E10 have recorded source pins; canonical baseline E2 auth-local `71c66d8` lacks the reported ledger implementation (C-40). Accepted E2/E4/E5 follow-ups are published as `v0.1.21`/`v0.3.9`/`v0.1.8`; E6 `v0.1.3` source review passes. These four sources plus accepted UI #51, `_mvp` #112 and userdata-local #11 form the seven draft #223 source selections; exact source gates and bounded draft checks are recorded by checkpoint (§6/§9), while canonical main remains unchanged. E7 admin review now identifies five source-backed gaps with a root-approved test-only scope whose execution is now platform-blocked (B-8); no runtime results. E11 is merged in [umbrella #221](https://github.com/Muxcore-Media/umbrella/pull/221), with reported local mTLS stopped-consumer catch-up verification on older published dependencies. Exact root hosted gates, corrected-set E11 verification, E12 household deletion plus pre-deletion restore drill and E13 closure remain. NFR-DATA-003 stays Plan; no deployment |
 | T-M4-08 | Consumer theme contrast and a rendered browser gate (NFR-A11Y-001, NFR-A11Y-002, NFR-MNT-002, ADR-0025) | Done (selected fixture scope) — source `690442b`, [PR #46](https://github.com/Muxcore-Media/media-ui-app/pull/46), merged as `7a45f33` after hosted CI/Browser success, carried by the `b00db38` pin. Anchor layering, theme-aware tertiary/danger/success text and foreground-only accent migration (59 exact mechanical files plus InviteJoin) retain accent fills/borders/brand colors and filled danger-control surfaces; light error borders follow the darker danger token. Local typecheck, 1326 unit tests, build and 208 browser cases pass (12 existing skips), including 104 new contrast cases with computed-theme assertions and negative controls at four widths/both themes; final hover-paint checks 24/24. Follow-up #48 `adf6d29`, merged as `b00db38`, adds Activity action/Movies select contrast; 256 local and hosted browser cases pass with 16 existing skips (§9); it is the pinned `media-ui-app` (`b00db38`, tree identical to the reviewed head). The earlier `d39156c` baseline Movies contrast failure was fixed at `26a594e` and is no longer pending. Media/gradient incomplete results, other routes, assistive technology, light video OSD and full/cross-browser WCAG acceptance remain open |
-| T-M4-09 | Native userdata authentication and durable cross-device persistence (FR-PLAY-004, C-33) | **In progress (reviewed native drafts; Apple/provider gates pending)** — iOS `6bc13a5` (draft muxcore-ios #1, base `830d14d`) and tvOS `fe08722` (draft muxcore-tvos #1, base `a424ac6`) implement cookie-free BFF bearer requests, verified server/user/tenant binding, persisted pending edits, visible failure/retry, serialized writes and response guards. Independent Linux package tests/builds and real-loopback transport checks pass (§9); complete Apple app compilation and simulator journeys remain blocked by B-6. Neither draft is merged or pinned; FR-PLAY-004/FR-NAT-001 stay Part. Real BFF→provider persistence after app/BFF/provider restart, fresh-device/account isolation, failure/offline recovery and explicit Quick Connect limits remain required. S9a–e are merged and integrated at fixture level, including the canonical blob-path correction and authenticated transport (`_mvp` #106, admin-ui #72, umbrella #217). Ordinary blob fallback still does not prove provider persistence. The bounded ADR-0038 five-family provider source #13 (`b0a3abe2`) is accepted after actual hosted full gates and selected only in draft, still untagged; progress/watched, legacy-writer enforcement, client integration and tenant conditions below remain open. BFF acknowledgment or portable cache-reload fixtures alone do not establish provider/device durability |
+| T-M4-09 | Native userdata authentication and durable cross-device persistence (FR-PLAY-004, C-33) | **In progress (reviewed native drafts; Apple/provider gates pending)** — iOS `6bc13a5` (draft muxcore-ios #1, base `830d14d`) and tvOS `fe08722` (draft muxcore-tvos #1, base `a424ac6`) implement cookie-free BFF bearer requests, verified server/user/tenant binding, persisted pending edits, visible failure/retry, serialized writes and response guards. Independent Linux package tests/builds and real-loopback transport checks pass (§9); complete Apple app compilation and simulator journeys remain blocked by B-6. Neither draft is merged or pinned; FR-PLAY-004/FR-NAT-001 stay Part. Real BFF→provider persistence after app/BFF/provider restart, fresh-device/account isolation, failure/offline recovery and explicit Quick Connect limits remain required. S9a–e are merged and integrated at fixture level, including the canonical blob-path correction and authenticated transport (`_mvp` #106, admin-ui #72, umbrella #217). Ordinary blob fallback still does not prove provider persistence. The bounded ADR-0038 five-family provider source #13 (`b0a3abe2`) is accepted after actual hosted full gates and selected only in draft, still untagged. Accepted ADR-0041 separately defines the all-family provider target; its exact 20-path implementation is accepted and merged in provider #14 as `746690d7` after root/independent review, focused local passes and actual full hosted build/vet/race/lint/proto success (§6/§9). Full local SQLite gates remain B-3-blocked; the merged source is selected only in draft after registration `dc16b964` and fresh pin/proto/docs/diff checks, and remains untagged. Legacy-writer enforcement, client integration and tenant conditions remain open. BFF acknowledgment or portable cache-reload fixtures alone do not establish provider/device durability |
 | T-M4-10 | Cosmetic PIN length consistency (FR-PLAY-012, NFR-A11Y-002) | Done at bounded cosmetic UI source level — #55 `c7b575b` is accepted/merged as `960074b5` after full local/hosted gates and independent runtime review; draft-only pin advance is selected after registration and fresh bounded pin/proto checks |
 
 **T-M4-10 cosmetic PIN length (FR-PLAY-012, NFR-A11Y-002; registered 2026-10-12 before source edits) — Done at bounded cosmetic UI source level, accepted/merged; selected only in draft:**
@@ -865,6 +865,137 @@ bounded source and [UI #51](https://github.com/Muxcore-Media/media-ui-app/pull/5
 merged at the expected head as `1e95d2237286909e3601c9b2c3c2e13eed51f5ba`.
 It remains unpinned and undeployed; FR-PLAY-004 and FR-ADM-010 remain Part.
 
+**T-M4-06 Player Settings Escape registration (2026-10-12, before source edits) — Test baseline accepted/committed; two production paths released:**
+root accepts the read-only finding at media-ui-app canonical
+`6674c28f2de62c1ac628defd1e3a31cc8b35259c`: `ControlsBar` owns local
+`settingsOpen`, while Escape closes only `VideoPlayer`'s parent state. The popup
+and `aria-expanded` can stay open while overlay suppression is cleared. This
+follows existing FR-PLAY-005 and NFR-A11Y-001/002 under T-M4-06; it creates no
+new requirement or broad accessibility completion claim.
+
+Sole UI writer `root/consumer_next_slice` reuses
+`/workspace/media-ui-feedback-20261011`; root prepared the clean
+`codex/player-settings-escape-20261012` branch at canonical `6674c28f`, preserving
+prior branches with no file/test changes. Root commits registration in
+`eb373f4` and then explicitly releases only the two test paths. Exactly four
+existing paths are registered: test-first
+`src/components/VideoPlayer.test.tsx` and `e2e/player-keyboard.spec.ts`; only
+after root accepts and commits that baseline and explicitly releases production,
+`src/components/VideoPlayer.tsx` and `src/components/player/ControlsBar.tsx`.
+Root accepts and commits the test-only baseline as `ba880526` below, then commits
+the roadmap checkpoint as `e8f8aa61f3c9d2aafd7d8414ca304ea0add7b079` and explicitly
+releases the two production paths to recovered sole UI writer
+`root/player_escape_review_resume`. The accepted baseline tests stay frozen. The bounded repair must keep the popup and parent overlay state in agreement
+and return focus to Settings when Escape removes a focused menu button.
+
+The actual loaded local 60-second WAV fixture must open Settings by Space,
+press Escape on the trigger and on a menu button, assert the popup closes and
+`aria-expanded` is false, and retain or restore trigger focus. Include passing
+close/toggle/reopen controls and K suppression while open/restoration after
+close, preserving all #56 regressions. Run focused units, build and the actual
+browser baseline at 375/768/1280/1920 px; distinguish expected assertion failures
+from media/network/setup errors. Root/independent baseline acceptance precedes
+production. Final source needs full typecheck/unit/build/browser gates and
+independent review. No runtime outcome exists at registration.
+
+No hook, userdata, subtitle, dependency/config or shared-fixture edits are
+included. Source acceptance, later pin selection and any deployment remain
+separate gates; FR-PLAY-005 and NFR-A11Y-001/002 statuses do not advance. E7/B-8,
+T-M3-10 and unchanged-head root CI boundaries remain unchanged.
+
+**Player Settings Escape test-only baseline (2026-10-12) — Independently confirmed and root accepted/committed; bounded correction released:**
+only the two registered test paths change from canonical `6674c28f`; production
+is unchanged. The corrected author run has 41 focused unit cases: two expected
+Escape failures and 39 passes, with build passing. Actual Chromium
+`151.0.7922.173` runs 32 browser cases at 375/768/1280/1920 px: eight expected
+Escape failures and 24 passes, zero skipped or flaky. Trigger/menu-button Escape
+leaves the popup mounted and `aria-expanded` true; menu-button cases also fail
+focus return. Loaded 60-second WAV/media setup, strict network/runtime-error,
+no-overflow and K suppression/restoration controls pass; all #56 cases pass.
+An initial RTL query typing error (`exact: true`, valid only in the Playwright
+queries) was corrected in tests only; its failing unit/build logs are retained.
+
+Independent review reproduces exactly two expected unit failures and 39 passes,
+plus eight expected browser failures and 24 passes at all four widths, with zero
+skipped/flaky cases or top-level browser errors. The failing assertions are only
+popup/expanded state and menu-button focus; all setup and other controls pass.
+The reviewer reports no baseline blockers. Root inspects the reports, diff and
+manifest, accepts the baseline and commits exactly the two test paths as
+`ba8805264d75b04c48d64d218e83ee3267a4eb0b`; the worktree is clean and production
+is unchanged at that checkpoint.
+Evidence is under `/workspace/.tools/checks/player-settings-escape-20261012/`,
+including `baseline-summary.json`, `baseline-unit.json`, `baseline-browser.json`,
+`reviewer-baseline-unit.json`, `reviewer-baseline-browser.json`,
+`reviewer-baseline-recovered-review.md` and `.json`, `baseline-manifest.sha256`
+and `baseline.patch`; manifest digest
+`67d6a87049c46416dd87c35eb16c98d55dca30b8092f2cfb1017ee645550a33d`.
+After roadmap checkpoint `e8f8aa61`, root explicitly releases only
+`src/components/VideoPlayer.tsx` and `src/components/player/ControlsBar.tsx`.
+The accepted baseline tests stay frozen. `root/player_escape_review_resume`,
+which completed the independent baseline review, is now the sole production
+writer; final root and separate independent source review remain required. An additional-owner spawn returned `agent thread limit reached`, so
+root reuses that agent without requiring user action. No final source acceptance
+or requirement advancement follows from the baseline.
+
+**Player Settings Escape frozen correction (2026-10-12) — Accepted/merged in UI #57 after full local/hosted gates and independent review:**
+only `src/components/VideoPlayer.tsx` and
+`src/components/player/ControlsBar.tsx` change after accepted baseline `ba880526`;
+the two test files remain byte-identical. The parent supplies the sole Settings
+open state for popup mounting, `aria-expanded`, controls visibility and shortcut
+suppression; the open-to-closed transition returns focus to the Settings trigger.
+No hook, userdata, subtitle, dependency/config or shared-fixture change occurs.
+
+The author passes focused 41 units/32 actual Player browser cases, full typecheck
+and build, all 1,443 units/187 files and the full Chromium `151.0.7922.173` suite:
+374 passes/18 existing skips, zero failures or flaky cases. Independent
+`root/progress_docs_resume` source review finds no actionable issues and fresh
+checks pass 41 units plus 32 loaded-WAV Player browser cases, eight each at
+375/768/1280/1920 px, with zero errors/skips/flaky cases. Escape state/focus,
+K suppression/restoration, native Space/Enter, close/toggle/reopen, no-overflow
+and strict media/network/runtime-error gates pass. The reviewer checks all four
+file hashes and complete patch before/after; the candidate is unchanged and
+port 4173 is idle after the independent run.
+
+Evidence is in the same Player directory: `final-summary.md`/`.json`,
+`final-manifest.sha256`, `final.patch`, `final-production.patch`, author gate
+logs/JSON, `reviewer-production-review.md`/`.json` and
+`reviewer-final-unit.*`/`reviewer-final-browser.*`. Final manifest SHA-256 is
+`78ce7b2d261e5402580133934b7045ccf52d124c4a3666bcbc2c2479cfe0b3f4`; canonical-base
+four-file patch SHA-256 is
+`b7b193db52b013e91ec59ba8c202499418a889de16601a385ddf3991af083660`; production-only
+patch SHA-256 is `924f09fbf145638d00cb0303970663e88ec2a6f06dc3fdaadbd1fc737ef6d9ff`.
+Root inspects the complete local evidence and independent review, commits the
+production fix as `418ef8de8ca9253119e20f79b92a6104cec99f7d` after baseline
+`ba880526`, and publishes [Draft UI #57](https://github.com/Muxcore-Media/media-ui-app/pull/57)
+as `f17310db654aa570d9019d87e125ba1e628f192d`, parent canonical `6674c28f`, with
+identical tree `6e6d061f74937660593c56969e97eaae57c14a99`. Recovery branch
+`codex/recovery-player-settings-escape-20261012` preserves the authored test/fix
+commits, and the working branch imports the published tree cleanly. The retained
+publication manifest and `published-commit.json` identify that source. One artifact
+attachment attempt hangs and is terminated without retry. Actual hosted CI
+`38208836425`, job `114678239709`, passes typecheck, 1,443 units/187 files and
+build. Browser `38208836243`, job `114678239021`, passes 374 cases/18 existing
+skips on Chromium `153.0.8010.12`. The executed checkout is
+`b7fed99eecbecf2fb129cd366bd931a13caba3e8`, parents `6674c28f`/`f17310db`, with
+the exact reviewed tree. Root inspects actual logs/counts, accepts the bounded
+source, marks #57 ready and expected-head merges it as signed
+`36dad53b2dbc9b935dfb1a446c21c876baa5119c`, verifying/importing the identical-tree
+object. `hosted-outcome.json`, hosted CI/browser logs and `merged-commit.json`
+retain the evidence. Draft pin selection remains separate; no deployment,
+requirement advancement or full accessibility acceptance is claimed.
+
+**Provider/Player outcome documentation registration (2026-10-12, before outcome synchronization) — Two document paths registered and released:**
+root commits the roadmap-only checkpoint as `e8f8aa61`, then explicitly releases
+sole umbrella writer `root/progress_docs_resume` to edit exactly
+`MASTER-ROADMAP.md` and `docs/specs/SRS.md` to record actual registered provider
+and Player evidence and synchronize current release wording. Record the exact
+source/commit, local and hosted results, independent/root review, remaining
+gates and acceptance scope only when established. No requirement status advances
+without its verification gates. No ADR body, other document, source, gitlink,
+dependency/version/tag, deployment, train or CI/workflow change is included.
+The release permits only this evidence synchronization; accepted ADR bodies and
+all source selections remain unchanged.
+
 **T-M4-09 remaining backend contract — bounded provider decision accepted; broader migration remains Proposed:** define and review consistent
 blob omission, deletion, unknown-field preservation, progress freshness and concurrent-write semantics
 before implementation. Source inspection of
@@ -1097,8 +1228,213 @@ workaround was attempted; the existing publication gate remains. Four read-only
 reviews (provider, BFF, SPA and independent contract) and root now clear the exact
 ADR SHA-256 `91d3f07b9b480ed63470d49e3b7fb020d0639c59534f194be521806a1c49beb5`
 as Proposed documentation only (§9). There is no accepted architecture decision,
-implementation release or requirement advancement. The five non-roadmap files
-remain frozen; root owns the outcome commit and publication.
+implementation release or requirement advancement. Authored proposal `bce1f3e3`
+is published on Draft #223 as `eef92a02`, identical tree
+`60a88ffadc88801b99f077310efb3a7dd21287d2`; the five non-roadmap files remain
+frozen. Exact new-head hosted jobs complete with failure and null steps/log URLs
+(§9), cause unknown; no retry or merge. This later roadmap-only handoff is local
+and unpublished, with no hosted claim for its eventual recovery commit.
+
+**T-M4-09 bounded v3 provider decision registration (2026-10-12, before acceptance edits) — Documentation only:**
+from clean local handoff `a68b16e53ad8e9a4a15d145fd4e4375477e98077` on
+`codex/roadmap-20261011`, sole umbrella writer `root/progress_docs` first changes
+only this roadmap. Root must commit this registration and explicitly release
+the six-document candidate before any other document changes. Root will decide
+whether to accept the bounded ADR-0041 provider contract under standing
+Delegated authority after re-reading the exact contract already cleared by the
+provider, BFF, SPA and independent reviewers. That prior approval was for
+Proposed documentation; it is evidence for this decision, not earlier source
+or consumer authorization.
+
+The exact future documentation paths are `MASTER-ROADMAP.md`,
+`docs/adr/0041-conditional-progress-state-commands.md`, `docs/adr/README.md`,
+Proposed `docs/adr/0037-conditional-userdata-mutations.md` (bounded current
+crosslink only), `docs/specs/SRS.md` (FR-PLAY-004 status/evidence only) and
+`docs/specs/FRD.md` (WF-07 bounded target only). Acceptance will cover only the
+separate all-family provider contract, preserving v2. ADR-0037 stays Proposed
+for its unresolved consumer, migration and legacy-writer enforcement work;
+FR-PLAY-004 stays Part. All previously accepted ADR bodies, including ADR-0038
+and ADR-0040, remain unchanged.
+
+Sole provider owner `root/progress_provider` is read-only while planning the
+exact production/test/documentation file list from accepted userdata-local
+`b0a3abe2`. The source list is not yet registered or released. After that plan
+and root's decision, this roadmap must record the exact provider paths and
+verification gates. Root must freeze the accepted documentation and source
+registration in an immutable local commit and explicitly release the provider
+owner before source edits. A provider decision alone neither supplies source
+acceptance nor authorizes consumer activation; publication of a genuine
+producer/client tag, migration/artifact disposition, scoped durable journals,
+every-writer enforcement and real provider/restart/device evidence remain gates.
+
+The initial registration establishes no new source checks or runtime evidence.
+Documentation verification is `node scripts/check-docs.mjs` and
+`git diff --check`, with exact-candidate root/independent review before the
+provider release. Root owns commits/publication. No source, tag, dependency,
+version, gitlink, deployment, release-train or CI/workflow changes are included.
+The published Proposed checkpoint remains Draft #223 `eef92a02`; its exact
+hosted failures have null steps/log URLs and unknown cause, with no inferred
+execution or unchanged-head retry. Acquisition stays fixture-only and GitHub
+remains the sole origin/tracker/CI host; no paid service, credentials, billing
+or network-policy bypass. E7/B-8 and T-M3-10 remain excluded.
+
+**T-M4-09 v3 provider decision and exact source registration (2026-10-12, after documentation registration `e0c97ab`) — Accepted decision; registered implementation released:**
+root committed the roadmap-only registration as
+`e0c97abb63268ee3d7485bd0dd81879b1da34713`, then released the six-document
+acceptance candidate. Root re-read the exact Proposed ADR-0041 previously
+cleared by provider/BFF/SPA and independent reviewers (SHA-256
+`91d3f07b9b480ed63470d49e3b7fb020d0639c59534f194be521806a1c49beb5`) plus
+baseline source and accepts only its bounded provider contract under standing
+Delegated authority. The v3 contract semantics stay unchanged through this
+status/provenance/sequence transition; v2 and all previously accepted ADR bodies
+remain unchanged. Independent/root review clears the exact six-document
+acceptance candidate; root freezes it as `eb373f4`, then explicitly releases the
+registered provider scope (§9). Accepted ADR-0041 is now immutable. ADR-0037 stays Proposed for unresolved
+consumer/migration/enforcement choices; FR-PLAY-004 stays Part.
+
+Sole provider writer `root/progress_provider`, recovered as
+`root/progress_provider_resume` with independent reviewer
+`root/progress_provider_review_resume`, reuses
+`/workspace/userdata-erasure-regression-20261011`; root prepared the clean
+`codex/userdata-conditional-v3-20261012` branch at canonical
+`b0a3abe2a2d6f5e38d40b45a906f48d31c9137f7`, tree-identical to published
+`ea30faf6dc429d7021f60530832c07f999f8de6c`, and preserved earlier branches.
+This branch preparation changes no files or tests. Root freezes the accepted
+decision and this exact source registration in immutable local commit
+`eb373f43466d0a3c01bf16ca60a62d464755b2a8`, then explicitly releases the owner
+for these 20 paths only. Remote documentation publication is not an additional
+implementation prerequisite. No source outcome is established by that release.
+Root approves exactly these 20 paths within userdata-local:
+
+| Kind | Allowed paths | Boundaries |
+|---|---|---|
+| Module documentation (4) | `AGENTS.md`, `README.md`, `CHANGELOG.md`, `COMPATIBILITY.md` | Describe additive v3, immutable dispatch/uncertainty, unchanged v2 and legacy interference; changelog stays Unreleased |
+| Capability (1) | `muxcore.json` | Advertise v3 only; manifest version remains `0.1.8` |
+| Raw contract and mutation (6) | `conditional/contract.go`, `conditional/mutation.go`, new `conditional/v3.go`, new `conditional/v3_test.go`, new `conditional/progress.go`, new `conditional/progress_test.go` | Shared internal version plumbing must preserve existing v2 exports/semantics; strict v3 envelope and raw progress commands |
+| Provider store (2) | `internal/store/conditional.go`, new `internal/store/conditional_v3_test.go` | Same row, authority, auth/erasure/CAS transaction and prewrite size checks; no DDL or legacy mutation changes |
+| HTTP route (3) | `internal/server/server.go`, `internal/server/conditional.go`, new `internal/server/conditional_v3_test.go` | Separate fixed v3 GET/PUT with existing fresh self/empty-tenant scope and strict refusal behavior |
+| Module admission (2) | `internal/httptransport/admission.go`, `internal/httptransport/transport_test.go` | Only verified media-ui GET/PUT on the fixed v3 path; preserve existing admission |
+| Checked client (2) | `httpclient/client.go`, new `httpclient/conditional_v3_test.go` | Distinct fixed-path v3 operations/read/ACK parsing; unchanged existing client operations |
+
+Required fixtures cover strict JSON and cross-version read/ACK rejection; atomic
+combinations of all six wire families; report/watched/removal interactions and
+no-ops; raw number lexemes, finite/nonnegative/underflow bounds; strict ASCII
+Gregorian dates, precision and offset normalization; Unicode aliases, retained
+target validation and explicit repair; size failures with atomic rollback;
+shared-row authority and v2/v3 contention, older-observation CAS, one receipt
+time, erasure/cancellation/overflow, lost ACK, reopen and stopped-provider
+restore. Real HTTP/mTLS fixtures must cover module admission, fresh self/tenant
+binding, every query including bare `?`, no-store responses and exact errors;
+checked-client fixtures cover paths, capabilities, redirects and refusal versus
+uncertainty. Keep the existing upgrade suite unchanged.
+
+After `source /workspace/.tools/muxcore-env.sh`, use `GOWORK=off GOPROXY=off`
+for focused `go test -race -count=1 -timeout 60s ./conditional ./internal/auth
+./internal/httptransport ./httpclient`, `go build` and `go vet` on those same
+packages, and `golangci-lint run --timeout 120s` on those packages. Required full
+gates are `go build ./...`, `go vet ./...`, `go test -race -count=1 -timeout 60s
+./...` and `golangci-lint run --timeout 120s ./...`, with the same environment.
+Record B-3 missing-SQLite failures once as blocked local gates, with no dependency
+fetch or network workaround. Focused passes cannot replace full gates. Actual
+hosted full build/vet/race/lint and independent exact-source review are required
+before source acceptance/merge; Draft source publication to obtain those gates
+is allowed. No test outcome exists at this registration.
+
+No `go.mod`/`go.sum`, dependencies, manifest version, protobuf, DDL, auth-policy,
+legacy merge/public fallback, BFF/SPA/admin, gitlink, tag/release, deployment or
+train change is included. Provider source acceptance/publication is distinct
+from a genuine producer/client tag and every subsequent consumer decision.
+Scoped durable journals, raw/dirty intent, local-artifact disposition and
+migration, every-writer enforcement/rollback and real restart/device/native
+acceptance remain unresolved. E7/B-8, T-M3-10 and unchanged-head root CI retry
+remain excluded.
+
+**T-M4-09 v3 provider source checkpoint (2026-10-12) — Accepted/merged after actual full hosted gates; selected only in draft after separate registration/checks:**
+root and independent exact-source review find no remaining blockers in the
+registered 20-path candidate. Author and independent focused race/build/vet/lint
+pass for `conditional`, `internal/auth`, `internal/httptransport` and `httpclient`
+using `GOWORK=off GOPROXY=off`. The author attempts full build/vet/race/lint once
+each; all four remain B-3-blocked by unavailable `modernc.org/sqlite v1.55.0`.
+No dependency is fetched and no workaround is used. New store/server and existing
+upgrade fixtures cannot run locally under that constraint; their actual hosted
+compilation/execution subsequently passes below. Focused passes do not replace
+those full gates.
+
+The additive implementation supplies separate strict v3 request/read/ACK and
+fixed client/HTTP operations, raw progress report/watched/removal commands, and
+shared-row authority/erasure/CAS with final combined precommit size checks. It
+preserves public v2 behavior, legacy writers, product DDL, dependencies, existing
+upgrade tests and manifest version `0.1.8`. Provider-only fixtures establish no
+consumer cutover, durable journal or restart/device/native acceptance.
+
+Root publishes authored `09659ac913e4be21a98a5d7d11e6a1a503113b4e` as
+`c54e3d3b7e0281ac02ba91432e80f65d204262fa` in
+[Draft provider #14](https://github.com/Muxcore-Media/userdata-local/pull/14),
+with identical tree `5d29339347900c2ba3848b6db7b21ac45d7b273a` and base `b0a3abe2`.
+Recovery branch `codex/recovery-userdata-conditional-v3-20261012` preserves the
+authored source; the working branch imports the identical published tree and is
+clean. The artifact attachment attempt hangs and is terminated once, without a
+retry; this changes no source or gate result.
+
+Evidence is under `/workspace/.tools/checks/userdata-conditional-v3-20261012/`:
+`SUMMARY.md`, `INDEPENDENT-REVIEW.md`, `frozen-manifest.json`, `candidate.patch`,
+`published-commit.json` and named gate logs. Frozen patch SHA-256 is
+`b998137153d011fd46e81898dc441b83babcb04c9b162e30672ae281dbdbe0f5`; manifest SHA-256
+is `e5572d29341c6c06be75515b16759c21b0f89fb064fda28b642968d4c73e84b0`.
+Actual hosted CI `38208481687` completes successfully: lint `114677147482`
+reports zero issues, proto `114677147641` passes, and build/vet/race job
+`114677147682` has passing executed steps and logs, including `internal/server`
+(2.325 s), `internal/store` (17.651 s) and `internal` (9.163 s), covering the
+existing upgrade suite. Checkout `d01158b1271c704905d848610b567bc744401b70` has
+parents `b0a3abe2`/`c54e3d3b` and the exact reviewed tree. Root inspects the actual
+logs, accepts the bounded source, marks #14 ready and merges at the expected head
+as signed `746690d7cd3a754277104501b0ac927dc196ff06`, with the same tree. Root
+verifies/imports the signed merge object. `hosted-outcome.json`,
+`hosted-build-vet-race.log`, `hosted-lint.log` and `merged-commit.json` retain the
+final evidence. No draft pin selection, tag, dependency, consumer activation,
+deployment or requirement advancement follows; FR-PLAY-004 stays Part.
+
+**T-M4-09/T-M4-06 combined draft-only pin registration (2026-10-12, before either checkout) — Historical registration snapshot, committed as `dc16b964`; selection outcome follows:**
+root accepts the independently reviewed provider #14 and UI #57 source only
+after their actual hosted gates pass, then registers exactly these two later
+umbrella gitlink advances for unmerged Draft #223:
+
+| Gitlink | Existing draft pin | Accepted source target |
+|---|---|---|
+| `userdata-local` | `b0a3abe2a2d6f5e38d40b45a906f48d31c9137f7` | `746690d7cd3a754277104501b0ac927dc196ff06` |
+| `media-ui-app` | `6674c28f2de62c1ac628defd1e3a31cc8b35259c` | `36dad53b2dbc9b935dfb1a446c21c876baa5119c` |
+
+Both canonical umbrella module checkouts remain clean at the existing pins.
+Root must first commit this exact two-document outcome/registration checkpoint;
+only then may root check out and record these two verified signed merge objects.
+After checkout, fresh `scripts/check-pins.sh`, `scripts/check-proto-drift.sh`,
+`node scripts/check-docs.mjs` and `git diff --check` are required before recording
+selection. Prior source gates or previous pin checks do not substitute for those
+fresh checks. Root will retain subsequent integration evidence under
+`/workspace/.tools/checks/provider-player-integration-20261012/`. The present
+documentation candidate makes neither gitlink change and claims no new pin/proto
+result.
+
+Root preflight confirms umbrella #223 is open/Draft at published `eef92a02`,
+base `4403e97`. This is draft-only selection, with no canonical umbrella merge,
+producer/client tag, dependency, consumer activation, deployment, train or
+requirement advancement. Provider manifest `0.1.8` remains untagged; durable
+journals, migration/artifact disposition, every-writer enforcement and real
+restart/device/native acceptance remain gates. Accepted ADRs and the E7/B-8,
+T-M3-10 and unchanged-head root CI boundaries remain unchanged.
+
+**Provider/UI draft pin selection (2026-10-12, after committed registration) — Selected locally; consolidated root publication pending:**
+root commits the independently reviewed exact outcome/registration as
+`dc16b964bc6d213ba386192ada3fb3024b4a759d`, then checks out provider
+`746690d7cd3a754277104501b0ac927dc196ff06` and UI
+`36dad53b2dbc9b935dfb1a446c21c876baa5119c` at the two registered gitlinks. Fresh
+pin/proto/docs/diff commands all exit 0. Pins report only the same five known
+optional-path warnings; no new exception is introduced. Evidence is
+`/workspace/.tools/checks/provider-player-integration-20261012/integration-{pins,proto,docs,diff}.{log,exitcode}`.
+These are local selections for Draft #223, whose remote head remains `eef92a02`
+with base `4403e97`; root publication and any new root hosted outcome are pending.
+No canonical umbrella merge, genuine producer tag, dependency/consumer activation,
+deployment, train or requirement advancement follows.
 
 **T-M4-09 tenant integration condition:** canonical BFF `e9fbf38` (source re-read
 2026-10-09; behavior unchanged from `3c16074`, where the line ranges were
@@ -2492,16 +2828,25 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-12 | Auth-local #48 partial hosted CI | Actual [CI 38197732896](https://github.com/Muxcore-Media/auth-local/actions/runs/38197732896) lint job `114644080761` succeeds; build/vet steps pass, while race tests remain running. Lint log checks out synthetic merge `8dac6d7` of published `b9f6f087` into canonical `9f9ec32`. No completed full gate is claimed; local B-3 limits and missing genuine previous-tag/N-1 fixture gates remain |
 | 2026-10-12 | Auth-local #48 final ordinary hosted gates, still Draft | Actual CI `38197732896` lint job `114644080761` and build/vet/full-race job `114644080945` both succeed. Root inspects `hosted-lint.log`/`hosted-test.log` in `/workspace/.tools/checks/auth-default-profile-mapping-20261012/`: checkout is synthetic merge `8dac6d7b517edd795325d86859ad9fd96980b157`, parents canonical `9f9ec32` and published `b9f6f087`, tree `4f7bf207736eb5002e740ef49148a555afe3adc2` identical to authored source. All provider packages report `ok`, including store 28.684 s/server 11.981 s. Local B-3 setup failures remain historical/environment-specific. Clean worktree tracks `b9f6f087`; recovery `codex/recovery-auth-profile-mapping-20261012` preserves `f2ffaec9`. PR #48 body is updated; an optional artifact attachment hung/was terminated without success. Genuine `v0.1.21`/N-1 fixture gates remain unresolved: no source acceptance, merge, pin, tag/release or activation |
 | 2026-10-12 | Player Space final source acceptance, merge and exact draft-pin registration | Authored `3bf86ab30062e7293f20db8a3c1ef4935c4851c5`, published `2693058d283b9ac444bfe88d25f22bb9cf601ca6`, and signed canonical merge `6674c28f2de62c1ac628defd1e3a31cc8b35259c` share reviewed tree `e4053b5e5e64fca255ca514e4d4f5864ef0df805`. The registered three-file diff contains only a three-line native BUTTON Space guard plus two tests. Actual local typecheck/build, 1,439 units/187 files, nine focused units and full Chromium 151.0.7922.173 (358 pass/18 existing skips/zero failures, 376 scheduled) pass; all 16 new Player cases pass at four widths. Independent final review approves with fresh nine units/16 browser passes and unchanged manifest. Root inspects [CI 38198409156](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38198409156) job `114646139533` and [Browser 38198409168](https://github.com/Muxcore-Media/media-ui-app/actions/runs/38198409168) job `114646139534`: actual typecheck/1,439 units/build/output and 358 browser passes/18 existing skips succeed on synthetic merge `58a4d36f4521dc5365f6eb2c4a173b1e525f8b64` of `2693058d` into `960074b5`, identical tree. Logs are under `/workspace/.tools/checks/player-button-space-20261012/`, including `hosted-ci.log`/`hosted-browser.log`; manifest digest `076a663675e81449b3cb05b46b7affb36628d6e471b330b41e7b340bb2e162db`, patch digest `36a1c41e3d42ba56b8e85b88785af5a59af0c369c05b38d21aab6ef900036d83`. Root accepts, marks ready and exact-head-merges #56, then verifies signed merge/tree. Clean published worktree/recovery preserve `3bf86ab3` and baseline `182dbcb0`; one optional attachment attempt hung/was terminated without success. Exact draft UI `960074b5`→`6674c28f` is registered before checkout; local registration docs/diff checks pass, while root commit/fresh pin/proto/docs/commit-lint gates remain pending. No pin/deployment or broad accessibility acceptance |
-
 | 2026-10-12 | Player Space registered draft selection `5cfbb1c` | Root commits the outcome/exact-pin registration before checking out signed `media-ui-app` `6674c28f2de62c1ac628defd1e3a31cc8b35259c`. Actual fresh pins/proto/docs/diff and canonical `4403e97..HEAD` commit lint all pass, exit 0; lint covers 26 commits at this checkpoint. Pins retain the same five optional missing-path warnings, with no new ones. Logs `/workspace/.tools/checks/player-button-space-20261012/root-pins.log` and `root-proto.log` were inspected. Only the prepared Draft selection advances; other six pins, canonical main, release train and deployment are unchanged. Auth remains pinned `9f9ec32` and mapping #48 stays Draft. Consolidated source-pin/docs publication and root new-head hosted gates remain pending |
-
 | 2026-10-12 | Consolidated profiles/Player publication `0f3471d9eeb074a6092c32ceb6ed7ab0bdb3b978` and final hosted blocker | Authored `8c91975309f410b5b469504487d77cbc85a27b63` is published on Draft #223 with identical tree `e3420f14e4c90e40160093a27817dbef8c74da81`; root hash-verifies/imports the canonical object and confirms clean tracking alignment. Recovery `codex/recovery-profiles-player-20261012` preserves authored history. Local canonical `4403e97..0f3471d9` commit lint passes 19 commits; authored range passed 27. Actual new-head [CI 38199064062](https://github.com/Muxcore-Media/umbrella/actions/runs/38199064062) Workspace `114648155517`, Docs `114648155577` and Secret `114648155653`, plus [Commit lint 38199064075](https://github.com/Muxcore-Media/umbrella/actions/runs/38199064075) job `114648155511`, fail with `steps: null`. Cause remains unknown; no actual check execution is inferred and no unchanged-head retry or merge occurs. #223 remains Draft. Local handoff `node scripts/check-docs.mjs` and `git diff --check` pass. This final roadmap handoff is unpublished and makes no hosted claim for its later recovery commit; prior `3db0271e` evidence remains historical. No source/pin/status/release/deployment advancement |
-
 | 2026-10-12 | T-M4-09 conditional progress/state documentation registration from `6e8124f` | Roadmap-only registration names one umbrella writer, three read-only module owners and the exact six-document future candidate before reserved ADR `0041` drafting. The direction remains Proposed: separately identified all-family commands ordered by successful CAS, explicit progress/watched/removal intent and unchanged v2 compatibility. Producer publication, precise semantics and full writer/fallback/migration cutover remain gates; no source/runtime work or requirement advancement. Local `node scripts/check-docs.mjs` and `git diff --check` pass; root must commit the registration and explicitly release drafting. FR-PLAY-004 stays Part |
-
 | 2026-10-12 | T-M4-09 Proposed ADR-0041 review after registration `db58403` | Root commits registration then releases the exact six-document candidate. Read-only provider `b0a3abe2`, BFF `5cf783ed` and SPA `2693058d` reports support a separate all-family v3 contract, unchanged v2 and CAS-ordered report/watched/removal commands; no runtime tests or source changes were made. Provider, BFF, SPA and independent contract reviewers confirm no blockers on exact ADR SHA-256 `91d3f07b9b480ed63470d49e3b7fb020d0639c59534f194be521806a1c49beb5`; root independently verifies the six-file manifest and approves Proposed documentation only. Evidence `/workspace/.tools/checks/conditional-progress-proposal-20261012/reviewed-manifest.sha256` records the candidate before this roadmap-only outcome update. Local `node scripts/check-docs.mjs` and `git diff --check` pass. Accepted ADR-0038 SHA-256 `42059f97a2f36b7fe323a019352eb64bf368552eaae0a451fc8a9ee87be3f9eb` and ADR-0040 `c87d3def6e40ddf11230ef12726b01b2ff9cc57c476c3b95c525da0e06b3879d` remain unchanged. Root's bounded GitHub read of `v0.1.8` returns `404 NOT_FOUND`; available tools expose no tag/release write operation, with no retry/workaround. Raw intent, legacy artifacts/migration/fallback, scoped journals and every-writer cutover remain activation gates. ADR remains Proposed, FR-PLAY-004 Part, source unreleased; no tag, dependency, pin, release or deployment advancement |
-
-
+| 2026-10-12 | Proposed ADR-0041 publication `eef92a022a37b1e5c39335c83d72e6eb02a7b1e7` and final hosted blocker | Authored `bce1f3e3b26ebbe2f3841af4b99d6983bd857420` is published on Draft #223 with identical tree `60a88ffadc88801b99f077310efb3a7dd21287d2`. Root hash-imports/verifies the canonical commit and clean same-tree local/tracking alignment; `codex/recovery-progress-proposal-20261012` preserves authored proposal and registration history. Authored commit lint passes 22 commits; canonical `4403e97..eef92a02` lint passes 20. Exact new-head [Commit lint 38200445968](https://github.com/Muxcore-Media/umbrella/actions/runs/38200445968) job `114652444892`, and [CI 38200445977](https://github.com/Muxcore-Media/umbrella/actions/runs/38200445977) Workspace `114652444910`, Docs `114652445070` and Secret `114652445143`, all complete with failure, `steps: null` and `logs_url: null`. Cause is unknown; no source/check execution is inferred, and no retry or merge occurs. Evidence is under `/workspace/.tools/checks/conditional-progress-proposal-20261012/`, including `published-commit.json` and `publish-manifest.json`. Fresh local handoff `node scripts/check-docs.mjs` and `git diff --check` pass. This later roadmap-only handoff remains unpublished with no hosted claim for its recovery commit; ADR-0041 stays Proposed/source unreleased, FR-PLAY-004 Part and all source pins unchanged |
+| 2026-10-12 | T-M4-09 bounded v3 provider decision registration, local base `a68b16e` | Only `MASTER-ROADMAP.md` registers the six-document acceptance candidate and exclusive documentation/provider ownership before further edits (§6/§14). Root decision, exact provider file plan and immutable decision/source-registration commit remain pending; ADR-0041 is still Proposed and no source scope is released. No source/runtime check is claimed. Local `node scripts/check-docs.mjs` and `git diff --check` pass. FR-PLAY-004 stays Part; accepted ADR bodies, source pins, tag/dependency/deployment/train state and E7/B-8/T-M3-10/unchanged-head CI boundaries remain unchanged |
+| 2026-10-12 | ADR-0041 bounded provider decision and exact source registration after `e0c97ab` | Root commits the initial roadmap-only registration, then accepts the previously reviewed exact provider contract after re-reading it and baseline source. The six-document candidate changes status/provenance/sequence/current crosslinks without changing normative v3 semantics or v2; §6 registers exactly 20 provider paths and full verification gates before source edits. Independent acceptance-candidate review and root's immutable local decision/source-registration commit plus explicit release remain required. No source/runtime result exists; FR-PLAY-004 stays Part. Local `node scripts/check-docs.mjs` and `git diff --check` pass. Previously accepted ADR bodies, source pins, producer/client tag and all consumer/migration/journal/enforcement gates remain unchanged |
+| 2026-10-12 | T-M4-06 Player Settings Escape registration | Root accepts read-only source evidence of independent popup/parent settings state and registers exactly two baseline tests plus two later production paths in §6. Registration commit/test-only release precedes edits; actual loaded-WAV units/build/four-width browser evidence is pending, and root/independent acceptance plus committed baseline precede production release. Focus return and K suppression/restoration are explicit gates. No runtime result, source acceptance or requirement advancement is claimed; blocked subtitle/E7 and CI-retry work stays excluded |
+| 2026-10-12 | ADR-0041 exact acceptance review, immutable commit and bounded source releases | Independent reviewer verifies all six hashes in `/workspace/.tools/checks/conditional-progress-acceptance-20261012/acceptance-manifest.sha256`, reports no blockers and confirms unchanged normative semantics and ADR-0038/0040 hashes. Accepted ADR-0041 SHA-256 is `8d57b3359a7cf3955a9a74f61e809956429a321117b2504b11b2785424d6a77a`; root independently checks the candidate and commits the six docs as `eb373f43466d0a3c01bf16ca60a62d464755b2a8`. Independent/root/local docs and diff checks pass. Only after that immutable commit, root releases the 20 provider paths and separately the two UI test paths on their prepared canonical-base branches (§6/§14). UI production remains held for baseline acceptance/commit/release. No source/runtime outcome, tag/pin/deployment, consumer activation or requirement advancement is claimed. ADR-0041 is now immutable; this follow-up is roadmap-only and locally frozen for the next meaningful outcome |
+| 2026-10-12 | Player Settings Escape test-only baseline independently confirmed, accepted and committed | On unchanged production `6674c28f`, corrected author focused units report 41 total: two expected Escape failures/39 pass; build passes. Actual Chromium 151.0.7922.173 reports 32 cases: eight expected Escape failures/24 pass, zero skipped/flaky across four widths. Independent units/browser reproduce the same counts and only popup/expanded-state/menu-button-focus failures, with zero top-level browser errors; media/network/runtime-error/setup, no-overflow, K and existing #56 controls pass. Initial RTL `exact` typing failure is corrected only in tests and retained in logs. Independent review reports no baseline blockers; root inspects reports/diff/manifest and commits the accepted two-test-path baseline as `ba8805264d75b04c48d64d218e83ee3267a4eb0b`, with clean worktree and unchanged production. Evidence and manifest digest are in §6. Production remains held for this roadmap checkpoint and explicit release of exactly two production paths; final full gates and independent/root review remain. No final source acceptance or requirement advancement |
+| 2026-10-12 | Provider/Player outcome documentation registration and writer recovery | This roadmap-only checkpoint registers exactly `MASTER-ROADMAP.md` and `docs/specs/SRS.md` for later actual provider/Player evidence and current release wording, after root commit and explicit release (§6). Sole documentation writer is `root/progress_docs_resume`; provider writer/reviewer recover as `root/progress_provider_resume` / `root/progress_provider_review_resume`. After the platform limit recorded in §6, the completed UI baseline reviewer `root/player_escape_review_resume` will become sole production writer only after explicit release; final independent/root source review is still required. No user action is needed. Local `node scripts/check-docs.mjs` and `git diff --check` pass. SRS and accepted ADR bodies remain unchanged; no provider source outcome, requirement advancement or expanded source scope is claimed |
+| 2026-10-12 | Player production and outcome-documentation release after `e8f8aa61` | Root commits the accepted-baseline/ownership checkpoint as `e8f8aa61f3c9d2aafd7d8414ca304ea0add7b079`, then explicitly releases exactly the two registered Player production paths to `root/player_escape_review_resume`; baseline tests remain frozen at `ba880526`. Root separately releases exactly `MASTER-ROADMAP.md` and `docs/specs/SRS.md` to `root/progress_docs_resume` for actual provider/Player evidence and current release wording. Local docs/diff checks pass. Release establishes no final provider/UI source acceptance or requirement advancement; full gates and independent/root source review remain required. Accepted ADR bodies, pins and blocked-work/unchanged-head CI boundaries remain unchanged |
+| 2026-10-12 | T-M4-09 exact v3 provider candidate reviewed and published in Draft #14 | Root and independent review find no blockers in the frozen 20-path candidate; author and independent focused race/build/vet/lint pass using `GOWORK=off GOPROXY=off`. Full local build/vet/race/lint are each attempted once and B-3-blocked by missing SQLite `v1.55.0`; no fetch/workaround or full-gate acceptance. Actual hosted store/server/upgrade and full gates remain pending. Authored `09659ac913e4be21a98a5d7d11e6a1a503113b4e` is published as `c54e3d3b7e0281ac02ba91432e80f65d204262fa` in [Draft #14](https://github.com/Muxcore-Media/userdata-local/pull/14), identical tree `5d29339347900c2ba3848b6db7b21ac45d7b273a`, base `b0a3abe2`. Recovery branch preserves authored history and the working branch imports the identical published tree cleanly. Exact evidence/manifests and the single terminated attachment attempt are in §6. No source acceptance/merge, tag/pin, consumer/device acceptance or requirement advancement |
+| 2026-10-12 | Player Settings Escape exact correction passes full local gates and independent review | Frozen `ba880526` tests stay unchanged; only the two registered production files change. Parent-controlled Settings state and close-transition trigger focus pass author focused 41 units/32 Player cases, full typecheck/build, 1,443 units/187 files and full Chromium 151.0.7922.173 suite (374 pass/18 existing skips, zero failures/flaky). Separate independent source review has no actionable findings and fresh checks pass 41 units/32 actual Player cases, zero errors/skips/flaky across four widths. Manifest/patch/file hashes match before/after; exact evidence is in §6. Actual hosted gates and root source acceptance remain pending; no pin/deployment or broad requirement advancement |
+| 2026-10-12 | Provider #14 actual hosted full gates pass; bounded source accepted/merged | CI `38208481687` completes successfully with executed steps/logs: Lint `114677147482` (zero issues), Proto `114677147641`, Build/Vet/Race `114677147682`, including server/store/internal and the existing upgrade suite. Checkout `d01158b1271c704905d848610b567bc744401b70` has base/head parents `b0a3abe2`/`c54e3d3b` and exact reviewed tree `5d29339347900c2ba3848b6db7b21ac45d7b273a`. Root inspects the logs, accepts bounded source and expected-head merges #14 as signed identical-tree `746690d7cd3a754277104501b0ac927dc196ff06`; object verification/import and retained evidence are in §6. Full local SQLite gates remain B-3-blocked. No draft pin selection, tag, deployment, consumer/device acceptance or FR-PLAY-004 advancement follows |
+| 2026-10-12 | Player Settings Escape published in Draft UI #57 after exact local/review gates | Root inspects complete local/independent results and commits fix `418ef8de8ca9253119e20f79b92a6104cec99f7d` after accepted baseline `ba880526`. Published `f17310db654aa570d9019d87e125ba1e628f192d` in [Draft #57](https://github.com/Muxcore-Media/media-ui-app/pull/57) has canonical parent `6674c28f` and identical tree `6e6d061f74937660593c56969e97eaae57c14a99`; recovery branch preserves both authored commits and the working branch imports the published tree cleanly. Actual hosted Browser `38208836243` and CI `38208836425` are in progress. Exact publication evidence and one terminated attachment attempt are recorded in §6. No final source acceptance/merge, pin, deployment or requirement advancement |
+| 2026-10-12 | UI #57 actual hosted full gates pass; bounded source accepted/merged | CI `38208836425` / job `114678239709` passes executed typecheck, 1,443 units/187 files and build. Browser `38208836243` / job `114678239021` passes 374 cases/18 existing skips on Chromium 153.0.8010.12. Logs show checkout `b7fed99eecbecf2fb129cd366bd931a13caba3e8`, parents `6674c28f`/`f17310db`, exact reviewed tree `6e6d061f74937660593c56969e97eaae57c14a99`. Root inspects actual counts/logs, accepts bounded source and expected-head merges #57 as signed identical-tree `36dad53b2dbc9b935dfb1a446c21c876baa5119c`; retained object/hosted evidence is in §6. Draft pin selection remains separate; no deployment, broad accessibility or requirement advancement |
+| 2026-10-12 | Exact provider/UI draft-only pin registration before checkout | Only `MASTER-ROADMAP.md` and `docs/specs/SRS.md` record accepted source outcomes and register `userdata-local` `b0a3abe2`→`746690d7` plus `media-ui-app` `6674c28f`→`36dad53b` with full SHAs in §6. Both umbrella module checkouts remain clean at their old pins. Root must first commit this registration, then check out the two verified signed targets and run fresh pin/proto/docs/diff gates. Local documentation and whitespace checks pass; no pin/proto check or selection is claimed by this candidate. Root preflight confirms #223 open/Draft at `eef92a02`, base `4403e97`. Accepted ADR bodies, tags/dependencies, activation/deployment, requirement statuses and blocked-work/unchanged-head CI boundaries remain unchanged |
+| 2026-10-12 | Registered provider/UI pins selected locally after `dc16b964` | Root commits the independently reviewed outcome/registration as `dc16b964bc6d213ba386192ada3fb3024b4a759d` before checking out userdata `746690d7cd3a754277104501b0ac927dc196ff06` and UI `36dad53b2dbc9b935dfb1a446c21c876baa5119c`. Fresh pin/proto/docs/diff commands all exit 0; pins retain only the known five optional-path warnings. Exact logs/exitcodes are under the integration evidence directory in §6. Selection is local to unmerged Draft #223; remote remains `eef92a02` with base `4403e97`, consolidated publication/new root hosted outcome pending. No canonical integration, tag/dependency/activation/deployment, requirement advancement or blocked-work/unchanged-head CI change |
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
 
@@ -2679,7 +3024,52 @@ is established by independent producer publication.
 
 ## 14. Current integration and authority work (2026-10-12)
 
-**Current continuation outcome:** after local handoff `6e8124f`, root commits
+**Current continuation decision and source release:** independent/root review
+clears the exact six-document acceptance candidate, and root freezes Accepted/
+Delegated ADR-0041 plus provider/UI registrations in immutable local commit
+`eb373f43466d0a3c01bf16ca60a62d464755b2a8` after `e0c97ab` (§9). ADR-0041
+is now immutable. Root explicitly releases `root/progress_provider` (recovered
+as `root/progress_provider_resume`, with registered independent reviewer
+`root/progress_provider_review_resume`) for the
+20 registered paths on prepared `codex/userdata-conditional-v3-20261012` at
+canonical `b0a3abe2`, in `/workspace/userdata-erasure-regression-20261011`.
+
+Root separately releases `root/consumer_next_slice` for only the two registered
+Player Settings Escape tests on prepared `codex/player-settings-escape-20261012`
+at canonical `6674c28f`, in `/workspace/media-ui-feedback-20261011`. Independent
+review confirms the author's 39 passing/two expected failing units and 24
+passing/eight expected failing browser cases, with passing setup and controls.
+Root accepts and commits the test-only baseline as `ba880526` (§6/§9). After
+roadmap checkpoint `e8f8aa61`, root explicitly releases exactly the two registered
+production paths to recovered sole writer `root/player_escape_review_resume`;
+the accepted tests remain frozen. The correction passes full local gates and
+root/separate independent review, then actual hosted CI/Browser gates. Root
+accepts UI #57 source `f17310db` and merges signed identical-tree `36dad53b`
+(§6/§9). Provider #14 (`c54e3d3b`, identical to authored
+`09659ac9`) is accepted/merged as signed identical-tree `746690d7` after
+root/independent review, focused local passes and actual full hosted
+build/vet/race/lint/proto success (§6/§9). Full local provider gates remain B-3-blocked;
+the merged provider stays untagged. Both accepted source advances are selected
+only in the local draft after registration commit `dc16b964` and fresh
+pin/proto/docs/diff checks (§6/§9).
+
+Sole umbrella writer `root/progress_docs_resume` now owns exactly
+`MASTER-ROADMAP.md` and `docs/specs/SRS.md` for actual provider/Player outcome
+evidence and current release wording, after root commits registration as
+`e8f8aa61` and explicitly releases those two paths (§6). All requirement
+verification gates remain in force.
+Consumer activation, migration/artifact disposition, scoped journals and
+every-writer enforcement remain unresolved; FR-PLAY-004 stays Part. The exact `userdata-local`
+`b0a3abe2`→`746690d7` and `media-ui-app` `6674c28f`→`36dad53b` draft-only pin
+advances are selected after root commits registration as `dc16b964`, checks out
+those targets and completes fresh pin/proto/docs/diff verification (§6/§9).
+Consolidated root draft publication remains pending; remote #223 is still
+open/Draft at `eef92a02`, base `4403e97`. No new root hosted outcome exists. The
+`eef92a02` null-step hosted failure and E7/B-8/T-M3-10 boundaries remain in
+force, with no unchanged-head retry, tag/release/deployment or requirement
+advancement.
+
+**Historical Proposed-contract continuation outcome:** after local handoff `6e8124f`, root commits
 T-M4-09 registration `db58403` and releases only the six-document Proposed
 [ADR-0041](docs/adr/0041-conditional-progress-state-commands.md) candidate in §6.
 `root/profiles_roadmap` owns umbrella edits; the three module reports are
@@ -2687,14 +3077,23 @@ read-only. The separate v3 proposal preserves v2 and orders explicit state
 commands by successful CAS. Four read-only reviewers (provider/BFF/SPA and
 independent contract) plus root clear exact ADR `91d3f07b…1c49beb5` as Proposed
 documentation only; full hash/manifest and passing local docs/diff checks are in
-§9. Root commit/publication of this substantive proposal and outcome remain
-pending, with no hosted result claimed. Accepted ADRs stay unchanged,
-FR-PLAY-004 stays Part and source remains unreleased. Producer publication
-(`v0.1.8` tag read: 404), precise consumer capability/scope/journal decisions,
-local-artifact disposition and full writer cutover remain open. The prior
-publication/handoff evidence below remains historical, including its CI stop.
+§9. Substantive proposal publication is complete: authored
+`bce1f3e3b26ebbe2f3841af4b99d6983bd857420` is published on Draft #223 as
+`eef92a022a37b1e5c39335c83d72e6eb02a7b1e7`, identical tree
+`60a88ffadc88801b99f077310efb3a7dd21287d2`. Root hash-verifies/imports the
+canonical object and confirms clean tracking alignment; recovery branch
+`codex/recovery-progress-proposal-20261012` preserves authored proposal and
+registration. Local authored/canonical commit lint pass 22/20 commits. Exact
+new-head CI and commit-lint jobs complete with failure, null steps/log URLs and
+unknown cause (§9); no source/check execution, retry or merge is inferred.
+This later roadmap-only handoff stays local/unpublished, with no hosted claim
+for its recovery commit and no status-only republication loop. Accepted ADRs and
+source pins stay unchanged, FR-PLAY-004 stays Part and source remains unreleased.
+Producer publication (`v0.1.8` tag read: 404), consumer capability/scope/journal,
+local-artifact disposition and full writer cutover remain open. Earlier
+publication/handoff evidence below is historical, including its CI stops.
 
-**Final publication and local recovery handoff:** authored source-pin/docs
+**Historical profiles/Player publication and local recovery handoff:** authored source-pin/docs
 `8c91975309f410b5b469504487d77cbc85a27b63` is published on Draft #223 as
 `0f3471d9eeb074a6092c32ceb6ed7ab0bdb3b978`, identical tree
 `e3420f14e4c90e40160093a27817dbef8c74da81`. Root hash-verifies/imports the
@@ -2748,11 +3147,18 @@ Draft without retry or merge. Broad T-M4-06 and NFR-A11Y-001/002
 remain Part, with no deployment or full accessibility acceptance.
 Auth's Draft source and fixture gates remain independent.
 
-The saved next priorities remain T-M4-09's untagged accepted userdata release
-and shared-writer/progress migration decisions before consumer activation and
-real provider/device isolation checks. Auth #48 still needs genuine `v0.1.21`
-and N-1 upgrade evidence; ADR-0039's credential-custody/viewer-authority decisions
-remain Proposed. This handoff opens no new source scope or blocked retry.
+The next actionable work is consolidated root draft publication of the selected
+provider #14 `746690d7` and UI #57 `36dad53b` plus their accepted decision and
+evidence. Registration `dc16b964` precedes checkout, and fresh pin/proto/docs/diff
+checks pass (§6/§9). Root hosted acceptance remains separate. Provider actual
+hosted gates pass despite B-3-blocked full local gates; the genuine producer tag
+is still required.
+Consumer migration and durable journals still require separate decisions. Producer `v0.1.8` remains
+absent; complete writer cutover and real provider/device acceptance precede
+consumer activation. Auth Draft #48 still needs genuine `v0.1.21` and N-1
+upgrade evidence; ADR-0039's credential-custody/viewer-authority decisions remain
+Proposed. Root CI remains blocked; the registered future source scopes do not
+open a retry, E7/B-8 or T-M3-10 work.
 
 This checkpoint reconciles GitHub source/PR evidence with umbrella `4403e97`
 ([#222](https://github.com/Muxcore-Media/umbrella/pull/222)). The older checkpoints
@@ -2764,7 +3170,7 @@ release gates now pass; canonical pin and household integration remain pending.
 | Scope | Current source state and acceptance boundary |
 |-------|---------------------------------------------|
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
-| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `6674c28f`, `_mvp` `5cf783ed` and userdata-local `b0a3abe2`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. The accepted UI #53 `2bd3bcd8`, later UI #54 `a673fe5`, and userdata #13 `b0a3abe2` advances are also selected after separate registrations and fresh pin/proto checks (§6/§9). The accepted Stop #115 `5cf783ed` advance is selected after registration `d72f978` and fresh pin/proto checks, committed with its outcomes as `f72eec2`. Accepted UI #55 `960074b5` is selected after registration `91d3ba0` and fresh bounded pin/proto checks. Accepted UI #56 `6674c28f` is subsequently selected after registration `5cfbb1c` and fresh pin/proto/docs/diff/canonical-range commit-lint checks, then published with the docs as `0f3471d9`. Umbrella #223 remains draft/unmerged at that published head. Exact new-head hosted jobs failed with null steps and unknown cause (§9); no execution, retry or merge is inferred; corrected-set E11/E12/runtime acceptance remains unresolved |
+| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `36dad53b`, `_mvp` `5cf783ed` and userdata-local `746690d7`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. The accepted UI #53 `2bd3bcd8`, later UI #54 `a673fe5`, and userdata #13 `b0a3abe2` advances are also selected after separate registrations and fresh pin/proto checks (§6/§9). The accepted Stop #115 `5cf783ed` advance is selected after registration `d72f978` and fresh pin/proto checks, committed with its outcomes as `f72eec2`. Accepted UI #55 `960074b5` is selected after registration `91d3ba0` and fresh bounded pin/proto checks. Accepted UI #56 `6674c28f` is subsequently selected after registration `5cfbb1c` and fresh pin/proto/docs/diff/canonical-range commit-lint checks, then published with the docs as `0f3471d9`. Accepted provider #14 `746690d7` and UI #57 `36dad53b` are selected in the local draft after combined registration `dc16b964` and fresh pin/proto/docs/diff checks (§6/§9); consolidated publication is pending. Umbrella #223 remains draft/unmerged at the later published checkpoint `eef92a02`. Its exact hosted jobs failed with null steps and unknown cause (§9); no execution, retry or merge is inferred; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
 | ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 normalized/stored-ID and last-seen-ledger gaps are reproduced in #11 baseline tests; corrected source is accepted after exact full hosted gates, merged as `33dceaf1` and selected only in the prepared draft. Metadata-only #12 is accepted/merged as `25de169`, but its v0.1.8 tag remains unpublished. Accepted P1 #13 `b0a3abe2` carries E3 and the metadata, and is selected only in draft after registration/fresh pin/proto checks; no consumer activation or new erasure closure follows. E7 admin now has five source-backed, unreproduced findings with root-approved test-only scope registered before source edits, now blocked by platform agent failure (B-8) without runtime results (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50, scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) and action-feedback #52 (`7354e43`, merged `fdfa25ff`) are accepted source included in draft #223, not canonical. Phone Search #53 (`1eb773a`, merged `2bd3bcd8`) and pending-clear #54 (`9ee6078`, merged `a673fe5`) are accepted and carried only in draft after registration and fresh pin/proto checks (§6/§9). Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
