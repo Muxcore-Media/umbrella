@@ -16,6 +16,17 @@ playlists and queue. This broader proposal remains Proposed for progress/watched
 ordering, consumers, migration and legacy-writer enforcement; its acceptance and
 implementation are not implied by that bounded decision.
 
+[Proposed ADR-0041](0041-conditional-progress-state-commands.md) now specifies a
+separate all-family successor for review, preserving v2 exactly and distinguishing
+progress reports, explicit watched state and removal under successful CAS order.
+Its timestamps are informational, not event-order arbitration; the broader clock,
+receipt and cutover choices discussed below are not accepted by that proposal.
+Current read-only evidence also establishes that SPA raw-number/dirty-intent
+handling and every shared reader/writer need coordinated migration, while legacy
+BFF GET imports and later fallback writes invalidate any inference that a final
+migration marker proves clean state. Those client, artifact and writer-enforcement
+decisions remain open; no consumer activation follows from either provider API.
+
 ## Context and source evidence
 
 Three independent module reviews are read-only: no tests, probes or source edits.

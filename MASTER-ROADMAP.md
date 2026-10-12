@@ -621,8 +621,9 @@ five optional missing-path warnings and no new warnings. Actual logs are
 `/workspace/.tools/checks/player-button-space-20261012/root-pins.log` and
 `root-proto.log` in that directory. Other six draft sources stay unchanged; auth-local remains
 `9f9ec32`, while its dormant-mapping #48 remains Draft behind genuine fixture
-gates. Consolidated pin/docs publication is pending. Umbrella #223 stays Draft
-pending its new-head gates; canonical main,
+gates. Consolidated pin/docs publication is `0f3471d9` (§9). Its exact new-head
+hosted jobs fail with null steps and unknown cause; no executed check is inferred
+and no unchanged-head retry occurs. Umbrella #223 stays Draft; canonical main,
 release train and deployment do not advance. No broad accessibility closure.
 
 **T-M4-06 phone Search entry (NFR-A11Y-002; registered 2026-10-12 before source edits) — Done at scoped source level, merged; selected only in draft:**
@@ -1047,6 +1048,57 @@ this draft source selection does not authorize consumer dependency changes or
 activation. Other six draft selections, canonical main, deployment and train
 remain unchanged; FR-PLAY-004 stays Part, NFR-DATA-003 stays Plan and E12/E13
 remain open.
+
+**T-M4-09 conditional progress/state command proposal registration (2026-10-12, before drafting) — Documentation only:**
+from clean umbrella `6e8124f` on `codex/roadmap-20261011`, sole writer
+`root/profiles_roadmap` changes only this roadmap for registration. Root must
+commit it and release drafting before any other document changes. Read-only
+module owners are `root/profiles_userdata_design` (`userdata-local`),
+`root/consumer_accessibility_discovery` (`media-ui-app`) and
+`root/userdata_bff_migration` (`_mvp`); each supplies only its module's source
+evidence and contract constraints, with no source edits or runtime probes.
+
+The exact future documentation candidate is `MASTER-ROADMAP.md`, new
+`docs/adr/0041-conditional-progress-state-commands.md`, `docs/adr/README.md`,
+Proposed `docs/adr/0037-conditional-userdata-mutations.md` (bounded crosslink and
+current residuals only), `docs/specs/SRS.md` (FR-PLAY-004 evidence/status only)
+and `docs/specs/FRD.md` (WF-07 bounded target only). [ADR-0041](docs/adr/0041-conditional-progress-state-commands.md) remains
+Proposed under Delegated authority, not an accepted decision or source release.
+FR-PLAY-004 stays Part under existing T-M4-09; no new requirement is needed.
+
+Initial read-only evidence for the draft: accepted v2 parsing requires the
+exact five-operation list, so adding operations in place breaks compatibility;
+legacy provider Put overwrites the MergeProgress freshness result; SPA mutations
+push all six cached sections; and legacy BFF GET can trigger migration. A
+completed migration marker does not prove that later fallback writes stopped.
+The proposal will explore a separately identified all-family revision-conditional
+state-command contract ordered by successful compare-and-swap, not client clocks,
+with explicit progress-report, watched-state and removal intent while preserving
+v2 unchanged. Exact command schemas/semantics, uncertainty/retry behavior and
+provider/BFF/SPA test matrices require independent contract review.
+
+Published producer/client tags, every shared writer, fallback/migration behavior
+and a complete cutover remain gates before any consumer activation. No source,
+tag/dependency/version, CI/workflow workaround, gitlink, deployment or release
+change is authorized. Accepted ADR-0038/0040 and all other accepted ADR bodies
+are immutable. E7/B-8 and T-M3-10 remain excluded; unchanged-head root CI retries
+remain prohibited. Registration/draft gates are `node scripts/check-docs.mjs`,
+`git diff --check` and root/independent review of the exact candidate. Root owns
+commits/publication. Root committed registration `db58403`, then released only
+this six-document proposal. The three finalized read-only reports now inform
+v3 `progress.report` / `set_watched` / `remove`, unchanged v2, explicit raw intent,
+CAS commit order and informational timestamps. Provider publication and safe
+all-family consumer activation are separate gates: BFF capability/error/cutover,
+strict local artifact ownership/absence, client raw data/durable scoped journals,
+every writer and rollback remain unresolved. A bounded GitHub read of
+`userdata-local/git/ref/tags/v0.1.8` returns `404 NOT_FOUND`; the available tool
+catalog exposes no tag/release write operation. No credential/Git push retry or
+workaround was attempted; the existing publication gate remains. Four read-only
+reviews (provider, BFF, SPA and independent contract) and root now clear the exact
+ADR SHA-256 `91d3f07b9b480ed63470d49e3b7fb020d0639c59534f194be521806a1c49beb5`
+as Proposed documentation only (§9). There is no accepted architecture decision,
+implementation release or requirement advancement. The five non-roadmap files
+remain frozen; root owns the outcome commit and publication.
 
 **T-M4-09 tenant integration condition:** canonical BFF `e9fbf38` (source re-read
 2026-10-09; behavior unchanged from `3c16074`, where the line ranges were
@@ -2443,6 +2495,12 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 
 | 2026-10-12 | Player Space registered draft selection `5cfbb1c` | Root commits the outcome/exact-pin registration before checking out signed `media-ui-app` `6674c28f2de62c1ac628defd1e3a31cc8b35259c`. Actual fresh pins/proto/docs/diff and canonical `4403e97..HEAD` commit lint all pass, exit 0; lint covers 26 commits at this checkpoint. Pins retain the same five optional missing-path warnings, with no new ones. Logs `/workspace/.tools/checks/player-button-space-20261012/root-pins.log` and `root-proto.log` were inspected. Only the prepared Draft selection advances; other six pins, canonical main, release train and deployment are unchanged. Auth remains pinned `9f9ec32` and mapping #48 stays Draft. Consolidated source-pin/docs publication and root new-head hosted gates remain pending |
 
+| 2026-10-12 | Consolidated profiles/Player publication `0f3471d9eeb074a6092c32ceb6ed7ab0bdb3b978` and final hosted blocker | Authored `8c91975309f410b5b469504487d77cbc85a27b63` is published on Draft #223 with identical tree `e3420f14e4c90e40160093a27817dbef8c74da81`; root hash-verifies/imports the canonical object and confirms clean tracking alignment. Recovery `codex/recovery-profiles-player-20261012` preserves authored history. Local canonical `4403e97..0f3471d9` commit lint passes 19 commits; authored range passed 27. Actual new-head [CI 38199064062](https://github.com/Muxcore-Media/umbrella/actions/runs/38199064062) Workspace `114648155517`, Docs `114648155577` and Secret `114648155653`, plus [Commit lint 38199064075](https://github.com/Muxcore-Media/umbrella/actions/runs/38199064075) job `114648155511`, fail with `steps: null`. Cause remains unknown; no actual check execution is inferred and no unchanged-head retry or merge occurs. #223 remains Draft. Local handoff `node scripts/check-docs.mjs` and `git diff --check` pass. This final roadmap handoff is unpublished and makes no hosted claim for its later recovery commit; prior `3db0271e` evidence remains historical. No source/pin/status/release/deployment advancement |
+
+| 2026-10-12 | T-M4-09 conditional progress/state documentation registration from `6e8124f` | Roadmap-only registration names one umbrella writer, three read-only module owners and the exact six-document future candidate before reserved ADR `0041` drafting. The direction remains Proposed: separately identified all-family commands ordered by successful CAS, explicit progress/watched/removal intent and unchanged v2 compatibility. Producer publication, precise semantics and full writer/fallback/migration cutover remain gates; no source/runtime work or requirement advancement. Local `node scripts/check-docs.mjs` and `git diff --check` pass; root must commit the registration and explicitly release drafting. FR-PLAY-004 stays Part |
+
+| 2026-10-12 | T-M4-09 Proposed ADR-0041 review after registration `db58403` | Root commits registration then releases the exact six-document candidate. Read-only provider `b0a3abe2`, BFF `5cf783ed` and SPA `2693058d` reports support a separate all-family v3 contract, unchanged v2 and CAS-ordered report/watched/removal commands; no runtime tests or source changes were made. Provider, BFF, SPA and independent contract reviewers confirm no blockers on exact ADR SHA-256 `91d3f07b9b480ed63470d49e3b7fb020d0639c59534f194be521806a1c49beb5`; root independently verifies the six-file manifest and approves Proposed documentation only. Evidence `/workspace/.tools/checks/conditional-progress-proposal-20261012/reviewed-manifest.sha256` records the candidate before this roadmap-only outcome update. Local `node scripts/check-docs.mjs` and `git diff --check` pass. Accepted ADR-0038 SHA-256 `42059f97a2f36b7fe323a019352eb64bf368552eaae0a451fc8a9ee87be3f9eb` and ADR-0040 `c87d3def6e40ddf11230ef12726b01b2ff9cc57c476c3b95c525da0e06b3879d` remain unchanged. Root's bounded GitHub read of `v0.1.8` returns `404 NOT_FOUND`; available tools expose no tag/release write operation, with no retry/workaround. Raw intent, legacy artifacts/migration/fallback, scoped journals and every-writer cutover remain activation gates. ADR remains Proposed, FR-PLAY-004 Part, source unreleased; no tag, dependency, pin, release or deployment advancement |
+
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -2621,6 +2679,34 @@ is established by independent producer publication.
 
 ## 14. Current integration and authority work (2026-10-12)
 
+**Current continuation outcome:** after local handoff `6e8124f`, root commits
+T-M4-09 registration `db58403` and releases only the six-document Proposed
+[ADR-0041](docs/adr/0041-conditional-progress-state-commands.md) candidate in §6.
+`root/profiles_roadmap` owns umbrella edits; the three module reports are
+read-only. The separate v3 proposal preserves v2 and orders explicit state
+commands by successful CAS. Four read-only reviewers (provider/BFF/SPA and
+independent contract) plus root clear exact ADR `91d3f07b…1c49beb5` as Proposed
+documentation only; full hash/manifest and passing local docs/diff checks are in
+§9. Root commit/publication of this substantive proposal and outcome remain
+pending, with no hosted result claimed. Accepted ADRs stay unchanged,
+FR-PLAY-004 stays Part and source remains unreleased. Producer publication
+(`v0.1.8` tag read: 404), precise consumer capability/scope/journal decisions,
+local-artifact disposition and full writer cutover remain open. The prior
+publication/handoff evidence below remains historical, including its CI stop.
+
+**Final publication and local recovery handoff:** authored source-pin/docs
+`8c91975309f410b5b469504487d77cbc85a27b63` is published on Draft #223 as
+`0f3471d9eeb074a6092c32ceb6ed7ab0bdb3b978`, identical tree
+`e3420f14e4c90e40160093a27817dbef8c74da81`. Root hash-verifies/imports the
+published object and confirms clean tracking alignment;
+`codex/recovery-profiles-player-20261012` preserves authored history. Local
+canonical `4403e97..0f3471d9` commit lint passes 19 commits (the authored range
+passed 27 before consolidation). Actual new-head CI and commit-lint jobs fail
+with `steps: null`, cause unknown (§9); no execution, retry or merge is inferred.
+This final roadmap-only handoff is local and unpublished, with no hosted result
+claimed for a later recovery commit. Prior `3db0271e` outcomes and stop remain
+historical below. No source, pin, task-status, deployment or release change.
+
 **Current documentation handoff:** root committed T-M4-02's independently
 reviewed Proposed ADR-0039 record as `803f634` after registration `89b1555`,
 preserving the published `3db0271e` checkpoint and historical stop below.
@@ -2656,8 +2742,9 @@ aligns the clean worktree; recovery `codex/recovery-player-space-20261012`
 preserves authored/baseline history. Exact draft-only `media-ui-app`
 `960074b5`→`6674c28f` is selected after registration commit `5cfbb1c`; fresh
 pin/proto/docs/diff and canonical-range commit lint pass, with the same five
-optional-path pin warnings (§6/§9). Consolidated publication/new-head root
-hosted gates remain pending. Broad T-M4-06 and NFR-A11Y-001/002
+optional-path pin warnings (§6/§9). Consolidated publication is `0f3471d9`;
+its new-head hosted jobs fail with null steps/unknown cause (§9), and #223 remains
+Draft without retry or merge. Broad T-M4-06 and NFR-A11Y-001/002
 remain Part, with no deployment or full accessibility acceptance.
 Auth's Draft source and fixture gates remain independent.
 
@@ -2677,7 +2764,7 @@ release gates now pass; canonical pin and household integration remain pending.
 | Scope | Current source state and acceptance boundary |
 |-------|---------------------------------------------|
 | Merged canonical baseline `4403e97` | `_mvp` `721af60`, admin-ui `dd71c7f`, auth-local `71c66d8`, userdata-local `65264f7`, core `81d2ac4`; media-ui-app remains `b00db38`. These are source gitlinks, not an updated image train or deployment claim |
-| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `6674c28f`, `_mvp` `5cf783ed` and userdata-local `b0a3abe2`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. The accepted UI #53 `2bd3bcd8`, later UI #54 `a673fe5`, and userdata #13 `b0a3abe2` advances are also selected after separate registrations and fresh pin/proto checks (§6/§9). The accepted Stop #115 `5cf783ed` advance is selected after registration `d72f978` and fresh pin/proto checks, committed with its outcomes as `f72eec2`. Accepted UI #55 `960074b5` is selected after registration `91d3ba0` and fresh bounded pin/proto checks. Accepted UI #56 `6674c28f` is subsequently selected after registration `5cfbb1c` and fresh pin/proto/docs/diff/canonical-range commit-lint checks; consolidated publication is pending. Umbrella #223 remains draft/unmerged at published `3db0271e`; its PR body records the exact head/tree/results. Exact hosted jobs for this published head failed with null steps and unknown cause (§9); no execution, retry or merge is inferred; corrected-set E11/E12/runtime acceptance remains unresolved |
+| Prepared draft #223 source selections | auth-local `9f9ec32`, request-media `4446d31`, playback-monitor `af7168e`, playback-guard `b7bdb8c`, media-ui-app `6674c28f`, `_mvp` `5cf783ed` and userdata-local `b0a3abe2`. The original six-source set at `_mvp` `9174b2b` was committed/pushed as `bcbcd475`; the registered `_mvp` snapshot update was published with docs as `7ac8ca1`. The registered userdata `33dceaf1` seventh selection has fresh proto/pin checks and is published in draft checkpoint `388d277`. The later `_mvp` `64fbd75` provider-adapter extension is selected after registration with new proto/pin checks and published in draft checkpoint `ea01a549` (§6/§9). The later UI #52 `fdfa25ff` and documentation-only mvp #114 `e98c46ba` advances are selected after registration with fresh proto/pin checks. The accepted UI #53 `2bd3bcd8`, later UI #54 `a673fe5`, and userdata #13 `b0a3abe2` advances are also selected after separate registrations and fresh pin/proto checks (§6/§9). The accepted Stop #115 `5cf783ed` advance is selected after registration `d72f978` and fresh pin/proto checks, committed with its outcomes as `f72eec2`. Accepted UI #55 `960074b5` is selected after registration `91d3ba0` and fresh bounded pin/proto checks. Accepted UI #56 `6674c28f` is subsequently selected after registration `5cfbb1c` and fresh pin/proto/docs/diff/canonical-range commit-lint checks, then published with the docs as `0f3471d9`. Umbrella #223 remains draft/unmerged at that published head. Exact new-head hosted jobs failed with null steps and unknown cause (§9); no execution, retry or merge is inferred; corrected-set E11/E12/runtime acceptance remains unresolved |
 | ADR-0033 transport | S9a–e merged and integrated through umbrella #217: provider `v0.1.6`, BFF/deployment #106 and admin #72. §9 records published-tag builds/vet and arm64 household smoke/restore with authenticated userdata transport. FR-PLAY-007 and NFR-SEC-003 remain Part for their remaining acceptance gates; historical B-3 does not undo this fixture acceptance |
 | ADR-0035 erasure | #220 reported E1–E3 and E7–E10 pins; E2 `71c66d8` lacks the ledger and reintroduces retired-origin/self-hosted CI content (C-40), so that provider integration claim is not accepted. E2 invite correction #46 is accepted/merged (`a3c3420`) and published in verified source tag `v0.1.21` (`9f9ec32`), selected in draft #223; canonical pin reconciliation is pending. #222 adds the library-maintainer manifest consumer. E4 request-media `v0.3.9`, E5 playback-monitor `v0.1.8` and E6 playback-guard `v0.1.3` source tags are published but their canonical baseline gitlinks remain `10483aa`/`bf14e0c`/`845a10a`. E4/E5 bounded follow-ups are accepted and carried by the verified published tags (`4446d31`/`af7168e`); selected in draft #223, not canonical. E6 independent source/hosted review passes. E2 and complete integration remain pending. E3 normalized/stored-ID and last-seen-ledger gaps are reproduced in #11 baseline tests; corrected source is accepted after exact full hosted gates, merged as `33dceaf1` and selected only in the prepared draft. Metadata-only #12 is accepted/merged as `25de169`, but its v0.1.8 tag remains unpublished. Accepted P1 #13 `b0a3abe2` carries E3 and the metadata, and is selected only in draft after registration/fresh pin/proto checks; no consumer activation or new erasure closure follows. E7 admin now has five source-backed, unreproduced findings with root-approved test-only scope registered before source edits, now blocked by platform agent failure (B-8) without runtime results (§6). #221 adds E11 using the published monitor release; E12/E13 remain open and NFR-DATA-003 stays Plan |
 | Other accepted source | Consumer Display/preference changes #49/#50, scoped global-warning #51 repair (`3622cf6`, merged `1e95d22`) and action-feedback #52 (`7354e43`, merged `fdfa25ff`) are accepted source included in draft #223, not canonical. Phone Search #53 (`1eb773a`, merged `2bd3bcd8`) and pending-clear #54 (`9ee6078`, merged `a673fe5`) are accepted and carried only in draft after registration and fresh pin/proto checks (§6/§9). Native candidates remain drafts with Apple/runtime gates. Backend userdata semantics and the C-34 request permission decision remain open; S9 transport alone does not settle them |
@@ -2725,7 +2812,7 @@ equality and clean branch/tracking alignment. Correct canonical-base lint passes
 steps and unknown cause (§9); no rerun, main merge or deployment follows.
 The prior unpublished-checkpoint descriptions above are dated history.
 
-**Published source recovery handoff (2026-10-12):**
+**Prior published source recovery handoff (`3db0271e`, 2026-10-12; historical):**
 source owners `root/userdata_contract_20261012`, `root/bff_contract_20261012` and
 `root/consumer_contract_20261012` are idle/released; author and reviewer runtime
 processes are released. Their accepted work and recoverable histories are below.
