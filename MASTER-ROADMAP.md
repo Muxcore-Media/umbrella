@@ -322,7 +322,7 @@ bounded source and [UI #51](https://github.com/Muxcore-Media/media-ui-app/pull/5
 merged at the expected head as `1e95d2237286909e3601c9b2c3c2e13eed51f5ba`.
 It remains unpinned and undeployed; FR-PLAY-004 and FR-ADM-010 remain Part.
 
-**T-M4-09 remaining backend contract — Proposed ADR under review, no implementation authority:** define and review consistent
+**T-M4-09 remaining backend contract — bounded provider decision accepted; broader migration remains Proposed:** define and review consistent
 blob omission, deletion, unknown-field preservation, progress freshness and concurrent-write semantics
 before implementation. Source inspection of
 userdata-local `e544b35` finds both `store/store.go:109–120` (the BFF file fallback)
@@ -338,12 +338,13 @@ Provider `internal/store/store.go:89–92` then overwrites every supplied progre
 entry, even after the freshness merge; stale full-map writes can replace newer
 progress. Native dirty-entry writes limit that exposure but do not repair the
 backend contract.
-Current compatibility requires a fresh read and preservation of replacement
-sections, but that cannot establish atomicity between devices. This batch does
-not choose a deletion representation, add tombstones, introduce compare-and-swap
-or change the API. A later contract change needs its architectural decision and
-compatible BFF/provider/client fixtures, including unknown-field preservation,
-concurrent writes, deletion after restart and on a second device. S9b transport/path
+Legacy compatibility requires a fresh read and preservation of replacement
+sections, but that cannot establish atomicity between devices. The initial
+design-only review did not change the API. Accepted ADR-0038 now defines only
+the additive five-family provider contract registered below; ADR-0037 retains
+the broader progress, consumer, migration and enforcement decisions. Compatible
+BFF/provider/client fixtures, unknown-field preservation, concurrent writes,
+deletion after restart and on a second device remain required. S9b transport/path
 repair alone cannot close these gaps or FR-PLAY-004.
 
 **T-M4-09 design-only discovery/handoff (2026-10-11):** read-only review of
@@ -383,6 +384,80 @@ edit module source. Wire format, revision authority/continuity, uncertainty,
 progress ordering and rollout remain explicit review gates. Decision number `0034` stays
 reserved; accepted ADR bodies, requirements' Part statuses, E7 and T-M3-10 blocks
 remain unchanged. No module tests, probes, dependency or pin edits are included.
+
+**T-M4-09 contract decision refinement (registered 2026-10-12 before ADR edits) — Docs only, review in progress:**
+root coordinates read-only provider, BFF and SPA contract reviews through
+`root/userdata_contract_20261012`, `root/bff_contract_20261012` and
+`root/consumer_contract_20261012`. They will resolve the proposal's wire/revision,
+authority continuity, presence/ordering, uncertainty and complete writer-cutover
+choices against the current source and accepted ADRs. Sole umbrella writer
+`root/roadmap_20261012` first records this scope and the prior published checkpoint
+in this roadmap only. Changes to Proposed ADR-0037, `docs/adr/README.md`,
+`docs/specs/FRD.md` and `docs/specs/SRS.md` require root's reviewed contract and
+explicit release of that existing five-path documentation scope. The ADR remains
+Proposed pending that review; accepted ADR bodies and requirement statuses are
+unchanged. No module source/tests, dependency/version changes, gitlinks, probes,
+deployment or train work are authorized by this registration. No new runtime
+evidence exists. B-3/B-7/B-8 and the T-M3-10 prohibition remain in force.
+
+**T-M4-09 bounded provider decision scope (expanded 2026-10-12 before drafting) — Docs only:**
+after provider/BFF/SPA review, root releases six documentation paths to sole
+writer `root/roadmap_20261012`: this roadmap, `docs/specs/SRS.md`,
+`docs/specs/FRD.md`, `docs/adr/README.md`, Proposed ADR-0037 and new
+`docs/adr/0038-additive-household-userdata-mutations.md`. The new decision isolates
+the first additive, self-only household HTTP contract for preferences, favorites,
+want-to-watch, playlists and queue; progress/watched requests are explicitly
+unsupported. ADR-0037 remains Proposed for progress ordering, consumers,
+migration and legacy-writer enforcement, with only a bounded-decision link added.
+Root and independent review accept ADR-0038 under standing delegation after
+reviewing the exact draft; no previously accepted ADR body is edited. The exact
+provider production/test paths below are approved. Root must freeze the accepted
+documentation in an immutable local commit and release that scope before
+implementation; remote documentation publication is not an additional gate.
+This documentation expansion changes no source, dependency, gitlink, deployment,
+train, requirement status or existing block.
+
+**T-M4-09 P1 additive provider source registration (2026-10-12, before source edits) — Approved scope; immutable documentation commit precedes source release:**
+accepted [ADR-0038](docs/adr/0038-additive-household-userdata-mutations.md) isolates
+the five-family HTTP contract while ADR-0037 remains Proposed for broader
+coordination. Sole provider writer `root/userdata_contract_20261012` will reuse
+clean `/workspace/userdata-erasure-regression-20261011` on a fresh
+`codex/userdata-conditional-v2-20261012` branch from canonical
+`25de1692878de189b3ab8151c1ff58508f6d07fb`, preserving the old branch. Root and
+independent review accept the visible contract and root approves the following
+exact 26-file scope. Root releases implementation only after freezing the
+accepted documentation in a local commit; no provider edits or runtime evidence
+are included in this documentation checkpoint.
+
+| Kind | Allowed paths within userdata-local | Boundaries |
+|---|---|---|
+| New public contract and pure tests (5) | `conditional/contract.go`, `conditional/json.go`, `conditional/mutation.go`, `conditional/contract_test.go`, `conditional/mutation_test.go` | Strict request/response parsing, raw presence/operation semantics and size limits from ADR-0038; no receipt journal or progress/watched support |
+| New provider and client tests (7) | `internal/store/conditional.go`, `internal/store/conditional_test.go`, `internal/auth/conditional.go`, `internal/auth/conditional_test.go`, `internal/server/conditional.go`, `internal/server/conditional_test.go`, `httpclient/conditional_test.go` | Atomic raw storage/CAS, fresh self/household scope, fixed HTTP handler and checked-client fixtures |
+| Existing runtime wiring (7) | `internal/store/store.go`, `internal/store/erasure.go`, `internal/server/server.go`, `internal/httptransport/admission.go`, `httpclient/client.go`, `internal/module.go`, `muxcore.json` | Store epoch field/generation; erasure helper parameter only changes from `*sql.Tx` to existing `queryRower` with body unchanged for `BEGIN IMMEDIATE`; one new route, media-ui-only new-path admission and client operations; capability advertisement only, version remains `0.1.8` |
+| Existing test wiring (3) | `internal/httptransport/transport_test.go`, `httpclient/client_test.go`, `internal/module_test.go` | New-path admission, v2 response limit and capability checks; retain legacy coverage |
+| Module documentation (4) | `README.md`, `AGENTS.md`, `COMPATIBILITY.md`, `CHANGELOG.md` | Explain the additive API, scope/uncertainty, restart authority and legacy-writer limits; changelog entry is Unreleased |
+
+No `go.mod`/`go.sum`, protobuf, DDL, public legacy store, legacy merge algorithm,
+BFF/SPA/admin, dependency/version, gitlink or deploy change is included. The
+signature-only erasure adaptation does not reopen E7 or change its blocked tests.
+
+Required new evidence: pure parser/mutation fixtures for duplicate decoded keys,
+Unicode/surrogates, raw number precision, HTML/size bounds, presence/null/empty,
+set/remove/re-add, no-op and unsupported mixed requests; SQLite fixtures for a
+single concurrent winner, unchanged stale conflicts, persisted reopen with a
+new authority, overflow, legacy interference and seen/applied erasure; HTTP
+fresh-identity/scope/no-write-GET/error checks and real TLS checked-client
+roundtrips/admission. After sourcing `/workspace/.tools/muxcore-env.sh`, run
+`GOWORK=off GOPROXY=off go test -race ./...`,
+`GOWORK=off GOPROXY=off go vet ./...`,
+`GOWORK=off GOPROXY=off go build ./...` and configured lint if available. B-3
+dependency failures remain blocked checks, not passes; pure package checks may
+run independently without replacing full gates. Root coordinates independent
+review and exact-candidate hosted full gates/publication. No module check has
+run for this registration, and no consumer activation is released. Published
+producer/client contract, BFF forwarding, every shared writer including
+progress/watched, migration/enforcement, native/real-provider restart/device and
+household gates remain open; FR-PLAY-004 stays Part.
 
 **T-M4-09 tenant integration condition:** canonical BFF `e9fbf38` (source re-read
 2026-10-09; behavior unchanged from `3c16074`, where the line ranges were
@@ -1604,6 +1679,10 @@ environment/checkpoint; a previous pass is not a new deployment verification.
 | 2026-10-11 | Accepted-source checkpoint published as `424deb4aff79e2483a186192bbbe237fb46c144e` | Exact tree `129c233dc54acbaf9c719cc70ebc0608626d4d1a` equals authored `5b2452f`, preserved on `codex/recovery-ui52-expiry114-20261011`. Root verifies canonical commit import/hash and clean branch/tracking alignment; docs/diff and correct fourteen-commit lint range pass. PR #223 remains draft |
 | 2026-10-11 | Exact umbrella `424deb4` hosted result | [CI 38184826026](https://github.com/Muxcore-Media/umbrella/actions/runs/38184826026) secret job 114604803466, workspace job 114604803491 and docs job 114604803513, plus [Commit lint 38184826022](https://github.com/Muxcore-Media/umbrella/actions/runs/38184826022) job 114604803086 all fail with null steps. Cause remains unknown; no actual check execution or unchanged-head retry |
 | 2026-10-11 | T-M4-09 Proposed ADR-0037 draft | Five-path docs-only scope is registered before drafting. Root and independent provider, BFF and SPA reviewers accept proposal coverage after clarifying client raw-field carry-forward for replaced arrays, lost-ack matching-GET/conflict uncertainty, and current migration retries importing then-current local state. Provider/BFF focused confirmation and root acceptance match final 205-line ADR SHA256 `df50136aa0454fb542d9ba58334e1a71c2f431a8d93ce62b3d283351b9a37b2d`; docs/diff/origin checks pass. No module edits/tests/probes or runtime acceptance. Wire/revision authority, receipts/uncertainty, ordering, presence rules and coordinated legacy-writer cutover remain explicit open decisions; requirements stay Part, ADR stays Proposed and implementation is not authorized |
+| 2026-10-12 | Prior ADR proposal checkpoint published as `ccf98f65cce41451ca0d6d1809b6c63dea8dde21` | Exact tree `59a180364a9dcbdb0b65aaad90ee844e6772a6af` equals authored `92919cca1473b01d48644f23b35c881c9eb5adae`, preserved on `codex/recovery-adr0037-20261011`. Root reports docs/diff and the correct fifteen-commit lint range pass, plus canonical import/hash and clean branch/tracking alignment; local read-only checks reconfirm the exact tree, recovery ref and tracking head. PR #223 remains draft at `ccf98f65`, base `4403e97441e706ebbbd2f1324b53139739ea69b2`; canonical main, deployment and train are unchanged |
+| 2026-10-12 | Exact umbrella `ccf98f65` hosted result | Actual [Commit lint 38185328310](https://github.com/Muxcore-Media/umbrella/actions/runs/38185328310) job 114606303087 and [CI 38185328314](https://github.com/Muxcore-Media/umbrella/actions/runs/38185328314) docs job 114606304157, workspace job 114606304367 and secret job 114606304406 all fail with `steps: null`. Exact cause remains unknown; no check execution or unchanged-head retry is inferred. Ordinary Git authentication failure (B-7) does not establish the hosted failure's cause |
+| 2026-10-12 | T-M4-09 decision-refinement scope registration | Root assigns three read-only contract reviewers and one umbrella writer, with roadmap-only registration before any ADR refinement (§6). Provider/BFF/SPA wire, authority, mutation and cutover review is pending. Local `node scripts/check-docs.mjs` and `git diff --check` pass. Managed environment remains restricted/enforced with no VPN, configured secrets or outbound identities; Go 1.26.6 and Node 24.19 are available. No new module runtime checks, probes or acceptance; B-3/B-7/B-8 and T-M3-10 limits remain unchanged |
+| 2026-10-12 | T-M4-09 bounded provider decision and source registration | Following read-only provider/BFF/SPA design reviews, root releases six documentation paths after roadmap registration. Root and independent reviewer accept exact ADR-0038 draft SHA256 `3f851acdc556a9f98cbcda7b746f100870d99724708ae0bfde3a0954cd31088a` without blockers, then root authorizes Accepted/Delegated status; ADR-0037 remains Proposed for broader coordination. Exact 26-file P1 scope, canonical base and required tests are visibly registered and approved before any source edit (§6). Local docs/diff checks pass. Root source release follows the accepted immutable local documentation commit; no module runtime checks or new provider/device acceptance |
 
 
 ## 10. Handoff (2026-10-05, end of session 2 — stopped on request)
@@ -1780,7 +1859,7 @@ The household/dev smoke, restore, external secrets backend and all-device
 acceptance limits from §12 remain. No new household train or runtime deployment
 is established by independent producer publication.
 
-## 14. Current integration and authority work (2026-10-11)
+## 14. Current integration and authority work (2026-10-12)
 
 This checkpoint reconciles GitHub source/PR evidence with umbrella `4403e97`
 ([#222](https://github.com/Muxcore-Media/umbrella/pull/222)). The older checkpoints
@@ -1826,15 +1905,15 @@ userdata source is accepted/merged as `33dceaf1` after the minimal fixture
 correction and repeated exact full gates; it is selected only in the prepared
 draft, untagged. The provider-read adapter is accepted/merged as `64fbd75` after exact hosted
 gates; its draft pin is selected after registration and does not expand full E12 acceptance. Ordinary Git authentication is now
-blocked (B-7); supported connector Git operations remain available. Latest root
-`424deb4` hosted jobs fail with null steps (§9), with cause unknown; the shell
+blocked (B-7); supported connector Git operations remain available. Latest published root
+`ccf98f65` hosted jobs fail with null steps (§9), with cause unknown; the shell
 authentication failure is not evidence of that cause.
 
-**Active source recovery handoff (2026-10-11):**
+**Active source recovery handoff (2026-10-12):**
 
 | Scope / owner | Worktree and branch | Published checkpoint / remaining gate |
 |---------------|---------------------|---------------------------------------|
-| T-M4-09 conditional mutation proposal — `root/roadmap_reconcile_20261011` | Umbrella canonical docs on `codex/roadmap-20261011`, starting published `424deb4`; provider/BFF/SPA reviewers read only | Proposed [ADR-0037](docs/adr/0037-conditional-userdata-mutations.md), five permitted documentation paths (§6). Root and all three module reviewers accept proposal coverage after array/lost-ACK/migration wording corrections; provider/BFF focused confirmation matches SHA256 `df50136a…`. Publication pending; architectural status stays Proposed. No accepted decision, implementation authority, module tests/probes, dependency or pin change |
+| T-M4-09 conditional mutation decision refinement — `root/roadmap_20261012` | Sole writer in `/workspace/umbrella`, `codex/roadmap-20261011`, starting published `ccf98f65`; `root/userdata_contract_20261012`, `root/bff_contract_20261012` and `root/consumer_contract_20261012` review source/contracts read only | Prior Proposed [ADR-0037](docs/adr/0037-conditional-userdata-mutations.md) is published with reviewed SHA256 `df50136a…`; tree `59a18036…` matches authored `92919cca`, preserved on `codex/recovery-adr0037-20261011`. Root and independent review accept bounded ADR-0038 after the six-path documentation scope is registered; exact 26-file P1 provider scope/tests are registered and approved before source edits (§6). ADR-0037 stays Proposed. Root releases implementation after freezing accepted docs in a local commit; no module tests/probes, dependency or pin change |
 | T-M5-13 expiry paragraph — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-expiry-docs-20261011` from `64fbd75`, aligned to published `95653ed` | One-line `BFF-API.md` correction accepted/merged as `e98c46ba` (#114), exact tree `9792fc38…`; authored `5aee3d4` saved on `codex/recovery-mvp-expiry-docs-20261011`. Draft-only pin advance is selected after registration with fresh proto/pin checks. Markdown workflows filter the change; no runtime test or new Go/Script pass claimed |
 | T-M5-12 UI action feedback — `root/consumer_feedback_discovery` | `/workspace/media-ui-feedback-20261011`, `codex/consumer-action-feedback-20261011`, base `1e95d22`, clean at published `7354e4308de6b4db80b089c97c0a0a22f577d732` | Accepted/merged #52 `fdfa25ff`, signed canonical tree `da0e24bf…` equals reviewed source. Local/hosted gates and independent review pass (§9). Recovery `codex/recovery-ui-feedback-authored-20261011` preserves authored `21a4d2f` and complete baseline/fix history. Draft-only pin advance is selected after registration with fresh proto/pin checks; no backend or deployment acceptance |
 | E12b snapshot verifier — `root/monitor_erasure_20261011` | `/workspace/mvp-authctl-packaging-20261011`, `codex/mvp-erasure-snapshot-20261011` | Reviewed `a23ab3d3bf26cdd799b8edfe5f500ff2a4bfdcd0`, accepted after exact hosted Go/Script gates and merged as `197784572f599fc0d7facd68582751c139087456` in [mvp #112](https://github.com/Muxcore-Media/mvp/pull/112); signed commit/tree identity verified through the connector. Snapshot helper is retained by the later prepared draft `_mvp` `e98c46ba`; its separately recorded proto/pin checks do not establish real-provider or E12 acceptance |

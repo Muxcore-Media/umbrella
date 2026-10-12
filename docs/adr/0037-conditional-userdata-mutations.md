@@ -10,6 +10,12 @@ This draft proposes a direction and records unresolved contract choices. It does
 not authorize implementation, change an accepted ADR or establish runtime
 acceptance. Decision number `0034` remains reserved for the separate request-permission work.
 
+[ADR-0038](0038-additive-household-userdata-mutations.md) separately defines the
+bounded first-provider HTTP contract for preferences, favorites, want-to-watch,
+playlists and queue. This broader proposal remains Proposed for progress/watched
+ordering, consumers, migration and legacy-writer enforcement; its acceptance and
+implementation are not implied by that bounded decision.
+
 ## Context and source evidence
 
 Three independent module reviews are read-only: no tests, probes or source edits.
