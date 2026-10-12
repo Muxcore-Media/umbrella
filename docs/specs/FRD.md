@@ -27,18 +27,21 @@ Roles and permissions are owned by the identity module (`auth-local`; `auth-oidc
 **RULE-AUTH-2** — `admin-ui` requires `admin.access` on `admin.ui` for every request; only `admin` passes under default policy. *(Current, `admin-ui` `requireAuth`.)* **Target:** per-page permissions so `manager` can use request/library pages → `FR-ADM-009`.
 **RULE-AUTH-3** — The consumer BFF generally treats `admin` and `manager` as privileged (`sessionHasPrivilegedRole`). Library removal and file deletion, library monitoring/quality PATCHes, series overrides, interactive release grab/search/block, wanted/activity actions, blocklist clear, delay profiles, debrid add, `formats/sync-trash`, rename, import, subtitle download, `livetv/timers` and `sessions/{id}/stop` require that privileged role (BFF route table `requirePrivileged`, `_mvp` PR #100; before it they had no role check, C-30; the stop route stays role-gated even though native sessions are now bound to the verified user, because Jellyfin/Plex ownership cannot be proven), and changing `root_folder_path` in a library PATCH requires `admin`. List-sync handlers, indexer create/edit/delete, migration import, and root-folder create/update require `admin`. Indexer HTTP GET requires an authenticated session without an additional privileged-role check; root browse/probe/delete retain their privileged-role rules. Userdata scope is the session's user unless the caller is privileged. Consumer Quality/Delay, Acquisition and Requests-policy Settings links and direct routes require `admin`/`manager` plus the relevant feature capability. Denied policy routes render personal Profile without fetching that policy; member acquisition-readiness and request-quota information remain available. These UI checks do not change backend authorization. Operator settings migration to admin-ui remains incomplete (FR-ADM-010). *(Current, `_mvp/cmd/mediauiprox`; `media-ui-app` Settings and `AcquisitionSetupBanner`.)*
 
-**Stop response boundary (FR-ANA-003, T-M5-12; failure reproduced, correction approved):**
+**Stop response boundary (FR-ANA-003, bounded T-M5-12 follow-up accepted):**
 the operator-only Stop response distinguishes a backend acknowledgment from no
-acknowledgment; it does not confirm physical stream or device termination. The
-registered correction returns `502 sessions.stop_failed` with a safe fixed
-message when playback-monitor is absent and no configured bridge acknowledges.
-Existing parsed monitor-2xx responses retain their acknowledgment semantics,
-including an empty session or `stopped: false`; this correction adds no stricter
-monitor-response validation. Existing monitor error, fallback, timeout and role
-behavior stay in scope as regression controls. Frozen baseline `f4ba359`
-reproduces eight absent-monitor false-success cases; root accepts the baseline
-and approves the registered correction with tests unchanged (roadmap §6/§9).
-Final repair verification remains pending.
+acknowledgment; it does not confirm physical stream or device termination.
+Accepted `_mvp` #115 (`47fcb2f`, merged as `5cf783ed`) returns
+`502 sessions.stop_failed` with a safe fixed message when playback-monitor is
+absent, at least one bridge is configured and no bridge acknowledges. No
+configured backend remains `503 sessions.unavailable`; a blank ID remains
+`400 sessions.id_required`. Existing parsed monitor-2xx
+responses retain their acknowledgment semantics, including an empty session or
+`stopped: false`; this correction adds no stricter monitor-response validation.
+Existing monitor error, fallback, timeout and role behavior remain unchanged.
+Frozen baseline `f4ba359` reproduces eight absent-monitor false-success cases;
+independent review and actual hosted full Go/lint and Script/Compose gates pass
+(roadmap §6/§9). The source is selected only in draft #223, without deployment
+or physical-termination acceptance.
 
 **RULE-AUTH-4** — Request approval requires a privileged role; `REQUEST_AUTO_APPROVE_USERS` lists user IDs that bypass the pending queue. *(Current, `request-media/internal/approval.go`, `settings.go`.)*
 
@@ -92,6 +95,19 @@ independent and hosted checks pass (roadmap §9). Non-preference blob ordering,
 backend concurrent writes and provider/device durability remain residuals. Other personal panes,
 parental/PIN behavior and backend persistence contracts are outside the slice
 → FR-PLAY-004, FR-ADM-010.
+
+**Accepted cosmetic PIN entry consistency (FR-PLAY-012):** UI #55
+(`c7b575b`, identical to authored `5531b6e`, merged as `960074b5`) replaces the fixed four-input prompt
+with one masked numeric input for the four-to-six-digit PINs supported by
+Settings. Unlock/Enter submits explicitly, preserves leading zeros and retains
+the existing local hash/callback flow; a wrong PIN clears and refocuses the input.
+Actual Settings-save-to-prompt fixtures retain a BFF denial after correct local
+verification. The failing baseline, final independent review, full local gates
+and actual hosted CI/browser gates are accepted (roadmap §9). The draft-only
+pin advance is selected after registration `91d3ba0`, signed canonical object/tree
+verification and fresh bounded pin/proto passes, with no deployment claim.
+This cosmetic workflow grants no server authority and does not advance
+FR-AUTH-010 or change accepted ADR-0030/0031.
 
 ## 2. Workflows
 
