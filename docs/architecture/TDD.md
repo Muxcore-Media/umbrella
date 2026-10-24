@@ -22,7 +22,7 @@
 | BFF | Go (`_mvp/cmd/mediauiprox`) | ~39.6 k LOC |
 | Native | SwiftUI (iOS, tvOS) with xcodegen/SwiftPM | `muxcore-ios`, `media-tvos-app` |
 | Packaging | OCI images (`_mvp/dockerfiles/*`), compose, GitHub release binaries | `_mvp` |
-| Toolchain on dev boxes | Any of: system Go/Node, `mise`, or Nix shells — the repo must not require a specific one | ([AGENTS.md](../../AGENTS.md)) |
+| Toolchain on dev boxes | Any of: system Go/Node, `mise`, or Nix shells — the repo must not require a specific one | (agent rules are held outside this repository) |
 
 No language or framework change is proposed. Rationale: the problems found in the audit are build hygiene, security defaults, and missing product surface — not stack limitations.
 

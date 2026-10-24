@@ -12,7 +12,7 @@ cd MuxCore
 git submodule update --init --recursive
 ```
 
-Start with [`AGENTS.md`](AGENTS.md) and the canonical plan [`MASTER-ROADMAP.md`](MASTER-ROADMAP.md).
+Start with agent rules are held outside this repository and the canonical plan [`MASTER-ROADMAP.md`](MASTER-ROADMAP.md).
 
 ## Layout
 
@@ -58,7 +58,7 @@ git commit -m "chore: bump media-ui-app"
 
 ## Vault deploy & local stack
 
-Homelab soak deploy and SSH details: [`AGENTS.md`](AGENTS.md). Local MVP reference stack: [`_mvp/README.md`](_mvp/README.md).
+Homelab soak deploy and SSH details: agent rules are held outside this repository. Local MVP reference stack: [`_mvp/README.md`](_mvp/README.md).
 
 | Task | Command |
 |------|---------|
