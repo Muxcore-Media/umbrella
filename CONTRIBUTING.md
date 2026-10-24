@@ -5,7 +5,7 @@ commit conventions, changelog expectations, and the release process.
 
 ## Development setup
 
-See [`AGENTS.md`](AGENTS.md) for the reading order (roadmap and specs first), toolchain
+See agent rules are held outside this repository for the reading order (roadmap and specs first), toolchain
 notes, and private Go module configuration. Submodule modules may have their own `CONTRIBUTING.md`
 files with module-specific build steps.
 

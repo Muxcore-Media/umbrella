@@ -1627,7 +1627,7 @@ Variables read by active modules that are not described in the sections above. M
 
 ## Related documentation
 
-- [`AGENTS.md`](../AGENTS.md) — deployment, vault SSH, public URLs
+- agent rules are held outside this repository — deployment, vault SSH, public URLs
 - [`_mvp/PORTS.md`](../_mvp/PORTS.md) — default listen ports
 - [`_mvp/.env.example`](../_mvp/.env.example) — annotated local dev template
 - [`admin-ui/docs/SETTINGS-COVERAGE.md`](../admin-ui/docs/SETTINGS-COVERAGE.md) — admin UI settings ↔ env mapping
