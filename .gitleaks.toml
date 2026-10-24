@@ -2,8 +2,18 @@
 [extend]
 useDefault = true
 
-[allowlist]
+[[allowlists]]
 description = "Vendored third-party documentation with placeholder credentials"
 paths = [
   '''^\.cursor/skills/cloudflare/references/''',
+]
+
+[[allowlists]]
+description = "Placeholder enrolment secret in the integration test harness (not a credential)"
+condition = "AND"
+paths = [
+  '''^integration/meshstack_test\.go$''',
+]
+regexes = [
+  '''integration-enroll-secret-0123456789''',
 ]
